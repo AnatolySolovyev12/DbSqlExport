@@ -4,7 +4,7 @@
 #include <QAxObject>
 
 #include <QFile>
-#include <QSqlDatabase>
+
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QTime>
@@ -13,6 +13,9 @@
 #include <QXmlStreamAttribute>
 
 #include <QElapsedTimer>
+
+QTextStream out(stdout);
+QTextStream in(stdin);
 
 
 DbSqlExport::DbSqlExport(QWidget *parent)
@@ -26,11 +29,6 @@ DbSqlExport::DbSqlExport(QWidget *parent)
     connect(ui.pushButtonAddFrom, &QPushButton::clicked, this, &DbSqlExport::addSomeNumbers);
     connect(ui.pushButtonClose, SIGNAL(clicked()), this, SLOT(close()));
     connect(ui.pushButtonGenXml, &QPushButton::clicked, this, &DbSqlExport::generateXml);
-    
-   
-
-
-
    
 }
 
@@ -53,6 +51,7 @@ void DbSqlExport::addOneNumber() // добавляем номер
         ui.listWidget->addItem(c_textSimp);
         int r = ui.listWidget->count() - 1; // count() - количество элементов в списке
         ui.listWidget->setCurrentRow(r); //наконец, выделяем текущий добавленный элемент с помощью метода setCurrentRow().
+        countOfNumbers++;
     }
 }
 
@@ -67,6 +66,7 @@ void DbSqlExport::removeNumber() // удаление элемента
     {
         QListWidgetItem* item = ui.listWidget->takeItem(r);
         delete item;
+        countOfNumbers--;
     }
 }
 
@@ -79,6 +79,7 @@ void DbSqlExport::clearAllNumbers() // метод clear() удаляет все элементы из вид
     if (ui.listWidget->count() != 0)
     {
         ui.listWidget->clear();
+        countOfNumbers = 0;
     }
 }
 
@@ -137,6 +138,7 @@ void DbSqlExport::addSomeNumbers()
             ui.listWidget->addItem(currentString);
             int r = ui.listWidget->count() - 1;
             ui.listWidget->setCurrentRow(r); //наконец, выделяем текущий добавленный элемент с помощью метода setCurrentRow().
+            countOfNumbers++;
         }
 
     }
@@ -154,8 +156,6 @@ void DbSqlExport::addSomeNumbers()
 
 void DbSqlExport::connectDataBase()
 {
-    qDebug() << "LOG file was created in the root directory of the program.\n";
-
     QSqlDatabase mw_db = QSqlDatabase::addDatabase("QODBC"); // Для раблоты ODBC в Windows необходимо задвать пользовательский DNS в администрировании системы. Иначен не будет работать.
 
     mw_db.setHostName("10.86.142.47"); // хост где лежит БД
@@ -200,7 +200,7 @@ void DbSqlExport::queryDbResult(QString any)
 	QTime curTime = QTime::currentTime();
 	QString timeInQuery = curDate.toString("yyyy-MM-dd"); // Разворачиваем формат даты так как в БД.
 
-	queryString = "select IDOBJECT_PARENT from dbo.PROPERTIES where PROPERTY_VALUE = " + any; // запрашиваем нужный нам ID поо номеру прибора
+	queryString = "select IDOBJECT_PARENT from dbo.PROPERTIES where PROPERTY_VALUE = '" + any + "'"; // запрашиваем нужный нам ID поо номеру прибора
 
 	query.exec(queryString); // Отправляем запрос на количество записей
 
@@ -227,6 +227,10 @@ void DbSqlExport::queryDbResult(QString any)
 
 void DbSqlExport::generateXml()
 {
+    QElapsedTimer timer;
+    int countTimer = 0; // для итогового вывода времени потраченного на выполнение
+    timer.start();
+
     connectDataBase();
 
     QDate curDate = QDate::currentDate();
@@ -244,11 +248,7 @@ void DbSqlExport::generateXml()
 
     if (savedFile == "") return;
 
-    QElapsedTimer timer;
-    int countTimer = 0; // для итогового вывода времени потраченного на выполнение
-    int countDoingIterationForTime = 0; // считаем количество выполнений
-    int valueForTimer = 5000; // временной отрезок для подсчёта количества выполнений
-    timer.start();
+
 
     qDebug() << "Wait...";
 
@@ -293,7 +293,16 @@ void DbSqlExport::generateXml()
 
     xmlWriter.writeStartElement("day");
 
-    xmlWriter.writeCharacters(curDate.toString("yyyy.MM.dd"));
+    QString dateInHead = (curDate.toString("yyyy.MM.dd"));
+
+    for (int i = 0; i < dateInHead.size(); i++)
+    {
+        if (dateInHead[i].isPunct())
+            dateInHead.remove(i, 1);
+    }
+
+
+    xmlWriter.writeCharacters(dateInHead);
 
     xmlWriter.writeEndElement(); // day
 
@@ -325,86 +334,118 @@ void DbSqlExport::generateXml()
 
     xmlWriter.writeStartElement("name");
 
-    xmlWriter.writeCharacters("Счетчики");
+    xmlWriter.writeCharacters("Schetchiki");
 
     xmlWriter.writeEndElement(); // name3
 
-    /////////////////////////////////////////
+    qDebug() << countOfNumbers;
+
+    for (int i = 0; i < countOfNumbers; i++)
+    {
+        ui.listWidget->setCurrentRow(i);
+
+        queryDbResult(ui.listWidget->currentItem()->text());
+
+        generalXmlLoop(ui.listWidget->currentItem()->text(), day, night);
+
+    }
 
     xmlWriter.writeEndElement(); // area
 
     xmlWriter.writeEndElement(); // message
-
-
 
     xmlWriter.writeEndDocument();
 
     file.close();
 
     countTimer = timer.elapsed();
-    out << "XLS to XML was convert for = " << (double)countTimer / 1000 << " sec" << Qt::endl;
 
+    out << "XML was made for = " << (double)countTimer / 1000 << " sec" << Qt::endl;
 
+    mw_db.removeDatabase("DBTESTZ"); // Подключаем пользовательский DNS с ODBC;
 }
 
 
-void DbSqlExport::generalXmlLoop(QString any, QString day, QString night)
+void DbSqlExport::generalXmlLoop(QString any, QString dayFunc, QString nightFunc)
 {
-    QString desc = "0";
+	QString desc = "0";
+
+	xmlWriter.writeStartElement("measuringpoint");
+
+	xmlWriter.writeAttribute("code", any);
+
+	xmlWriter.writeAttribute("name", any);
+
+	xmlWriter.writeAttribute("serial", any);
+
+	for (int internalCounter = 0; internalCounter < 3; internalCounter++)
+	{
+		xmlWriter.writeStartElement("measuringchannel");
+
+		xmlWriter.writeAttribute("code", "01");
+
+		if (internalCounter == 1) desc = "9";
+		if (internalCounter == 2) desc = "10";
 
 
-        xmlWriter.writeStartElement("measuringpoint");
+		xmlWriter.writeAttribute("desc", desc);
 
-        xmlWriter.writeAttribute("code", any);
+		xmlWriter.writeStartElement("period");
 
-        xmlWriter.writeAttribute("name", any);
 
-        xmlWriter.writeAttribute("serial", any);
+		xmlWriter.writeAttribute("start", "0000");
 
-        for (int internalCounter = 0; internalCounter < 3; internalCounter++)
+		xmlWriter.writeAttribute("end", "0000");
+
+		xmlWriter.writeStartElement("timestamp");
+
+		QString curDate = (QDate::currentDate().toString("yyyy.MM.dd"));
+
+
+        for (int i = 0; i < curDate.size(); i++)
         {
-            xmlWriter.writeStartElement("measuringchannel");
-
-            xmlWriter.writeAttribute("code", "01");
-           
-            if (internalCounter == 1) desc = "9";
-            if (internalCounter == 2) desc = "10";
-
-            
-            xmlWriter.writeAttribute("desc", desc);
-
-            xmlWriter.writeStartElement("period");
-
-
-            xmlWriter.writeAttribute("start", "0000");
-
-            xmlWriter.writeAttribute("end", "0000");
-
-            xmlWriter.writeStartElement("timestamp");
-
-            QString curDate = (QDate::currentDate().toString("yyyy.MM.dd"));
-            if (desc == "10") curDate = "189912300200";
-
-            xmlWriter.writeCharacters(curDate);
-
-            xmlWriter.writeEndElement(); // value
-
-            xmlWriter.writeStartElement("value");
-
-            if (internalCounter == 0) xmlWriter.writeCharacters(day);
-            if (internalCounter == 1) xmlWriter.writeCharacters(night);
-
-            xmlWriter.writeCharacters(any);
-
-            xmlWriter.writeEndElement(); // timestamp
-
-            xmlWriter.writeEndElement(); // period
-
-            xmlWriter.writeEndElement(); // measurechannel
+            if (curDate[i].isPunct())
+                curDate.remove(i, 1);
         }
 
+        if (desc == "10") curDate = "189912300200";
+        else curDate += "0000";
 
-        xmlWriter.writeEndElement(); // measurepoint
+        if (dayFunc == "")
+        {
+            day = "0";
+            curDate = "189912300200";
+        }
+        if (nightFunc == "")
+        {
+            night = "0";
+            curDate = "189912300200";
+        }
+
+		xmlWriter.writeCharacters(curDate);
+
+		xmlWriter.writeEndElement(); // timestamp
+
+		xmlWriter.writeStartElement("value");
+
+
+
+		if (internalCounter == 0) xmlWriter.writeCharacters(day);
+		if (internalCounter == 1) xmlWriter.writeCharacters(night);
+        if (internalCounter == 2) xmlWriter.writeCharacters("0");
+
+		xmlWriter.writeEndElement(); // value
+
+		xmlWriter.writeEndElement(); // period
+
+		xmlWriter.writeEndElement(); // measurechannel
+
+		desc = "0";
+
+       // continue;
+	}
+
+	xmlWriter.writeEndElement(); // measurepoint
 
 }
 

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message class="80020*" version="2" number="1">
+  <datetime>
+    <timestamp>20240801000839</timestamp>
+    <daylightsavingtime>0</daylightsavingtime>
+    <day>20240801</day>
+  </datetime>
+  <sender>
+    <inn>8603103354</inn>
+    <name>Gorsvet</name>
+  </sender>
+  <area>
+    <inn>8602067215</inn>
+    <name>Schetchiki</name>
+    <measuringpoint code="123" name="123" serial="123">
+      <measuringchannel code="01" desc="0">
+        <period start="0000" end="0000">
+          <timestamp>189912300200</timestamp>
+          <value>0</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="9">
+        <period start="0000" end="0000">
+          <timestamp>189912300200</timestamp>
+          <value>0</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="10">
+        <period start="0000" end="0000">
+          <timestamp>189912300200</timestamp>
+          <value>0</value>
+        </period>
+      </measuringchannel>
+    </measuringpoint>
+    <measuringpoint code="321" name="321" serial="321">
+      <measuringchannel code="01" desc="0">
+        <period start="0000" end="0000">
+          <timestamp>189912300200</timestamp>
+          <value>0</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="9">
+        <period start="0000" end="0000">
+          <timestamp>189912300200</timestamp>
+          <value>0</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="10">
+        <period start="0000" end="0000">
+          <timestamp>189912300200</timestamp>
+          <value>0</value>
+        </period>
+      </measuringchannel>
+    </measuringpoint>
+  </area>
+</message>

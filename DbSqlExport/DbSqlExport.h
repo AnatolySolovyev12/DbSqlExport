@@ -6,8 +6,9 @@
 #include <QXmlStreamWriter>
 #include <QXmlStreamAttribute>
 
-QTextStream out(stdout);
-QTextStream in(stdin);
+#include <QSqlDatabase>
+
+
 
 class DbSqlExport : public QMainWindow
 {
@@ -29,13 +30,15 @@ public:
     void generalXmlLoop(QString any, QString day, QString night);
 
     QXmlStreamWriter xmlWriter;
+    QSqlDatabase mw_db;
 
 private:
     Ui::DbSqlExportClass ui;
-    QSqlDatabase mw_db;
+    
 
     QString day;
     QString night;
+    int countOfNumbers = 0;
 
 
 
