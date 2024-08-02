@@ -12,7 +12,7 @@ ParamSmtp::ParamSmtp(QWidget *parent)
 
 	//connect(ui.sendBtn_4, SIGNAL(clicked()), this, SLOT(sendMailfromButton()));
 	connect(ui.exitBtn_4, SIGNAL(clicked()), this, SLOT(close()));
-	connect(ui.browseBtn_5, SIGNAL(clicked()), this, SLOT(browse()));
+	//connect(ui.browseBtn_5, SIGNAL(clicked()), this, SLOT(browse()));
 	connect(ui.sendBtn_4, SIGNAL(clicked()), this, SLOT(writeCurrent()));
 
 	readDefaultConfig();
@@ -36,7 +36,7 @@ void ParamSmtp::sendMailfromButton()
         mySMTP->sendMail(ui.uname->text(), ui.rcpt->text(), ui.subject->text(), ui.msg->toPlainText());
 
 }
-
+/*
 void ParamSmtp::browse()
 {
     files.clear(); //очистка массива
@@ -53,9 +53,11 @@ void ParamSmtp::browse()
         fileListString.append("\"" + QFileInfo(file).fileName() + "\" "); // возвращаем имена выбранных файлов исключая путь в конец строки
 
     ui.attachment->setText(fileListString);
-
+	
 }
+*/
 
+/*
 void ParamSmtp::MessegeAboutMailSend(QString status)
 {
     if (status == "Message sent")
@@ -65,6 +67,8 @@ void ParamSmtp::MessegeAboutMailSend(QString status)
         mySMTP = nullptr;
     }
 }
+*/
+
 
 void ParamSmtp::readDefaultConfig()
 {

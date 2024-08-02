@@ -29,8 +29,8 @@ public:
 
 private slots:
 	void sendMailfromButton();
-	void MessegeAboutMailSend(QString);
-	void browse();
+	//void MessegeAboutMailSend(QString);
+	//void browse();
 
 	void writeCurrent();
 	
