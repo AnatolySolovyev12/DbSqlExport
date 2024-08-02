@@ -5,6 +5,8 @@
 
 #include <QFile>
 
+#include "DbSqlExport.h"
+
 ParamSmtp::ParamSmtp(QWidget *parent)
 	: QMainWindow(parent)
 {
@@ -22,6 +24,10 @@ ParamSmtp::ParamSmtp(QWidget *parent)
 ParamSmtp::~ParamSmtp()
 {}
 
+void ParamSmtp::fileNameSetter(QString any)
+{
+	fileForSend = any;
+}
 
 void ParamSmtp::sendMailfromButton()
 {
@@ -30,11 +36,7 @@ void ParamSmtp::sendMailfromButton()
 
     connect(mySMTP, SIGNAL(status(QString)), this, SLOT(MessegeAboutMailSend(QString)));
 
-    if (!files.isEmpty())
-        mySMTP->sendMail(ui.uname->text(), ui.rcpt->text(), ui.subject->text(), ui.msg->toPlainText(), files);
-    else
-        mySMTP->sendMail(ui.uname->text(), ui.rcpt->text(), ui.subject->text(), ui.msg->toPlainText());
-
+    mySMTP->sendMail(ui.uname->text(), ui.rcpt->text(), ui.subject->text(), fileForSend);
 }
 /*
 void ParamSmtp::browse()

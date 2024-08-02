@@ -10,6 +10,7 @@
 #include <SMTP.h>
 #include <QString>
 
+
 class ParamSmtp : public QMainWindow
 {
 	Q_OBJECT
@@ -19,6 +20,8 @@ public:
 	~ParamSmtp();
 
 	void readDefaultConfig();
+	void fileNameSetter(QString any);
+	void sendMailfromButton();
 
 	QString smtpServer;
 	QString smtpPort;
@@ -27,20 +30,13 @@ public:
 	QString recipantTo;
 	QString subject;
 
-private slots:
-	void sendMailfromButton();
-	//void MessegeAboutMailSend(QString);
-	//void browse();
 
+
+private slots:
 	void writeCurrent();
 	
-
 private:
 	Ui::ParamSmtpClass ui;
-
 	SMTP* mySMTP = nullptr;
-	QStringList files;
-
-
-
+	QString fileForSend;
 };

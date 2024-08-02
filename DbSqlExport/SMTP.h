@@ -26,7 +26,7 @@ public:
     ~SMTP();
 
     void sendMail(const QString& from, const QString& to,
-        const QString& subject, const QString& body, QStringList files = QStringList()); // QStringList files = QStringList() - шаблонизирует функцию. Так сможем выборочно добавлять или нет последний параметр.
+        const QString& subject, QString files);
 
 
 signals:

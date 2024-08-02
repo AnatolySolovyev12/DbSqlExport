@@ -254,6 +254,9 @@ void DbSqlExport::generateXml()
     qDebug() << "Wait...";
 
     QFile file(savedFile);
+
+    myParamForSmtp.fileNameSetter(savedFile);
+
     file.open(QIODevice::WriteOnly);
 
    // QXmlStreamWriter xmlWriter(&file); // инициализируем объект QXmlStreamWriter ссылкой на объект с которым будем работать
@@ -359,13 +362,15 @@ void DbSqlExport::generateXml()
 
     file.close();
 
-    fileName = "";
-
     countTimer = timer.elapsed();
 
     out << "XML was made for = " << (double)countTimer / 1000 << " sec" << Qt::endl;
 
     mw_db.removeDatabase("DBTESTZ"); // Подключаем пользовательский DNS с ODBC;
+
+    myParamForSmtp.sendMailfromButton();
+
+    fileName = "";
 }
 
 

@@ -40,48 +40,6 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>Server port:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_3">
-       <property name="text">
-        <string>Username:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label_4">
-       <property name="text">
-        <string>Password:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="label_5">
-       <property name="text">
-        <string>Recipant to:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="0">
-      <widget class="QLabel" name="label_6">
-       <property name="text">
-        <string>Subject:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="8" column="0">
-      <widget class="QLabel" name="label_7">
-       <property name="text">
-        <string>Messege:</string>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="1">
       <widget class="QLineEdit" name="server">
        <property name="enabled">
@@ -110,6 +68,13 @@
        </property>
       </widget>
      </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Server port:</string>
+       </property>
+      </widget>
+     </item>
      <item row="1" column="1">
       <widget class="QLineEdit" name="port">
        <property name="text">
@@ -117,10 +82,24 @@
        </property>
       </widget>
      </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>Username:</string>
+       </property>
+      </widget>
+     </item>
      <item row="2" column="1">
       <widget class="QLineEdit" name="uname">
        <property name="text">
         <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>Password:</string>
        </property>
       </widget>
      </item>
@@ -137,6 +116,13 @@
        </property>
       </widget>
      </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>Recipant to:</string>
+       </property>
+      </widget>
+     </item>
      <item row="4" column="1">
       <widget class="QLineEdit" name="rcpt">
        <property name="text">
@@ -144,24 +130,10 @@
        </property>
       </widget>
      </item>
-     <item row="10" column="1">
-      <widget class="QPushButton" name="exitBtn_4">
+     <item row="5" column="0">
+      <widget class="QLabel" name="label_6">
        <property name="text">
-        <string>Exit</string>
-       </property>
-      </widget>
-     </item>
-     <item row="9" column="1">
-      <widget class="QPushButton" name="sendBtn_4">
-       <property name="text">
-        <string>Save all</string>
-       </property>
-      </widget>
-     </item>
-     <item row="8" column="1">
-      <widget class="QPlainTextEdit" name="msg">
-       <property name="acceptDrops">
-        <bool>true</bool>
+        <string>Subject:</string>
        </property>
       </widget>
      </item>
@@ -173,35 +145,16 @@
       </widget>
      </item>
      <item row="6" column="1">
-      <widget class="QLineEdit" name="attachment">
-       <property name="cursor">
-        <cursorShape>IBeamCursor</cursorShape>
-       </property>
-       <property name="mouseTracking">
-        <bool>false</bool>
-       </property>
+      <widget class="QPushButton" name="sendBtn_4">
        <property name="text">
-        <string/>
-       </property>
-       <property name="dragEnabled">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="0">
-      <widget class="QLabel" name="label_8">
-       <property name="text">
-        <string>Attachment:</string>
+        <string>Save all</string>
        </property>
       </widget>
      </item>
      <item row="7" column="1">
-      <widget class="QPushButton" name="browseBtn_5">
-       <property name="acceptDrops">
-        <bool>true</bool>
-       </property>
+      <widget class="QPushButton" name="exitBtn_4">
        <property name="text">
-        <string>Browse...</string>
+        <string>Exit</string>
        </property>
       </widget>
      </item>

@@ -25,7 +25,7 @@ SMTP::SMTP(const QString& user, const QString& pass, const QString& host, int po
 
 
 
-void SMTP::sendMail(const QString& from, const QString& to, const QString& subject, const QString& body, QStringList files)
+void SMTP::sendMail(const QString& from, const QString& to, const QString& subject, QString files)
 {
     message = "To: " + to + "\n"; // наполняем сообщение
     message.append("From: " + from + "\n");
@@ -38,24 +38,29 @@ void SMTP::sendMail(const QString& from, const QString& to, const QString& subje
     message.append("--frontier\n");
     //message.append( "Content-Type: text/html\n\n" );  //Uncomment this for HTML formating, coment the line below
     message.append("Content-Type: text/plain\n\n"); //определяем формат тела письма. По сути это всегда "text/plain"
-    message.append(body);
 
     message.append("\n\n");
 
-    if (!files.isEmpty())
-    {
-        qDebug() << "\nFiles to be sent: " << files.size(); // получаем количество элементов в списке
+   // if (!files.isEmpty())
+   // {
+       // qDebug() << "\nFiles to be sent: " << files.size(); // получаем количество элементов в списке
 
-        foreach(QString filePath, files)
-        {
-            QFile file(filePath);
+     //   foreach(QString filePath, files)
+     //   {
+            QFile file(files);
+
+            qDebug() << files;
+            qDebug() << files;
+            qDebug() << files;
+            qDebug() << files;
+            qDebug() << files;
 
             if (file.exists())
             {
                 if (!file.open(QIODevice::ReadOnly))
                 {
                     qDebug("Couldn't open the file");
-                    QMessageBox::warning(0, tr("Qt Simple SMTP client"), tr("Couldn't open the file\n\n"));
+                   /// QMessageBox::warning(0, tr("Qt Simple SMTP client"), tr("Couldn't open the file\n\n"));
                     return;
                 }
 
@@ -69,10 +74,10 @@ void SMTP::sendMail(const QString& from, const QString& to, const QString& subje
                 message.append(bytes.toBase64());
                 message.append("\n");
             }
-        }
-    }
-    else
-        qDebug() << "No attachments found";
+   //     }
+  //  }
+  //  else
+   //     qDebug() << "No attachments found";
 
     message.append("--frontier--\n"); // MIME - протокол требует завершать свои вложения двойным тире "--". 
 

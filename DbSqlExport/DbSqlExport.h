@@ -29,6 +29,9 @@ public:
     void connectDataBase();
     void queryDbResult(QString any);
     void generateXml();
+
+
+
     void generalXmlLoop(QString any, QString day, QString night);
 
     void optionsSmtp();
@@ -37,6 +40,8 @@ public:
     QSqlDatabase mw_db;
 
     ParamSmtp myParamForSmtp;
+    QString fileName;
+
 
 private:
     Ui::DbSqlExportClass ui;
@@ -45,6 +50,6 @@ private:
     QString day;
     QString night;
     int countOfNumbers = 0;
-    QString fileName;
+
 
 };
