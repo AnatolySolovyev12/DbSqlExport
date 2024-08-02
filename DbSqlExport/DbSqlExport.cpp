@@ -455,6 +455,7 @@ void DbSqlExport::generalXmlLoop(QString any, QString dayFunc, QString nightFunc
 void DbSqlExport::optionsSmtp()
 {
     myParamForSmtp.show();
+    myParamForSmtp.readDefaultConfig();
 }
 
 

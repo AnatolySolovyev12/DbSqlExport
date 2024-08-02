@@ -18,6 +18,8 @@ public:
 	ParamSmtp(QWidget *parent = nullptr);
 	~ParamSmtp();
 
+	void readDefaultConfig();
+
 	QString smtpServer;
 	QString smtpPort;
 	QString userName;
@@ -29,7 +31,7 @@ private slots:
 	void sendMailfromButton();
 	void MessegeAboutMailSend(QString);
 	void browse();
-	void readDefaultConfig();
+
 	void writeCurrent();
 	
 
