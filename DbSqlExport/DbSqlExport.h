@@ -45,5 +45,6 @@ private:
     QString day;
     QString night;
     int countOfNumbers = 0;
+    QString fileName;
 
 };

@@ -237,7 +237,7 @@ void DbSqlExport::generateXml()
     QDate curDate = QDate::currentDate();
     QTime curTime = QTime::currentTime();
 
-    QString fileName = "80020__" + (curDate.toString("dd.MM.yyyy")) + "__" + (curTime.toString("hh:mm:ss"));;
+    fileName = "80020__" + (curDate.toString("dd.MM.yyyy")) + "__" + (curTime.toString("hh:mm:ss"));;
 
     for (int i = 0; i < fileName.size(); i++)
     {
@@ -358,6 +358,8 @@ void DbSqlExport::generateXml()
     xmlWriter.writeEndDocument();
 
     file.close();
+
+    fileName = "";
 
     countTimer = timer.elapsed();
 
