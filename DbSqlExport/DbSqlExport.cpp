@@ -13,6 +13,7 @@
 #include <QXmlStreamAttribute>
 
 #include <QElapsedTimer>
+#include <QtNetwork/QSslSocket>
 
 QTextStream out(stdout);
 QTextStream in(stdin);
@@ -29,13 +30,13 @@ DbSqlExport::DbSqlExport(QWidget *parent)
     connect(ui.pushButtonAddFrom, &QPushButton::clicked, this, &DbSqlExport::addSomeNumbers);
     connect(ui.pushButtonClose, SIGNAL(clicked()), this, SLOT(close()));
     connect(ui.pushButtonGenXml, &QPushButton::clicked, this, &DbSqlExport::generateXml);
-   
+    connect(ui.pushButtonSendFiles, &QPushButton::clicked, this, &DbSqlExport::optionsSmtp);
+
+    
 }
 
 DbSqlExport::~DbSqlExport()
 {}
-
-
 
 
 
@@ -447,6 +448,11 @@ void DbSqlExport::generalXmlLoop(QString any, QString dayFunc, QString nightFunc
 
 	xmlWriter.writeEndElement(); // measurepoint
 
+}
+
+void DbSqlExport::optionsSmtp()
+{
+    myParamForSmtp.show();
 }
 
 

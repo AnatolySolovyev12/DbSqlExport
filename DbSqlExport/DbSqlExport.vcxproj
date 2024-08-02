@@ -37,12 +37,12 @@
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
     <QtInstall>6.2.4_msvc2019_64</QtInstall>
-    <QtModules>core;gui;widgets;axcontainer;core5compat;sql</QtModules>
+    <QtModules>core;gui;network;widgets;axcontainer;core5compat;sql;websockets;networkauth</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
     <QtInstall>6.2.4_msvc2019_64</QtInstall>
-    <QtModules>core;gui;widgets;axcontainer;core5compat;sql</QtModules>
+    <QtModules>core;gui;network;widgets;axcontainer;core5compat;sql;websockets;networkauth</QtModules>
     <QtBuildConfig>release</QtBuildConfig>
   </PropertyGroup>
   <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
@@ -92,11 +92,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ParamSmtp.cpp" />
+    <ClCompile Include="SMTP.cpp" />
     <QtRcc Include="DbSqlExport.qrc" />
     <QtUic Include="DbSqlExport.ui" />
     <QtMoc Include="DbSqlExport.h" />
     <ClCompile Include="DbSqlExport.cpp" />
     <ClCompile Include="main.cpp" />
+    <QtUic Include="ParamSmtp.ui" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="SMTP.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="ParamSmtp.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="DbSqlExport.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

@@ -8,6 +8,8 @@
 
 #include <QSqlDatabase>
 
+#include "ParamSmtp.h"
+
 
 
 class DbSqlExport : public QMainWindow
@@ -29,8 +31,12 @@ public:
     void generateXml();
     void generalXmlLoop(QString any, QString day, QString night);
 
+    void optionsSmtp();
+
     QXmlStreamWriter xmlWriter;
     QSqlDatabase mw_db;
+
+    ParamSmtp myParamForSmtp;
 
 private:
     Ui::DbSqlExportClass ui;
@@ -39,8 +45,5 @@ private:
     QString day;
     QString night;
     int countOfNumbers = 0;
-
-
-
 
 };
