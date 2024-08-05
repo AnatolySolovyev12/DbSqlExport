@@ -104,16 +104,23 @@
        <item>
         <widget class="QPushButton" name="pushButtonSendFiles">
          <property name="text">
-          <string>SMTP parametrs</string>
+          <string>Options</string>
          </property>
         </widget>
        </item>
        <item>
         <layout class="QVBoxLayout" name="verticalLayout_3">
          <item>
+          <widget class="QCheckBox" name="checkBoxSendAfterCreate">
+           <property name="text">
+            <string>Send after create</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QRadioButton" name="autoSender">
            <property name="text">
-            <string>Auto sender</string>
+            <string>Autosender</string>
            </property>
           </widget>
          </item>

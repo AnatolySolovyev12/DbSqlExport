@@ -29,6 +29,7 @@ public:
     void connectDataBase();
     void queryDbResult(QString any);
     void generateXml();
+    void checkSendAfterCreate(int myState);
 
 
 
@@ -46,7 +47,7 @@ public:
 private:
     Ui::DbSqlExportClass ui;
     
-
+    bool boolSendAfterCreate = false;
     QString day;
     QString night;
     QString guid;

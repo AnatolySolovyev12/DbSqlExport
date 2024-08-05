@@ -32,6 +32,8 @@ DbSqlExport::DbSqlExport(QWidget *parent)
     connect(ui.pushButtonGenXml, &QPushButton::clicked, this, &DbSqlExport::generateXml);
     connect(ui.pushButtonSendFiles, &QPushButton::clicked, this, &DbSqlExport::optionsSmtp);
 
+    connect(ui.checkBoxSendAfterCreate, &QCheckBox::stateChanged, this, &DbSqlExport::checkSendAfterCreate);
+
     
 }
 
@@ -209,8 +211,6 @@ void DbSqlExport::queryDbResult(QString any)
 
 	int iD = query.value(0).toInt() - 1; // ID с показаниями на единицу меньше чем мы выявили по номеру счётчика.
 
-    qDebug() << "First ID = " << iD;
-
 	queryString = "select VALUE_METERING from dbo.METERINGS where  IDOBJECT = '" + any.setNum(iD) + "' AND IDTYPE_OBJECT = '1201001' AND IDOBJECT_AGGREGATE = '1' AND TIME_END = '" + timeInQuery + " 19:00:00.0000000' AND VALUE_METERING != '0'"; // запрашиваем показаний без всякой лишей информации
 
 	query.exec(queryString);
@@ -235,8 +235,6 @@ void DbSqlExport::queryDbResult(QString any)
 
     iD = query.value(0).toInt();
 
-    qDebug() << "Second ID = " << iD;
-
     queryString = "select PROPERTY_VALUE from PROPERTIES where IDOBJECT_PARENT = '" + any.setNum(iD) + "' and IDTYPE_PROPERTY = '939'";
 
     query.exec(queryString);
@@ -244,9 +242,6 @@ void DbSqlExport::queryDbResult(QString any)
     query.next();
 
     guid = query.value(0).toString(); 
-
-    qDebug() << "Guid = " << guid;
-
 }
 
 void DbSqlExport::generateXml()
@@ -260,7 +255,7 @@ void DbSqlExport::generateXml()
     QDate curDate = QDate::currentDate();
     QTime curTime = QTime::currentTime();
 
-    fileName = "80020__" + (curDate.toString("dd.MM.yyyy")) + "__" + (curTime.toString("hh:mm:ss"));;
+    fileName = "80020__" + (curDate.toString("dd.MM.yyyy")) + "__" + (curTime.toString("hh:mm:ss"));
 
     for (int i = 0; i < fileName.size(); i++)
     {
@@ -272,7 +267,7 @@ void DbSqlExport::generateXml()
 
     if (savedFile == "") return;
 
-
+    qDebug() << "Total devices in the list: " << countOfNumbers;
 
     qDebug() << "Wait...";
 
@@ -365,8 +360,6 @@ void DbSqlExport::generateXml()
 
     xmlWriter.writeEndElement(); // name3
 
-    qDebug() << countOfNumbers;
-
     for (int i = 0; i < countOfNumbers; i++)
     {
         ui.listWidget->setCurrentRow(i);
@@ -391,7 +384,8 @@ void DbSqlExport::generateXml()
 
     mw_db.removeDatabase("DBTESTZ"); // Подключаем пользовательский DNS с ODBC;
 
-    myParamForSmtp.sendMailfromButton();
+    if(boolSendAfterCreate)
+        myParamForSmtp.sendMailfromButton();
 
     fileName = "";
 }
@@ -484,6 +478,16 @@ void DbSqlExport::optionsSmtp()
 {
     myParamForSmtp.show();
     myParamForSmtp.readDefaultConfig();
+}
+
+void DbSqlExport::checkSendAfterCreate(int myState) {
+
+    if (myState == Qt::Checked) {
+        boolSendAfterCreate = true;
+    }
+    else {
+        boolSendAfterCreate = false;
+    }
 }
 
 
