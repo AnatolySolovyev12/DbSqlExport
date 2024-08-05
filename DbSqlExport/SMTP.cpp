@@ -41,43 +41,28 @@ void SMTP::sendMail(const QString& from, const QString& to, const QString& subje
 
     message.append("\n\n");
 
-   // if (!files.isEmpty())
-   // {
-       // qDebug() << "\nFiles to be sent: " << files.size(); // получаем количество элементов в списке
+	QFile file(files);
 
-     //   foreach(QString filePath, files)
-     //   {
-            QFile file(files);
+	if (file.exists())
+	{
+		if (!file.open(QIODevice::ReadOnly))
+		{
+			qDebug("Couldn't open the file");
+			/// QMessageBox::warning(0, tr("Qt Simple SMTP client"), tr("Couldn't open the file\n\n"));
+			return;
+		}
 
-            qDebug() << files;
-            qDebug() << files;
-            qDebug() << files;
-            qDebug() << files;
-            qDebug() << files;
+		QByteArray bytes = file.readAll(); // считываем весь файл и переводим его в байты
 
-            if (file.exists())
-            {
-                if (!file.open(QIODevice::ReadOnly))
-                {
-                    qDebug("Couldn't open the file");
-                   /// QMessageBox::warning(0, tr("Qt Simple SMTP client"), tr("Couldn't open the file\n\n"));
-                    return;
-                }
+		message.append("--frontier\n");
+		// ќпредел€ем формат файлов. –абоим вариантом было предложено использовать "application/octet-stream". 
+		// "Content-Disposition: attachment" - сообщаем что файл следует загружать как вложение а не как текст в письмо.
+		// "Content-Transfer-Encoding" - указываем в какой кодировке отправл€ть. 
+		message.append("Content-Type: application/octet-stream\nContent-Disposition: attachment; filename=" + QFileInfo(file.fileName()).fileName() + ";\nContent-Transfer-Encoding: base64\n\n");
+		message.append(bytes.toBase64());
+		message.append("\n");
+	}
 
-                QByteArray bytes = file.readAll(); // считываем весь файл и переводим его в байты
-
-                message.append("--frontier\n");
-                // ќпредел€ем формат файлов. –абоим вариантом было предложено использовать "application/octet-stream". 
-                // "Content-Disposition: attachment" - сообщаем что файл следует загружать как вложение а не как текст в письмо.
-                // "Content-Transfer-Encoding" - указываем в какой кодировке отправл€ть. 
-                message.append("Content-Type: application/octet-stream\nContent-Disposition: attachment; filename=" + QFileInfo(file.fileName()).fileName() + ";\nContent-Transfer-Encoding: base64\n\n");
-                message.append(bytes.toBase64());
-                message.append("\n");
-            }
-   //     }
-  //  }
-  //  else
-   //     qDebug() << "No attachments found";
 
     message.append("--frontier--\n"); // MIME - протокол требует завершать свои вложени€ двойным тире "--". 
 
@@ -279,7 +264,8 @@ void SMTP::readyReadFromSocket()
 
     else if (state == Quit && responseLine == "250")
     {
-        QMessageBox::information(0, tr("Qt Simple SMTP client"), tr("Message was send.\n\n"));
+		//  QMessageBox::information(0, tr("Qt Simple SMTP client"), tr("Message was send.\n\n"));
+		qDebug() << "\nMessage was send\n";
         *t << "QUIT\r\n";
         t->flush();
         state = Close;
