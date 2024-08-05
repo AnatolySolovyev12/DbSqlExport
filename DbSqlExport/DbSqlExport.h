@@ -32,7 +32,7 @@ public:
 
 
 
-    void generalXmlLoop(QString any, QString day, QString night);
+    void generalXmlLoop(QString any, QString day, QString night, QString counterGuid);
 
     void optionsSmtp();
 
@@ -49,6 +49,7 @@ private:
 
     QString day;
     QString night;
+    QString guid;
     int countOfNumbers = 0;
 
 

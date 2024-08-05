@@ -209,6 +209,8 @@ void DbSqlExport::queryDbResult(QString any)
 
 	int iD = query.value(0).toInt() - 1; // ID с показани€ми на единицу меньше чем мы вы€вили по номеру счЄтчика.
 
+    qDebug() << "First ID = " << iD;
+
 	queryString = "select VALUE_METERING from dbo.METERINGS where  IDOBJECT = '" + any.setNum(iD) + "' AND IDTYPE_OBJECT = '1201001' AND IDOBJECT_AGGREGATE = '1' AND TIME_END = '" + timeInQuery + " 19:00:00.0000000' AND VALUE_METERING != '0'"; // запрашиваем показаний без вс€кой лишей информации
 
 	query.exec(queryString);
@@ -224,6 +226,27 @@ void DbSqlExport::queryDbResult(QString any)
 	query.next();
 
 	night = query.value(0).toString();
+
+    queryString = "select IDOBJECT_FROM from dbo.LINK_OBJECTS where IDOBJECT_TO = '" + any.setNum(iD+1) + "' AND IDTYPE_OBJECT_LINK = '1000011'";
+
+    query.exec(queryString);
+
+    query.next();
+
+    iD = query.value(0).toInt();
+
+    qDebug() << "Second ID = " << iD;
+
+    queryString = "select PROPERTY_VALUE from PROPERTIES where IDOBJECT_PARENT = '" + any.setNum(iD) + "' and IDTYPE_PROPERTY = '939'";
+
+    query.exec(queryString);
+
+    query.next();
+
+    guid = query.value(0).toString(); 
+
+    qDebug() << "Guid = " << guid;
+
 }
 
 void DbSqlExport::generateXml()
@@ -350,7 +373,7 @@ void DbSqlExport::generateXml()
 
         queryDbResult(ui.listWidget->currentItem()->text());
 
-        generalXmlLoop(ui.listWidget->currentItem()->text(), day, night);
+        generalXmlLoop(ui.listWidget->currentItem()->text(), day, night, guid);
 
     }
 
@@ -374,13 +397,13 @@ void DbSqlExport::generateXml()
 }
 
 
-void DbSqlExport::generalXmlLoop(QString any, QString dayFunc, QString nightFunc)
+void DbSqlExport::generalXmlLoop(QString any, QString dayFunc, QString nightFunc, QString counterGuid)
 {
 	QString desc = "0";
 
 	xmlWriter.writeStartElement("measuringpoint");
 
-	xmlWriter.writeAttribute("code", any);
+	xmlWriter.writeAttribute("code", counterGuid);
 
 	xmlWriter.writeAttribute("name", any);
 
