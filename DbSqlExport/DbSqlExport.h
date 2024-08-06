@@ -52,6 +52,4 @@ private:
     QString night;
     QString guid;
     int countOfNumbers = 0;
-
-
 };

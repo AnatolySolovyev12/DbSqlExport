@@ -30,6 +30,11 @@ public:
 	QString recipantTo;
 	QString subject;
 
+	QString hostName;
+	QString odbc;
+	QString userNameDb;
+	QString passDb;
+
 
 
 private slots:

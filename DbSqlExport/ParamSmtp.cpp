@@ -38,39 +38,6 @@ void ParamSmtp::sendMailfromButton()
 
     mySMTP->sendMail(ui.uname->text(), ui.rcpt->text(), ui.subject->text(), fileForSend);
 }
-/*
-void ParamSmtp::browse()
-{
-    files.clear(); //очистка массива
-
-    QFileDialog dialog(this);
-    dialog.setDirectory(QDir::homePath()); // установить текущий каталог (каталог профиля пользователя C:/Users/Username
-    dialog.setFileMode(QFileDialog::ExistingFiles); // определяем количество и тип элементов которые надо выбрать. Одного существующего файла.
-
-    if (dialog.exec()) // фиксируем диалоговое окно.
-        files = dialog.selectedFiles(); // возвращаем список строк с путями к выбранным файлам.
-
-    QString fileListString;
-    foreach(QString file, files)
-        fileListString.append("\"" + QFileInfo(file).fileName() + "\" "); // возвращаем имена выбранных файлов исключая путь в конец строки
-
-    ui.attachment->setText(fileListString);
-	
-}
-*/
-
-/*
-void ParamSmtp::MessegeAboutMailSend(QString status)
-{
-    if (status == "Message sent")
-    {
-        qDebug() << "\nMail was send.";
-
-        mySMTP = nullptr;
-    }
-}
-*/
-
 
 void ParamSmtp::readDefaultConfig()
 {
@@ -138,6 +105,30 @@ void ParamSmtp::readDefaultConfig()
 			ui.subject->setText(subject);
 			break;
 		}
+		case(7):
+		{
+			hostName = temporary;
+			ui.lineEditHostName->setText(hostName);
+			break;
+		}
+		case(8):
+		{
+			odbc = temporary;
+			ui.lineEditOdbc->setText(odbc);
+			break;
+		}
+		case(9):
+		{
+			userNameDb = temporary;
+			ui.lineEditUserName->setText(userNameDb);
+			break;
+		}
+		case(10):
+		{
+			passDb = temporary;
+			ui.lineEditPassword->setText(passDb);
+			break;
+		}
 		}
 	}
 
@@ -159,6 +150,11 @@ void ParamSmtp::writeCurrent()
 		out << ui.paswd->text() << Qt::endl;
         out << ui.rcpt->text() << Qt::endl;
         out << ui.subject->text() << Qt::endl;
+
+		out << ui.lineEditHostName->text() << Qt::endl;
+		out << ui.lineEditOdbc->text() << Qt::endl;
+		out << ui.lineEditUserName->text() << Qt::endl;
+		out << ui.lineEditPassword->text() << Qt::endl;
 
     }
     else

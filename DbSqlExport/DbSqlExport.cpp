@@ -119,7 +119,7 @@ void DbSqlExport::addSomeNumbers()
 
     }
 
-    QAxObject* sheetDonor = sheetsDonor->querySubObject("Item(int)", listDonor);// Тут определяем лист с которым будем работаь
+    QAxObject* sheetDonor = sheetsDonor->querySubObject("Item(int)", listDonor);// Тут определяем лист с которым будем работать
 
     QAxObject*  usedRangeDonor = sheetDonor->querySubObject("UsedRange"); // так можем получить количество строк в документе
     QAxObject*  rowsDonor = usedRangeDonor->querySubObject("Rows");
@@ -161,11 +161,16 @@ void DbSqlExport::connectDataBase()
 {
     QSqlDatabase mw_db = QSqlDatabase::addDatabase("QODBC"); // Для раблоты ODBC в Windows необходимо задвать пользовательский DNS в администрировании системы. Иначен не будет работать.
 
+    mw_db.setHostName(myParamForSmtp.hostName); // хост где лежит БД
+    mw_db.setDatabaseName(myParamForSmtp.odbc); // указываем имя пользовательского DNS который был создан в системе ранее.
+    mw_db.setUserName(myParamForSmtp.userNameDb);
+    mw_db.setPassword(myParamForSmtp.passDb);
+    /*
     mw_db.setHostName("10.86.142.47"); // хост где лежит БД
     mw_db.setDatabaseName("DBTESTZ"); // указываем имя пользовательского DNS который был создан в системе ранее.
     mw_db.setUserName("solexp");
     mw_db.setPassword("RootToor#");
-
+    */
 	if (!mw_db.open()) // открываем БД. Если не открывает то вернёт false
 	{
 		QString any;
