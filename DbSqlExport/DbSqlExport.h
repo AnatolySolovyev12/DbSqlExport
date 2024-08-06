@@ -10,6 +10,8 @@
 
 #include "ParamSmtp.h"
 
+#include <QTimer>
+
 
 
 class DbSqlExport : public QMainWindow
@@ -43,6 +45,9 @@ public:
     ParamSmtp myParamForSmtp;
     QString fileName;
 
+private slots:
+    void slotTimerAlarm();
+
 
 private:
     Ui::DbSqlExportClass ui;
@@ -52,4 +57,7 @@ private:
     QString night;
     QString guid;
     int countOfNumbers = 0;
+
+    QTimer* timer;
+
 };

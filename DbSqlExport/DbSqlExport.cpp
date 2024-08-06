@@ -34,7 +34,9 @@ DbSqlExport::DbSqlExport(QWidget *parent)
 
     connect(ui.checkBoxSendAfterCreate, &QCheckBox::stateChanged, this, &DbSqlExport::checkSendAfterCreate);
 
-    
+    timer = new QTimer();
+    connect(timer, SIGNAL(timeout()), this, SLOT(slotTimerAlarm()));
+    timer->start(35000); // Каждые три секунды
 }
 
 DbSqlExport::~DbSqlExport()
@@ -216,6 +218,9 @@ void DbSqlExport::queryDbResult(QString any)
 
 	int iD = query.value(0).toInt() - 1; // ID с показаниями на единицу меньше чем мы выявили по номеру счётчика.
 
+    //if (myParamForSmtp.odbc == "DBZS")
+    //   iD++;
+
 	queryString = "select VALUE_METERING from dbo.METERINGS where  IDOBJECT = '" + any.setNum(iD) + "' AND IDTYPE_OBJECT = '1201001' AND IDOBJECT_AGGREGATE = '1' AND TIME_END = '" + timeInQuery + " 19:00:00.0000000' AND VALUE_METERING != '0'"; // запрашиваем показаний без всякой лишей информации
 
 	query.exec(queryString);
@@ -268,7 +273,13 @@ void DbSqlExport::generateXml()
             fileName.remove(i, 1);
     }
 
-    QString savedFile = QFileDialog::getSaveFileName(0, "Save XML", fileName, "*.xml"); // В последнем параметре также можно прописать tr("Xml files (*.xml)"). Это будет как приписка с указанием формата. Удобно.
+    QString savedFile;
+
+    if (!ui.autoSender->isChecked())
+        savedFile = QFileDialog::getSaveFileName(0, "Save XML", fileName, "*.xml"); // В последнем параметре также можно прописать tr("Xml files (*.xml)"). Это будет как приписка с указанием формата. Удобно.
+    else
+        savedFile = fileName + ".xml";
+
 
     if (savedFile == "") return;
 
@@ -446,7 +457,7 @@ void DbSqlExport::generalXmlLoop(QString any, QString dayFunc, QString nightFunc
             day = "0";
             curDate = "189912300200";
         }
-        if (nightFunc == "")
+        if (nightFunc == "" && desc == "9")
         {
             night = "0";
             curDate = "189912300200";
@@ -495,4 +506,14 @@ void DbSqlExport::checkSendAfterCreate(int myState) {
     }
 }
 
+void DbSqlExport::slotTimerAlarm()
+{
+    if (ui.autoSender->isChecked()) {
+       // QString curTime = (QTime::currentTime().toString("hh:mm:ss"));
+       // qDebug() << curTime;
+
+        generateXml();
+
+    }
+}
 
