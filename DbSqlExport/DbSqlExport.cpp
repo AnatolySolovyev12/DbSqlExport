@@ -34,9 +34,11 @@ DbSqlExport::DbSqlExport(QWidget *parent)
 
     connect(ui.checkBoxSendAfterCreate, &QCheckBox::stateChanged, this, &DbSqlExport::checkSendAfterCreate);
 
+    connect(ui.autoSender, SIGNAL(clicked()), this, SLOT(timerUpdate()));
+
     timer = new QTimer();
     connect(timer, SIGNAL(timeout()), this, SLOT(slotTimerAlarm()));
-    timer->start(35000); // Каждые три секунды
+    timer->start(myParamForSmtp.timerTime * 3600000); // Каждые три секунды
 }
 
 DbSqlExport::~DbSqlExport()
@@ -515,5 +517,10 @@ void DbSqlExport::slotTimerAlarm()
         generateXml();
 
     }
+}
+
+void DbSqlExport::timerUpdate()
+{
+    timer->setInterval(myParamForSmtp.timerTime * 3600000);
 }
 

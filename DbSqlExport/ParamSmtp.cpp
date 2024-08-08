@@ -129,6 +129,17 @@ void ParamSmtp::readDefaultConfig()
 			ui.lineEditPassword->setText(passDb);
 			break;
 		}
+		case(11):
+		{
+			if (temporary.toInt() > 240 || temporary.toInt() < 1)
+			{
+				temporary = "240";
+				qDebug() << "Hours for autocreater have wrong value in config file. Was accept default value 240 hours";
+			}
+			timerTime = temporary.toInt();
+			ui.spinBoxHours->setValue(timerTime);
+			break;
+		}
 		}
 	}
 
@@ -156,6 +167,8 @@ void ParamSmtp::writeCurrent()
 		out << ui.lineEditUserName->text() << Qt::endl;
 		out << ui.lineEditPassword->text() << Qt::endl;
 
+		out << ui.spinBoxHours->text() << Qt::endl;
+
     }
     else
     {
@@ -163,4 +176,6 @@ void ParamSmtp::writeCurrent()
     }
 
     file.close();
+
+	readDefaultConfig();
 }

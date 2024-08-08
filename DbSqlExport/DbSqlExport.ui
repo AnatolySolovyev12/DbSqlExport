@@ -120,7 +120,7 @@
          <item>
           <widget class="QRadioButton" name="autoSender">
            <property name="text">
-            <string>Autosender</string>
+            <string>Autocreater</string>
            </property>
           </widget>
          </item>

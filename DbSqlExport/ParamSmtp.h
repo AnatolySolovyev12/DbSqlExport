@@ -35,6 +35,8 @@ public:
 	QString userNameDb;
 	QString passDb;
 
+	int timerTime;
+
 
 
 private slots:

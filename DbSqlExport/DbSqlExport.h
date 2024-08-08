@@ -47,6 +47,7 @@ public:
 
 private slots:
     void slotTimerAlarm();
+    void timerUpdate();
 
 
 private:
