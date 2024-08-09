@@ -36,18 +36,19 @@ public:
     void optionsSmtp();
 
 
-    void MessegeAboutReconnectDb(QString);
+
 
 
     QXmlStreamWriter xmlWriter;
     QSqlDatabase mw_db;
 
-    ParamSmtp myParamForSmtp;
+    ParamSmtp * myParamForSmtp;
     QString fileName;
 
 private slots:
     void slotTimerAlarm();
     void timerUpdate();
+    void MessegeAboutReconnectDb(QString);
  
 
 

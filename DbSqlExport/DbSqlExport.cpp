@@ -24,6 +24,8 @@ DbSqlExport::DbSqlExport(QWidget *parent)
 {
     ui.setupUi(this);
 
+    myParamForSmtp = new ParamSmtp();
+
     connect(ui.pushButtonAddNumber, &QPushButton::clicked, this, &DbSqlExport::addOneNumber);
     connect(ui.pushButtonDeleteNumber, &QPushButton::clicked, this, &DbSqlExport::removeNumber);
     connect(ui.pushButtonDeleteAll, &QPushButton::clicked, this, &DbSqlExport::clearAllNumbers);
@@ -38,10 +40,11 @@ DbSqlExport::DbSqlExport(QWidget *parent)
 
     timer = new QTimer();
     connect(timer, SIGNAL(timeout()), this, SLOT(slotTimerAlarm()));
+
   //  timer->start(myParamForSmtp.timerTime * 3600000); // Каждые три секунды
 
 
-  //  connect(myParamForSmtp, SIGNAL(status(QString)), this, &DbSqlExport::MessegeAboutReconnectDb(QString));
+    connect(myParamForSmtp, SIGNAL(status(QString)), this, SLOT(MessegeAboutReconnectDb(QString))); // делаем реконект к БД после каждого сохранения настроек.
 
 
   
@@ -178,10 +181,10 @@ void DbSqlExport::connectDataBase()
 {
     QSqlDatabase mw_db = QSqlDatabase::addDatabase("QODBC"); // Для раблоты ODBC в Windows необходимо задвать пользовательский DNS в администрировании системы. Иначен не будет работать.
 
-    mw_db.setHostName(myParamForSmtp.hostName); // хост где лежит БД
-    mw_db.setDatabaseName(myParamForSmtp.odbc); // указываем имя пользовательского DNS который был создан в системе ранее.
-    mw_db.setUserName(myParamForSmtp.userNameDb);
-    mw_db.setPassword(myParamForSmtp.passDb);
+    mw_db.setHostName(myParamForSmtp->hostName); // хост где лежит БД
+    mw_db.setDatabaseName(myParamForSmtp->odbc); // указываем имя пользовательского DNS который был создан в системе ранее.
+    mw_db.setUserName(myParamForSmtp->userNameDb);
+    mw_db.setPassword(myParamForSmtp->passDb);
     /*
     mw_db.setHostName("10.86.142.47"); // хост где лежит БД
     mw_db.setDatabaseName("DBTESTZ"); // указываем имя пользовательского DNS который был создан в системе ранее.
@@ -308,7 +311,7 @@ void DbSqlExport::generateXml()
 
     QFile file(savedFile);
 
-    myParamForSmtp.fileNameSetter(savedFile);
+    myParamForSmtp->fileNameSetter(savedFile);
 
     file.open(QIODevice::WriteOnly);
 
@@ -420,7 +423,7 @@ void DbSqlExport::generateXml()
     mw_db.removeDatabase("DBTESTZ"); // Подключаем пользовательский DNS с ODBC;
 
     if(boolSendAfterCreate)
-        myParamForSmtp.sendMailfromButton();
+        myParamForSmtp->sendMailfromButton();
 
     fileName = "";
 }
@@ -511,8 +514,8 @@ void DbSqlExport::generalXmlLoop(QString any, QString dayFunc, QString nightFunc
 
 void DbSqlExport::optionsSmtp()
 {
-    myParamForSmtp.show();
-    myParamForSmtp.readDefaultConfig();
+    myParamForSmtp->show();
+    myParamForSmtp->readDefaultConfig();
 }
 
 void DbSqlExport::checkSendAfterCreate(int myState) {
@@ -543,7 +546,7 @@ void DbSqlExport::timerUpdate()
     }
     else
     {
-        timer->setInterval(myParamForSmtp.timerTime * 1000);
+        timer->setInterval(myParamForSmtp->timerTime * 1000);
         timer->start();
         QString curTime = (QTime::currentTime().toString("hh:mm:ss"));
         QString curDate = (QDate::currentDate().toString("dd.MM.yyyy"));
@@ -555,8 +558,7 @@ void DbSqlExport::timerUpdate()
 
 void DbSqlExport::MessegeAboutReconnectDb(QString)
 {
-
-    qDebug() << "done";
+    connectDataBase();
 }
 
 
