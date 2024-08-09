@@ -37,7 +37,8 @@ public:
 
 	int timerTime;
 
-
+signals:
+	void status(const QString&);
 
 private slots:
 	void writeCurrent();

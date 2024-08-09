@@ -32,12 +32,12 @@ public:
     void queryDbResult(QString any);
     void generateXml();
     void checkSendAfterCreate(int myState);
-
-
-
     void generalXmlLoop(QString any, QString day, QString night, QString counterGuid);
-
     void optionsSmtp();
+
+
+    void MessegeAboutReconnectDb(QString);
+
 
     QXmlStreamWriter xmlWriter;
     QSqlDatabase mw_db;
@@ -48,17 +48,22 @@ public:
 private slots:
     void slotTimerAlarm();
     void timerUpdate();
+ 
 
 
 private:
     Ui::DbSqlExportClass ui;
     
     bool boolSendAfterCreate = false;
+    bool dbconnect = false;
     QString day;
     QString night;
     QString guid;
     int countOfNumbers = 0;
 
     QTimer* timer;
+
+    QStatusBar * sBar;
+    QLabel* dbLabel;
 
 };

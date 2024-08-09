@@ -178,4 +178,6 @@ void ParamSmtp::writeCurrent()
     file.close();
 
 	readDefaultConfig();
+
+	emit status(tr("dbreconnet"));
 }
