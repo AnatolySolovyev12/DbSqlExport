@@ -2,14 +2,10 @@
 
 #include <QtWidgets/QMainWindow>
 #include "ui_DbSqlExport.h"
-
 #include <QXmlStreamWriter>
 #include <QXmlStreamAttribute>
-
 #include <QSqlDatabase>
-
 #include "ParamSmtp.h"
-
 #include <QTimer>
 
 
@@ -22,8 +18,6 @@ public:
     DbSqlExport(QWidget *parent = nullptr);
     ~DbSqlExport();
 
-
-
     void addOneNumber();
     void removeNumber();
     void clearAllNumbers();
@@ -34,10 +28,6 @@ public:
     void checkSendAfterCreate(int myState);
     void generalXmlLoop(QString any, QString day, QString night, QString counterGuid);
     void optionsSmtp();
-
-
-
-
 
     QXmlStreamWriter xmlWriter;
     QSqlDatabase mw_db;
@@ -50,8 +40,6 @@ private slots:
     void timerUpdate();
     void MessegeAboutReconnectDb(QString);
  
-
-
 private:
     Ui::DbSqlExportClass ui;
     
@@ -66,5 +54,4 @@ private:
 
     QStatusBar * sBar;
     QLabel* dbLabel;
-
 };

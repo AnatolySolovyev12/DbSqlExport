@@ -2,22 +2,17 @@
 #include <QInputDialog>
 #include <QFileDialog>
 #include <QAxObject>
-
 #include <QFile>
-
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QTime>
-
 #include <QXmlStreamWriter>
 #include <QXmlStreamAttribute>
-
 #include <QElapsedTimer>
 #include <QtNetwork/QSslSocket>
 
 QTextStream out(stdout);
 QTextStream in(stdin);
-
 
 DbSqlExport::DbSqlExport(QWidget *parent)
     : QMainWindow(parent)
@@ -40,20 +35,20 @@ DbSqlExport::DbSqlExport(QWidget *parent)
 
     timer = new QTimer();
     connect(timer, SIGNAL(timeout()), this, SLOT(slotTimerAlarm()));
-
-  //  timer->start(myParamForSmtp.timerTime * 3600000); // Каждые три секунды
-
+    timer->start(myParamForSmtp->timerTime * 3600000); // Каждые три секунды
 
     connect(myParamForSmtp, SIGNAL(status(QString)), this, SLOT(MessegeAboutReconnectDb(QString))); // делаем реконект к БД после каждого сохранения настроек.
 
-
-  
     sBar = new QStatusBar();
     QMainWindow::setStatusBar(sBar);
     sBar->showMessage("Autocreate was stoped");
 
     dbLabel = new QLabel();
     sBar->addPermanentWidget(dbLabel);
+    dbLabel->setStyleSheet("color: rgb(255, 0, 0)");
+
+    sBar->setStyleSheet("QStatusBar::item {border: None;}");
+
     connectDataBase();
 }
 
@@ -212,12 +207,14 @@ void DbSqlExport::connectDataBase()
 		file.close();
         dbconnect = false;
         dbLabel->setText("SQL Disconnected");
+        dbLabel->setStyleSheet("color: rgb(255, 0, 0)");
 	}
     else
     {
         qDebug() << "DataBase is CONNECT.";
         dbconnect = true;
         dbLabel->setText("SQL Connected");
+        dbLabel->setStyleSheet("color: rgb(0, 255, 0)");
     }
 
 
@@ -531,9 +528,9 @@ void DbSqlExport::checkSendAfterCreate(int myState) {
 void DbSqlExport::slotTimerAlarm()
 {
     if (ui.autoSender->isChecked()) {
-        QString curTime = (QTime::currentTime().toString("hh:mm:ss"));
-        qDebug() << curTime;
-       // generateXml();
+       // QString curTime = (QTime::currentTime().toString("hh:mm:ss"));
+      //  qDebug() << curTime;
+        generateXml();
     }
 }
 
@@ -546,13 +543,12 @@ void DbSqlExport::timerUpdate()
     }
     else
     {
-        timer->setInterval(myParamForSmtp->timerTime * 1000);
+        timer->setInterval(myParamForSmtp->timerTime * 3600000);
         timer->start();
         QString curTime = (QTime::currentTime().toString("hh:mm:ss"));
         QString curDate = (QDate::currentDate().toString("dd.MM.yyyy"));
         sBar->showMessage("Autocreate was start in " + curDate + " " + curTime);
     }
-
 }
 
 
