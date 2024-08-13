@@ -5,6 +5,9 @@
 #include <QFile>
 #include <QSqlError>
 #include <QSqlQuery>
+
+#include <QSqlRecord>
+
 #include <QTime>
 #include <QXmlStreamWriter>
 #include <QXmlStreamAttribute>
@@ -226,7 +229,7 @@ void DbSqlExport::queryDbResult(QString any)
     QSqlQuery query;
     QString queryString;
 
-    int iD;
+    int iD = 0;
     
     if (myParamForSmtp->odbc == "DBZS" || myParamForSmtp->odbc == "DBZM")
     {
@@ -282,17 +285,84 @@ void DbSqlExport::queryDbResult(QString any)
     if (myParamForSmtp->odbc == "DBEG" || myParamForSmtp->odbc == "DBEN")
     {
         QDate curDate = QDate::currentDate();
-        curDate = curDate.addDays(-1); // то что в Заре на сегодня в БД на вчера. Поэтому вычетаем день от текущей даты для последующего запроса
-       // QTime curTime = QTime::currentTime();
+        curDate = curDate.addDays(-1); 
         QString timeInQuery = curDate.toString("yyyy-MM-dd"); // Разворачиваем формат даты так как в БД.
+
+          
+        QSqlRecord rec;
+        double test;
+        
+        queryString = "select Val from dbo.PointRatedNIs where  ID_PP = '3481' and DT = '2024-08-12 22:00:00:000' and N_Rate = '1'";
+
+        query.exec(queryString);
+
+        if (query.isActive())
+        {
+            qDebug() << "Is Active";
+        }
+        else
+        {
+            qDebug() << "Not active";
+        }
+
+        if(query.isSelect())
+        {
+            qDebug() << "Is Select";
+        }
+        else
+        {
+            qDebug() << "Not Select";
+        }
+
+        if (query.last())
+        {
+
+            rec = query.record();
+
+            test = query.value(rec.indexOf("Val")).toDouble();
+
+            //double test = query.value(0).toDouble();
+
+            qDebug() << "test  " << test;
+        }
+        else
+            qDebug() << "not work";
+
+        qDebug() << "Last error " << query.lastError() << "\n\n";
 
         queryString = "select ID_MeterInfo from MeterInfo where SN = '" + any + "'"; // запрашиваем первичный ID по номеру прибора
 
         query.exec(queryString);
 
-        query.next();
+        if (query.isActive())
+        {
+            qDebug() << "Is Active";
+        }
+        else
+        {
+            qDebug() << "Not active";
+        }
 
-        iD = query.value(0).toInt(); 
+        if (query.isSelect())
+        {
+            qDebug() << "Is Select";
+        }
+        else
+        {
+            qDebug() << "Not Select";
+        }
+
+        if (query.last())
+        {
+
+            iD = query.value(0).toInt();
+
+            qDebug() << "iD first  " << iD << "\n\n";
+        }
+        else
+        {
+            qDebug() << "not work";
+        }
 
         queryString = "select ID_Point from MeterMountHist where ID_MeterInfo = '" + any.setNum(iD) + "'"; // получаем ID из счётчика
 
@@ -302,17 +372,29 @@ void DbSqlExport::queryDbResult(QString any)
 
         iD = query.value(0).toInt();
 
-        queryString = "select ID_PP from dbo.PointParams where ID_Point = '" + any.setNum(iD) + "' and ID_Param = '4'"; // получаем ID параметра активной энергии счётчика
+        qDebug() << "iD second  " << iD;
+
+
+        queryString = "select * from dbo.PointParams where ID_Point = '" + any.setNum(iD) + "' and ID_Param = '4'"; // получаем ID параметра активной энергии счётчика
 
         query.exec(queryString);
 
-        query.next();
+        query.first();
 
-        iD = query.value(0).toInt();
+        rec = query.record();
+
+        iD = query.value(rec.indexOf("ID_PP")).toInt();
+
+       // iD = query.value(0).toInt();
+
+        qDebug() << "iD third  " << iD << "\n\n";
+
 
         if (myParamForSmtp->odbc == "DBEG")
         {
             queryString = "select Val from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and DT = '" + timeInQuery + " 22:00:00:000' and N_Rate = '1'";
+
+            qDebug() << queryString;
         }
 
         if (myParamForSmtp->odbc == "DBEN")
@@ -325,6 +407,9 @@ void DbSqlExport::queryDbResult(QString any)
         query.next();
 
         day = query.value(0).toString();
+
+        qDebug() << "day = " << day;
+
 
         if (myParamForSmtp->odbc == "DBEG")
         {
@@ -341,6 +426,8 @@ void DbSqlExport::queryDbResult(QString any)
         query.next();
 
         night = query.value(0).toString();
+
+        qDebug() << "night = " << night;
     }
 }
 
