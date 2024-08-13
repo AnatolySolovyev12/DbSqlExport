@@ -226,53 +226,122 @@ void DbSqlExport::queryDbResult(QString any)
     QSqlQuery query;
     QString queryString;
 
-	QDate curDate = QDate::currentDate();
-	curDate = curDate.addDays(-1); // то что в Заре на сегодня в БД на вчера. Поэтому вычетаем день от текущей даты для последующего запроса
-	QTime curTime = QTime::currentTime();
-	QString timeInQuery = curDate.toString("yyyy-MM-dd"); // Разворачиваем формат даты так как в БД.
+    int iD;
+    
+    if (myParamForSmtp->odbc == "DBZS" || myParamForSmtp->odbc == "DBZM")
+    {
+        QDate curDate = QDate::currentDate();
+        curDate = curDate.addDays(-1); // то что в Заре на сегодня в БД на вчера. Поэтому вычетаем день от текущей даты для последующего запроса
+        QTime curTime = QTime::currentTime();
+        QString timeInQuery = curDate.toString("yyyy-MM-dd"); // Разворачиваем формат даты так как в БД.
 
-	queryString = "select IDOBJECT_PARENT from dbo.PROPERTIES where PROPERTY_VALUE = '" + any + "'"; // запрашиваем нужный нам ID поо номеру прибора
+        queryString = "select IDOBJECT_PARENT from dbo.PROPERTIES where PROPERTY_VALUE = '" + any + "'"; // запрашиваем нужный нам ID поо номеру прибора
 
-	query.exec(queryString); // Отправляем запрос на количество записей
+        query.exec(queryString); // Отправляем запрос на количество записей
 
-	query.next();
+        query.next();
 
-	int iD = query.value(0).toInt() - 1; // ID с показаниями на единицу меньше чем мы выявили по номеру счётчика.
+        iD = query.value(0).toInt() - 1; // ID с показаниями на единицу меньше чем мы выявили по номеру счётчика.
 
-    //if (myParamForSmtp.odbc == "DBZS")
-    //   iD++;
+        //if (myParamForSmtp.odbc == "DBZS")
+        //   iD++;
 
-	queryString = "select VALUE_METERING from dbo.METERINGS where  IDOBJECT = '" + any.setNum(iD) + "' AND IDTYPE_OBJECT = '1201001' AND IDOBJECT_AGGREGATE = '1' AND TIME_END = '" + timeInQuery + " 19:00:00.0000000' AND VALUE_METERING != '0'"; // запрашиваем показаний без всякой лишей информации
+        queryString = "select VALUE_METERING from dbo.METERINGS where  IDOBJECT = '" + any.setNum(iD) + "' AND IDTYPE_OBJECT = '1201001' AND IDOBJECT_AGGREGATE = '1' AND TIME_END = '" + timeInQuery + " 19:00:00.0000000' AND VALUE_METERING != '0'"; // запрашиваем показаний без всякой лишей информации
 
-	query.exec(queryString);
+        query.exec(queryString);
 
-	query.next();
+        query.next();
 
-	day = query.value(0).toString();
+        day = query.value(0).toString();
 
-	queryString = "select VALUE_METERING from dbo.METERINGS where  IDOBJECT = '" + any.setNum(iD) + "' AND IDTYPE_OBJECT = '1202001' AND IDOBJECT_AGGREGATE = '1' AND TIME_END = '" + timeInQuery + " 19:00:00.0000000' AND VALUE_METERING != '0'";
+        queryString = "select VALUE_METERING from dbo.METERINGS where  IDOBJECT = '" + any.setNum(iD) + "' AND IDTYPE_OBJECT = '1202001' AND IDOBJECT_AGGREGATE = '1' AND TIME_END = '" + timeInQuery + " 19:00:00.0000000' AND VALUE_METERING != '0'";
 
-	query.exec(queryString);
+        query.exec(queryString);
 
-	query.next();
+        query.next();
 
-	night = query.value(0).toString();
+        night = query.value(0).toString();
 
-    queryString = "select IDOBJECT_FROM from dbo.LINK_OBJECTS where IDOBJECT_TO = '" + any.setNum(iD+1) + "' AND IDTYPE_OBJECT_LINK = '1000011'";
+        queryString = "select IDOBJECT_FROM from dbo.LINK_OBJECTS where IDOBJECT_TO = '" + any.setNum(iD + 1) + "' AND IDTYPE_OBJECT_LINK = '1000011'";
 
-    query.exec(queryString);
+        query.exec(queryString);
 
-    query.next();
+        query.next();
 
-    iD = query.value(0).toInt();
+        iD = query.value(0).toInt();
 
-    queryString = "select PROPERTY_VALUE from PROPERTIES where IDOBJECT_PARENT = '" + any.setNum(iD) + "' and IDTYPE_PROPERTY = '939'";
+        queryString = "select PROPERTY_VALUE from PROPERTIES where IDOBJECT_PARENT = '" + any.setNum(iD) + "' and IDTYPE_PROPERTY = '939'";
 
-    query.exec(queryString);
+        query.exec(queryString);
 
-    query.next();
+        query.next();
 
-    guid = query.value(0).toString(); 
+        guid = query.value(0).toString();
+    }
+    
+    if (myParamForSmtp->odbc == "DBEG" || myParamForSmtp->odbc == "DBEN")
+    {
+        QDate curDate = QDate::currentDate();
+        curDate = curDate.addDays(-1); // то что в Заре на сегодня в БД на вчера. Поэтому вычетаем день от текущей даты для последующего запроса
+       // QTime curTime = QTime::currentTime();
+        QString timeInQuery = curDate.toString("yyyy-MM-dd"); // Разворачиваем формат даты так как в БД.
+
+        queryString = "select ID_MeterInfo from MeterInfo where SN = '" + any + "'"; // запрашиваем первичный ID по номеру прибора
+
+        query.exec(queryString);
+
+        query.next();
+
+        iD = query.value(0).toInt(); 
+
+        queryString = "select ID_Point from MeterMountHist where ID_MeterInfo = '" + any.setNum(iD) + "'"; // получаем ID из счётчика
+
+        query.exec(queryString);
+
+        query.next();
+
+        iD = query.value(0).toInt();
+
+        queryString = "select ID_PP from dbo.PointParams where ID_Point = '" + any.setNum(iD) + "' and ID_Param = '4'"; // получаем ID параметра активной энергии счётчика
+
+        query.exec(queryString);
+
+        query.next();
+
+        iD = query.value(0).toInt();
+
+        if (myParamForSmtp->odbc == "DBEG")
+        {
+            queryString = "select Val from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and DT = '" + timeInQuery + " 22:00:00:000' and N_Rate = '1'";
+        }
+
+        if (myParamForSmtp->odbc == "DBEN")
+        {
+            queryString = "select Val from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and DT = '" + timeInQuery + " 00:00:00:000' and N_Rate = '1'";
+        }
+
+        query.exec(queryString);
+
+        query.next();
+
+        day = query.value(0).toString();
+
+        if (myParamForSmtp->odbc == "DBEG")
+        {
+            queryString = "select Val from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and DT = '" + timeInQuery + " 22:00:00:000' and N_Rate = '2'";
+        }
+
+        if (myParamForSmtp->odbc == "DBEN")
+        {
+            queryString = "select Val from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and DT = '" + timeInQuery + " 00:00:00:000' and N_Rate = '2'";
+        }
+
+        query.exec(queryString);
+
+        query.next();
+
+        night = query.value(0).toString();
+    }
 }
 
 void DbSqlExport::generateXml()

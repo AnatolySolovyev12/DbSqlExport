@@ -1,10 +1,7 @@
 #include "ParamSmtp.h"
-
 #include <QElapsedTimer>
 #include <QtNetwork/QSslSocket>
-
 #include <QFile>
-
 #include "DbSqlExport.h"
 
 ParamSmtp::ParamSmtp(QWidget *parent)

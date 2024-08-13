@@ -1,4 +1,3 @@
-
 #include "SMTP.h"
 
 SMTP::SMTP(const QString& user, const QString& pass, const QString& host, int port, int timeout)
