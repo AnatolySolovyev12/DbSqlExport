@@ -1,0 +1,616 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message class="80020*" version="2" number="1">
+  <datetime>
+    <timestamp>20240814211031</timestamp>
+    <daylightsavingtime>0</daylightsavingtime>
+    <day>20240814</day>
+  </datetime>
+  <sender>
+    <inn>8603103354</inn>
+    <name>Gorsvet</name>
+  </sender>
+  <area>
+    <inn>8602067215</inn>
+    <name>Schetchiki</name>
+    <measuringpoint code="5b0fd4c8-b3d3-4d84-95a1-f521fc172fd2" name="101000005929" serial="101000005929">
+      <measuringchannel code="01" desc="0">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>4421.368335</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="9">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>1294.075448</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="10">
+        <period start="0000" end="0000">
+          <timestamp>189912300200</timestamp>
+          <value>0</value>
+        </period>
+      </measuringchannel>
+    </measuringpoint>
+    <measuringpoint code="deccbfd4-66b3-4e0a-ac02-af22fc3e49e2" name="101000005878" serial="101000005878">
+      <measuringchannel code="01" desc="0">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>4393.548768</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="9">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>1073.303411</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="10">
+        <period start="0000" end="0000">
+          <timestamp>189912300200</timestamp>
+          <value>0</value>
+        </period>
+      </measuringchannel>
+    </measuringpoint>
+    <measuringpoint code="6d0ac054-6041-44df-a45d-08c12039349e" name="101000003069" serial="101000003069">
+      <measuringchannel code="01" desc="0">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>10225.676393</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="9">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>2217.382873</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="10">
+        <period start="0000" end="0000">
+          <timestamp>189912300200</timestamp>
+          <value>0</value>
+        </period>
+      </measuringchannel>
+    </measuringpoint>
+    <measuringpoint code="8ac1b661-24b7-400d-b4c2-62b932d68021" name="101000003565" serial="101000003565">
+      <measuringchannel code="01" desc="0">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>1841.549495</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="9">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>726.015332</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="10">
+        <period start="0000" end="0000">
+          <timestamp>189912300200</timestamp>
+          <value>0</value>
+        </period>
+      </measuringchannel>
+    </measuringpoint>
+    <measuringpoint code="f9d7777e-45a1-4e7f-b1f7-c3586fd3b1bc" name="101000006162" serial="101000006162">
+      <measuringchannel code="01" desc="0">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>4473.016243</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="9">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>1724.762216</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="10">
+        <period start="0000" end="0000">
+          <timestamp>189912300200</timestamp>
+          <value>0</value>
+        </period>
+      </measuringchannel>
+    </measuringpoint>
+    <measuringpoint code="13892111-de18-4cd6-8397-bd9f4e7607e3" name="101000005371" serial="101000005371">
+      <measuringchannel code="01" desc="0">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>6881.29354</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="9">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>1868.592602</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="10">
+        <period start="0000" end="0000">
+          <timestamp>189912300200</timestamp>
+          <value>0</value>
+        </period>
+      </measuringchannel>
+    </measuringpoint>
+    <measuringpoint code="1cb56542-ddac-4794-aef9-9ea9fe510f64" name="101000005246" serial="101000005246">
+      <measuringchannel code="01" desc="0">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>4088.95569</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="9">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>1168.897841</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="10">
+        <period start="0000" end="0000">
+          <timestamp>189912300200</timestamp>
+          <value>0</value>
+        </period>
+      </measuringchannel>
+    </measuringpoint>
+    <measuringpoint code="9f62334e-e28e-4175-b71a-853854a599bb" name="101000003825" serial="101000003825">
+      <measuringchannel code="01" desc="0">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>6183.360641</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="9">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>1760.068624</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="10">
+        <period start="0000" end="0000">
+          <timestamp>189912300200</timestamp>
+          <value>0</value>
+        </period>
+      </measuringchannel>
+    </measuringpoint>
+    <measuringpoint code="1bcb8896-7d78-4b4d-a909-6737610ef64f" name="101000005323" serial="101000005323">
+      <measuringchannel code="01" desc="0">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>5550.418844</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="9">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>1376.34231</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="10">
+        <period start="0000" end="0000">
+          <timestamp>189912300200</timestamp>
+          <value>0</value>
+        </period>
+      </measuringchannel>
+    </measuringpoint>
+    <measuringpoint code="0657e9a8-bf66-eb11-aabb-00155d8e2e02" name="101000004284" serial="101000004284">
+      <measuringchannel code="01" desc="0">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>4119.345005</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="9">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>1059.93035</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="10">
+        <period start="0000" end="0000">
+          <timestamp>189912300200</timestamp>
+          <value>0</value>
+        </period>
+      </measuringchannel>
+    </measuringpoint>
+    <measuringpoint code="9124a9c3-bf66-eb11-aabb-00155d8e2e02" name="101000005996" serial="101000005996">
+      <measuringchannel code="01" desc="0">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>4750.471996</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="9">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>1408.745746</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="10">
+        <period start="0000" end="0000">
+          <timestamp>189912300200</timestamp>
+          <value>0</value>
+        </period>
+      </measuringchannel>
+    </measuringpoint>
+    <measuringpoint code="0386f5a9-5b5e-4f9b-b968-1cd10bb4df4e" name="101000004562" serial="101000004562">
+      <measuringchannel code="01" desc="0">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>8421.950637</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="9">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>1783.036491</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="10">
+        <period start="0000" end="0000">
+          <timestamp>189912300200</timestamp>
+          <value>0</value>
+        </period>
+      </measuringchannel>
+    </measuringpoint>
+    <measuringpoint code="32d3b33f-c366-eb11-aabb-00155d8e2e02" name="101000006028" serial="101000006028">
+      <measuringchannel code="01" desc="0">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>3239.690312</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="9">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>958.532172</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="10">
+        <period start="0000" end="0000">
+          <timestamp>189912300200</timestamp>
+          <value>0</value>
+        </period>
+      </measuringchannel>
+    </measuringpoint>
+    <measuringpoint code="a8c5e571-c762-41e2-a8e3-392f3b703318" name="101000003672" serial="101000003672">
+      <measuringchannel code="01" desc="0">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>6335.223186</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="9">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>1531.523956</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="10">
+        <period start="0000" end="0000">
+          <timestamp>189912300200</timestamp>
+          <value>0</value>
+        </period>
+      </measuringchannel>
+    </measuringpoint>
+    <measuringpoint code="1b653753-63cf-461c-9200-817e2852e47d" name="101000002489" serial="101000002489">
+      <measuringchannel code="01" desc="0">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>2271.491981</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="9">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>645.196089</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="10">
+        <period start="0000" end="0000">
+          <timestamp>189912300200</timestamp>
+          <value>0</value>
+        </period>
+      </measuringchannel>
+    </measuringpoint>
+    <measuringpoint code="34578d9d-4b19-402d-bc86-4a45a8ced777" name="101000003697" serial="101000003697">
+      <measuringchannel code="01" desc="0">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>6007.299946</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="9">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>1399.540438</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="10">
+        <period start="0000" end="0000">
+          <timestamp>189912300200</timestamp>
+          <value>0</value>
+        </period>
+      </measuringchannel>
+    </measuringpoint>
+    <measuringpoint code="a37c8c2d-9176-eb11-aabb-00155d8e2e02" name="101000003710" serial="101000003710">
+      <measuringchannel code="01" desc="0">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>3787.583015</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="9">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>1586.444785</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="10">
+        <period start="0000" end="0000">
+          <timestamp>189912300200</timestamp>
+          <value>0</value>
+        </period>
+      </measuringchannel>
+    </measuringpoint>
+    <measuringpoint code="c87c8c2d-9176-eb11-aabb-00155d8e2e02" name="101000003720" serial="101000003720">
+      <measuringchannel code="01" desc="0">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>8214.552866</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="9">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>2130.236141</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="10">
+        <period start="0000" end="0000">
+          <timestamp>189912300200</timestamp>
+          <value>0</value>
+        </period>
+      </measuringchannel>
+    </measuringpoint>
+    <measuringpoint code="e650dd5d-c366-eb11-aabb-00155d8e2e02" name="101000003558" serial="101000003558">
+      <measuringchannel code="01" desc="0">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>3130.229026</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="9">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>658.989005</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="10">
+        <period start="0000" end="0000">
+          <timestamp>189912300200</timestamp>
+          <value>0</value>
+        </period>
+      </measuringchannel>
+    </measuringpoint>
+    <measuringpoint code="8d24a9c3-bf66-eb11-aabb-00155d8e2e02" name="101000003554" serial="101000003554">
+      <measuringchannel code="01" desc="0">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>4009.749549</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="9">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>1493.22343</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="10">
+        <period start="0000" end="0000">
+          <timestamp>189912300200</timestamp>
+          <value>0</value>
+        </period>
+      </measuringchannel>
+    </measuringpoint>
+    <measuringpoint code="cd24a9c3-bf66-eb11-aabb-00155d8e2e02" name="101000006196" serial="101000006196">
+      <measuringchannel code="01" desc="0">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>4583.064713</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="9">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>1012.034523</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="10">
+        <period start="0000" end="0000">
+          <timestamp>189912300200</timestamp>
+          <value>0</value>
+        </period>
+      </measuringchannel>
+    </measuringpoint>
+    <measuringpoint code="0125a9c3-bf66-eb11-aabb-00155d8e2e02" name="101000004550" serial="101000004550">
+      <measuringchannel code="01" desc="0">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>7096.469111</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="9">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>141.947592</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="10">
+        <period start="0000" end="0000">
+          <timestamp>189912300200</timestamp>
+          <value>0</value>
+        </period>
+      </measuringchannel>
+    </measuringpoint>
+    <measuringpoint code="25a2fdfd-b066-eb11-aabb-00155d8e2e02" name="101000006185" serial="101000006185">
+      <measuringchannel code="01" desc="0">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>17397.79678</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="9">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>8262.307789</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="10">
+        <period start="0000" end="0000">
+          <timestamp>189912300200</timestamp>
+          <value>0</value>
+        </period>
+      </measuringchannel>
+    </measuringpoint>
+    <measuringpoint code="81fc03f8-b066-eb11-aabb-00155d8e2e02" name="101000002494" serial="101000002494">
+      <measuringchannel code="01" desc="0">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>1914.046043</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="9">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>467.655893</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="10">
+        <period start="0000" end="0000">
+          <timestamp>189912300200</timestamp>
+          <value>0</value>
+        </period>
+      </measuringchannel>
+    </measuringpoint>
+    <measuringpoint code="3dfc03f8-b066-eb11-aabb-00155d8e2e02" name="101000003750" serial="101000003750">
+      <measuringchannel code="01" desc="0">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>5158.43675</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="9">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>1402.552393</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="10">
+        <period start="0000" end="0000">
+          <timestamp>189912300200</timestamp>
+          <value>0</value>
+        </period>
+      </measuringchannel>
+    </measuringpoint>
+    <measuringpoint code="a57ea65c-776d-4ab2-a68d-db540b59f169" name="101000005920" serial="101000005920">
+      <measuringchannel code="01" desc="0">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>5694.591717</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="9">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>1885.909914</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="10">
+        <period start="0000" end="0000">
+          <timestamp>189912300200</timestamp>
+          <value>0</value>
+        </period>
+      </measuringchannel>
+    </measuringpoint>
+    <measuringpoint code="0b79ec7c-2eb2-4969-9c73-37957fb1c816" name="101000005436" serial="101000005436">
+      <measuringchannel code="01" desc="0">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>5513.613983</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="9">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>1702.523572</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="10">
+        <period start="0000" end="0000">
+          <timestamp>189912300200</timestamp>
+          <value>0</value>
+        </period>
+      </measuringchannel>
+    </measuringpoint>
+    <measuringpoint code="d287dafe-c466-eb11-aabb-00155d8e2e02" name="101000002411" serial="101000002411">
+      <measuringchannel code="01" desc="0">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>2644.817578</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="9">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>526.021759</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="10">
+        <period start="0000" end="0000">
+          <timestamp>189912300200</timestamp>
+          <value>0</value>
+        </period>
+      </measuringchannel>
+    </measuringpoint>
+    <measuringpoint code="00eebe2a-c566-eb11-aabb-00155d8e2e02" name="101000003707" serial="101000003707">
+      <measuringchannel code="01" desc="0">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>2426.534956</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="9">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>740.462023</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="10">
+        <period start="0000" end="0000">
+          <timestamp>189912300200</timestamp>
+          <value>0</value>
+        </period>
+      </measuringchannel>
+    </measuringpoint>
+    <measuringpoint code="ba6a7a05-4304-4972-a53e-50910eaaf10c" name="101000002383" serial="101000002383">
+      <measuringchannel code="01" desc="0">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>4399.886089</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="9">
+        <period start="0000" end="0000">
+          <timestamp>202408140000</timestamp>
+          <value>1544.112325</value>
+        </period>
+      </measuringchannel>
+      <measuringchannel code="01" desc="10">
+        <period start="0000" end="0000">
+          <timestamp>189912300200</timestamp>
+          <value>0</value>
+        </period>
+      </measuringchannel>
+    </measuringpoint>
+  </area>
+</message>

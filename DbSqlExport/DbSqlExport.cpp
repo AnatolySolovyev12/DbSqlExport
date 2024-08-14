@@ -330,6 +330,16 @@ void DbSqlExport::queryDbResult(QString any)
         query.exec(queryString);
         query.next();
         night = query.value(0).toString();
+
+        queryString = "select ID_Parent from NDIETable where ID_PP = '" + any.setNum(iD) + "'"; // получаем ID для последующего получаения GUID
+        query.exec(queryString);
+        query.next();
+        iD = query.value(0).toInt();
+
+        queryString = "select Code from NDIETable where ID_DIE = '" + any.setNum(iD) + "'"; // получаем GUID
+        query.exec(queryString);
+        query.next();
+        guid = query.value(0).toString();
     }
 }
 
