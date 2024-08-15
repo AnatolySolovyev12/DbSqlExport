@@ -28,6 +28,7 @@ public:
     void checkSendAfterCreate(int myState);
     void generalXmlLoop(QString any, QString day, QString night, QString counterGuid);
     void optionsSmtp();
+    void checkDelAfterSend(int myState);
 
     QXmlStreamWriter xmlWriter;
     QSqlDatabase mw_db;
@@ -44,6 +45,7 @@ private:
     Ui::DbSqlExportClass ui;
     
     bool boolSendAfterCreate = false;
+    bool boolDelAfterSend = false;
     bool dbconnect = false;
     QString day;
     QString night;

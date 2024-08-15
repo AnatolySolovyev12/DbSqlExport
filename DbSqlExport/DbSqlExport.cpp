@@ -33,6 +33,7 @@ DbSqlExport::DbSqlExport(QWidget *parent)
     connect(ui.pushButtonSendFiles, &QPushButton::clicked, this, &DbSqlExport::optionsSmtp);
 
     connect(ui.checkBoxSendAfterCreate, &QCheckBox::stateChanged, this, &DbSqlExport::checkSendAfterCreate);
+    connect(ui.checkBoxDelAfterSend, &QCheckBox::stateChanged, this, &DbSqlExport::checkDelAfterSend);
 
     connect(ui.autoSender, SIGNAL(pressed()), this, SLOT(timerUpdate()));
 
@@ -183,12 +184,7 @@ void DbSqlExport::connectDataBase()
     mw_db.setDatabaseName(myParamForSmtp->odbc); // указываем имя пользовательского DNS который был создан в системе ранее.
     mw_db.setUserName(myParamForSmtp->userNameDb);
     mw_db.setPassword(myParamForSmtp->passDb);
-    /*
-    mw_db.setHostName("10.86.142.47"); // хост где лежит БД
-    mw_db.setDatabaseName("DBTESTZ"); // указываем имя пользовательского DNS который был создан в системе ранее.
-    mw_db.setUserName("solexp");
-    mw_db.setPassword("RootToor#");
-    */
+
 	if (!mw_db.open()) // открываем БД. Если не открывает то вернёт false
 	{
 		QString any;
@@ -370,7 +366,7 @@ void DbSqlExport::generateXml()
 
     if (savedFile == "") return;
 
-    qDebug() << "Total devices in the list: " << countOfNumbers;
+    qDebug() << "\nTotal devices in the list: " << countOfNumbers;
 
     qDebug() << "Wait...";
 
@@ -490,6 +486,12 @@ void DbSqlExport::generateXml()
     if(boolSendAfterCreate)
         myParamForSmtp->sendMailfromButton();
 
+    if (boolDelAfterSend && boolSendAfterCreate)
+    {
+        file.remove(savedFile);
+        qDebug() << "\n" << fileName << " was delete\n";
+    }
+
     fileName = "";
 }
 
@@ -590,6 +592,17 @@ void DbSqlExport::checkSendAfterCreate(int myState) {
     }
     else {
         boolSendAfterCreate = false;
+    }
+}
+
+
+void DbSqlExport::checkDelAfterSend(int myState) {
+
+    if (myState == Qt::Checked) {
+        boolDelAfterSend = true;
+    }
+    else {
+        boolDelAfterSend = false;
     }
 }
 
