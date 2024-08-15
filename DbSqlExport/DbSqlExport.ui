@@ -118,6 +118,13 @@
           </widget>
          </item>
          <item>
+          <widget class="QCheckBox" name="checkBoxDelAfterSend">
+           <property name="text">
+            <string>Delete after send</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QRadioButton" name="autoSender">
            <property name="text">
             <string>Autocreater</string>
