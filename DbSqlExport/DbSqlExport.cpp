@@ -227,6 +227,8 @@ void DbSqlExport::queryDbResult(QString any)
 
 	int iD = 0;
 
+    int guidId;
+
     if (myParamForSmtp->odbc == "DBZS" || myParamForSmtp->odbc == "DBZM")
     {
         QDate curDate = QDate::currentDate();
@@ -234,19 +236,51 @@ void DbSqlExport::queryDbResult(QString any)
        // QTime curTime = QTime::currentTime();
         QString timeInQuery = curDate.toString("yyyy-MM-dd"); // –азворачиваем формат даты так как в Ѕƒ.
 
-        queryString = "select IDOBJECT_PARENT from dbo.PROPERTIES where PROPERTY_VALUE = '" + any + "'"; // запрашиваем нужный нам ID поо номеру прибора
-
+        queryString = "select IDOBJECT_PARENT from dbo.PROPERTIES where PROPERTY_VALUE = '" + any + "' and IDTYPE_PROPERTY = '987' ORDER BY IDOBJECT_PARENT DESC"; // запрашиваем нужный нам ID поо номеру прибора
+        qDebug() << queryString;
         query.exec(queryString); // ќтправл€ем запрос на количество записей
 
         query.next();
 
-        iD = query.value(0).toInt() - 1; // ID с показани€ми на единицу меньше чем мы вы€вили по номеру счЄтчика.
+        iD = query.value(0).toInt(); // ID с показани€ми на единицу меньше чем мы вы€вили по номеру счЄтчика.
 
+        guidId = iD;
+
+        
         //if (myParamForSmtp.odbc == "DBZS")
         //   iD++;
 
-        queryString = "select VALUE_METERING from dbo.METERINGS where  IDOBJECT = '" + any.setNum(iD) + "' AND IDTYPE_OBJECT = '1201001' AND IDOBJECT_AGGREGATE = '1' AND TIME_END = '" + timeInQuery + " 19:00:00.0000000' AND VALUE_METERING != '0'"; // запрашиваем показаний без вс€кой лишей информации
+        //queryString = select IDOBJECT_TO from dbo.LINK_OBJECTS where IDOBJECT_FROM = '216695' and IDTYPE_OBJECT_LINK = '1000011'
 
+        //queryString = "select IDOBJECT_TO from dbo.LINK_OBJECTS where IDOBJECT_FROM = '" + any.setNum(iD) + "' and IDTYPE_OBJECT_LINK = '1000010'"; // запрашиваем нужный нам ID поо номеру прибора
+        
+        //queryString = "select IDOBJECT_TO from dbo.LINK_OBJECTS where IDOBJECT_FROM = '" + any.setNum(iD) + "'and IDTYPE_OBJECT_LINK = '1000010' ORDER BY IDLINK_OBJECTS DESC";
+       // queryString = "select IDOBJECT_TO from dbo.LINK_OBJECTS where IDOBJECT_FROM = '" + any.setNum(iD) + "' ORDER BY IDLINK_OBJECTS DESC";
+        
+        queryString = "select IDOBJECT_TO from dbo.LINK_OBJECTS where IDOBJECT_FROM = '" + any.setNum(iD) + "' and IDTYPE_OBJECT_LINK = '1000011'";
+       
+        qDebug() << queryString;
+        
+        query.exec(queryString);
+        query.next();
+
+        if (query.isNull(0))
+        {
+            queryString = "select IDOBJECT_TO from dbo.LINK_OBJECTS where IDOBJECT_FROM = '" + any.setNum(iD) + "' ORDER BY IDLINK_OBJECTS DESC";
+            query.exec(queryString);
+            query.next();
+        }
+      /*  else
+        {
+            queryString = "select IDOBJECT_TO from dbo.LINK_OBJECTS where IDOBJECT_FROM = '" + any.setNum(iD) + "' and IDTYPE_OBJECT_LINK = '1000011'";
+            query.exec(queryString);
+            query.next();
+        }
+       */
+        iD = query.value(0).toInt(); // ID с показани€ми на единицу меньше чем мы вы€вили по номеру счЄтчика.
+
+        queryString = "select VALUE_METERING from dbo.METERINGS where  IDOBJECT = '" + any.setNum(iD) + "' AND IDTYPE_OBJECT = '1201001' AND IDOBJECT_AGGREGATE = '1' AND TIME_END = '" + timeInQuery + " 19:00:00.0000000' AND VALUE_METERING != '0'"; // запрашиваем показаний без вс€кой лишей информации
+        qDebug() << queryString;
         query.exec(queryString);
 
         query.next();
@@ -254,23 +288,23 @@ void DbSqlExport::queryDbResult(QString any)
         day = query.value(0).toString();
 
         queryString = "select VALUE_METERING from dbo.METERINGS where  IDOBJECT = '" + any.setNum(iD) + "' AND IDTYPE_OBJECT = '1202001' AND IDOBJECT_AGGREGATE = '1' AND TIME_END = '" + timeInQuery + " 19:00:00.0000000' AND VALUE_METERING != '0'";
-
+        qDebug() << queryString;
         query.exec(queryString);
 
         query.next();
 
         night = query.value(0).toString();
 
-        queryString = "select IDOBJECT_FROM from dbo.LINK_OBJECTS where IDOBJECT_TO = '" + any.setNum(iD + 1) + "' AND IDTYPE_OBJECT_LINK = '1000011'";
-
+        queryString = "select IDOBJECT_FROM from dbo.LINK_OBJECTS where IDOBJECT_TO = '" + any.setNum(guidId) + "' AND IDTYPE_OBJECT_LINK = '1000011'";
+        qDebug() << queryString;
         query.exec(queryString);
 
         query.next();
 
-        iD = query.value(0).toInt();
+        guidId = query.value(0).toInt();
 
-        queryString = "select PROPERTY_VALUE from PROPERTIES where IDOBJECT_PARENT = '" + any.setNum(iD) + "' and IDTYPE_PROPERTY = '939'";
-
+        queryString = "select PROPERTY_VALUE from PROPERTIES where IDOBJECT_PARENT = '" + any.setNum(guidId) + "' and IDTYPE_PROPERTY = '939'";
+        qDebug() << queryString;
         query.exec(queryString);
 
         query.next();
