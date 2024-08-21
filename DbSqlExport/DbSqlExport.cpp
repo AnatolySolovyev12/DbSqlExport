@@ -59,7 +59,9 @@ DbSqlExport::DbSqlExport(QWidget *parent)
 DbSqlExport::~DbSqlExport()
 {}
 
-
+// Вывод для теста
+// QString curTime = (QTime::currentTime().toString("hh:mm:ss"));
+//  qDebug() << curTime;
 
 void DbSqlExport::addOneNumber() // добавляем номер
 {
@@ -81,7 +83,6 @@ void DbSqlExport::addOneNumber() // добавляем номер
 
 void DbSqlExport::removeNumber() // удаление элемента 
 { 
-
     int r = ui.listWidget->currentRow();
 
     if (r != -1) 
@@ -162,7 +163,6 @@ void DbSqlExport::addSomeNumbers()
             ui.listWidget->setCurrentRow(r); //наконец, выделяем текущий добавленный элемент с помощью метода setCurrentRow().
             countOfNumbers++;
         }
-
     }
 
     delete cell;
@@ -173,7 +173,6 @@ void DbSqlExport::addSomeNumbers()
 
     delete workbookDonor;
     delete excelDonor;
-
 }
 
 void DbSqlExport::connectDataBase()
@@ -215,9 +214,6 @@ void DbSqlExport::connectDataBase()
         dbLabel->setText("SQL Connected");
         dbLabel->setStyleSheet("color: rgb(0, 255, 0)");
     }
-
-
-    //mw_db.removeDatabase("DBTESTZ");
 }
 
 void DbSqlExport::queryDbResult(QString any)
@@ -233,11 +229,10 @@ void DbSqlExport::queryDbResult(QString any)
     {
         QDate curDate = QDate::currentDate();
         curDate = curDate.addDays(-1); // то что в Заре на сегодня в БД на вчера. Поэтому вычетаем день от текущей даты для последующего запроса
-       // QTime curTime = QTime::currentTime();
         QString timeInQuery = curDate.toString("yyyy-MM-dd"); // Разворачиваем формат даты так как в БД.
 
         queryString = "select IDOBJECT_PARENT from dbo.PROPERTIES where PROPERTY_VALUE = '" + any + "' and IDTYPE_PROPERTY = '987' ORDER BY IDOBJECT_PARENT DESC"; // запрашиваем нужный нам ID поо номеру прибора
-        qDebug() << queryString;
+
         query.exec(queryString); // Отправляем запрос на количество записей
 
         query.next();
@@ -246,20 +241,7 @@ void DbSqlExport::queryDbResult(QString any)
 
         guidId = iD;
 
-        
-        //if (myParamForSmtp.odbc == "DBZS")
-        //   iD++;
-
-        //queryString = select IDOBJECT_TO from dbo.LINK_OBJECTS where IDOBJECT_FROM = '216695' and IDTYPE_OBJECT_LINK = '1000011'
-
-        //queryString = "select IDOBJECT_TO from dbo.LINK_OBJECTS where IDOBJECT_FROM = '" + any.setNum(iD) + "' and IDTYPE_OBJECT_LINK = '1000010'"; // запрашиваем нужный нам ID поо номеру прибора
-        
-        //queryString = "select IDOBJECT_TO from dbo.LINK_OBJECTS where IDOBJECT_FROM = '" + any.setNum(iD) + "'and IDTYPE_OBJECT_LINK = '1000010' ORDER BY IDLINK_OBJECTS DESC";
-       // queryString = "select IDOBJECT_TO from dbo.LINK_OBJECTS where IDOBJECT_FROM = '" + any.setNum(iD) + "' ORDER BY IDLINK_OBJECTS DESC";
-        
         queryString = "select IDOBJECT_TO from dbo.LINK_OBJECTS where IDOBJECT_FROM = '" + any.setNum(iD) + "' and IDTYPE_OBJECT_LINK = '1000011'";
-       
-        qDebug() << queryString;
         
         query.exec(queryString);
         query.next();
@@ -270,17 +252,11 @@ void DbSqlExport::queryDbResult(QString any)
             query.exec(queryString);
             query.next();
         }
-      /*  else
-        {
-            queryString = "select IDOBJECT_TO from dbo.LINK_OBJECTS where IDOBJECT_FROM = '" + any.setNum(iD) + "' and IDTYPE_OBJECT_LINK = '1000011'";
-            query.exec(queryString);
-            query.next();
-        }
-       */
+
         iD = query.value(0).toInt(); // ID с показаниями на единицу меньше чем мы выявили по номеру счётчика.
 
         queryString = "select VALUE_METERING from dbo.METERINGS where  IDOBJECT = '" + any.setNum(iD) + "' AND IDTYPE_OBJECT = '1201001' AND IDOBJECT_AGGREGATE = '1' AND TIME_END = '" + timeInQuery + " 19:00:00.0000000' AND VALUE_METERING != '0'"; // запрашиваем показаний без всякой лишей информации
-        qDebug() << queryString;
+
         query.exec(queryString);
 
         query.next();
@@ -288,7 +264,7 @@ void DbSqlExport::queryDbResult(QString any)
         day = query.value(0).toString();
 
         queryString = "select VALUE_METERING from dbo.METERINGS where  IDOBJECT = '" + any.setNum(iD) + "' AND IDTYPE_OBJECT = '1202001' AND IDOBJECT_AGGREGATE = '1' AND TIME_END = '" + timeInQuery + " 19:00:00.0000000' AND VALUE_METERING != '0'";
-        qDebug() << queryString;
+
         query.exec(queryString);
 
         query.next();
@@ -296,7 +272,7 @@ void DbSqlExport::queryDbResult(QString any)
         night = query.value(0).toString();
 
         queryString = "select IDOBJECT_FROM from dbo.LINK_OBJECTS where IDOBJECT_TO = '" + any.setNum(guidId) + "' AND IDTYPE_OBJECT_LINK = '1000011'";
-        qDebug() << queryString;
+
         query.exec(queryString);
 
         query.next();
@@ -304,7 +280,7 @@ void DbSqlExport::queryDbResult(QString any)
         guidId = query.value(0).toInt();
 
         queryString = "select PROPERTY_VALUE from PROPERTIES where IDOBJECT_PARENT = '" + any.setNum(guidId) + "' and IDTYPE_PROPERTY = '939'";
-        qDebug() << queryString;
+
         query.exec(queryString);
 
         query.next();
@@ -315,10 +291,11 @@ void DbSqlExport::queryDbResult(QString any)
     if (myParamForSmtp->odbc == "DBEG" || myParamForSmtp->odbc == "DBEN")
     {
         QDate curDate = QDate::currentDate();
+
         if(myParamForSmtp->odbc == "DBEG")
             curDate = curDate.addDays(-1);
-        QString timeInQuery = curDate.toString("yyyy-MM-dd"); // Разворачиваем формат даты так как в БД.
 
+        QString timeInQuery = curDate.toString("yyyy-MM-dd"); // Разворачиваем формат даты так как в БД.
 
         queryString = "select ID_MeterInfo from MeterInfo where SN = '" + any + "'"; // запрашиваем первичный ID по номеру прибора
         query.exec(queryString);
@@ -339,7 +316,6 @@ void DbSqlExport::queryDbResult(QString any)
 
         iD = query.value(0).toInt();
 
-
         if (myParamForSmtp->odbc == "DBEG")
             queryString = "select Val from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and DT = '" + timeInQuery + " 22:00:00:000' and N_Rate = '1'";
 
@@ -349,7 +325,6 @@ void DbSqlExport::queryDbResult(QString any)
         query.exec(queryString);
         query.next();
         day = query.value(0).toString();
-
 
         if (myParamForSmtp->odbc == "DBEG")
             queryString = "select Val from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and DT = '" + timeInQuery + " 22:00:00:000' and N_Rate = '2'";
@@ -377,6 +352,8 @@ void DbSqlExport::generateXml()
 {
     QElapsedTimer timer;
     int countTimer = 0; // для итогового вывода времени потраченного на выполнение
+    int countDoingIterationForTime = 0; // считаем количество выполнений
+    int valueForTimer = 5000; // временной отрезок для подсчёта количества выполнений
     timer.start();
 
     QDate curDate = QDate::currentDate();
@@ -396,7 +373,6 @@ void DbSqlExport::generateXml()
         savedFile = QFileDialog::getSaveFileName(0, "Save XML", fileName, "*.xml"); // В последнем параметре также можно прописать tr("Xml files (*.xml)"). Это будет как приписка с указанием формата. Удобно.
     else
         savedFile = fileName + ".xml";
-
 
     if (savedFile == "") return;
 
@@ -456,7 +432,6 @@ void DbSqlExport::generateXml()
             dateInHead.remove(i, 1);
     }
 
-
     xmlWriter.writeCharacters(dateInHead);
 
     xmlWriter.writeEndElement(); // day
@@ -495,12 +470,24 @@ void DbSqlExport::generateXml()
 
     for (int i = 0; i < countOfNumbers; i++)
     {
+        ++countDoingIterationForTime; // счётчик количества выполнений за единицу времени
+
         ui.listWidget->setCurrentRow(i);
 
         queryDbResult(ui.listWidget->currentItem()->text());
 
         generalXmlLoop(ui.listWidget->currentItem()->text(), day, night, guid);
 
+        if (valueForTimer - timer.elapsed() <= 100) // для отслеживания количества выполнений каждые 5 секунд.
+        {
+            valueForTimer += 5000;
+
+            QTime ct = QTime::currentTime(); // возвращаем текущее время
+
+            qDebug() << ct.toString() << "   " << countDoingIterationForTime;
+
+            countDoingIterationForTime = 0;
+        }
     }
 
     xmlWriter.writeEndElement(); // area
@@ -551,11 +538,9 @@ void DbSqlExport::generalXmlLoop(QString any, QString dayFunc, QString nightFunc
 		if (internalCounter == 1) desc = "9";
 		if (internalCounter == 2) desc = "10";
 
-
 		xmlWriter.writeAttribute("desc", desc);
 
 		xmlWriter.writeStartElement("period");
-
 
 		xmlWriter.writeAttribute("start", "0000");
 
@@ -564,7 +549,6 @@ void DbSqlExport::generalXmlLoop(QString any, QString dayFunc, QString nightFunc
 		xmlWriter.writeStartElement("timestamp");
 
 		QString curDate = (QDate::currentDate().toString("yyyy.MM.dd"));
-
 
         for (int i = 0; i < curDate.size(); i++)
         {
@@ -592,8 +576,6 @@ void DbSqlExport::generalXmlLoop(QString any, QString dayFunc, QString nightFunc
 
 		xmlWriter.writeStartElement("value");
 
-
-
 		if (internalCounter == 0) xmlWriter.writeCharacters(day);
 		if (internalCounter == 1) xmlWriter.writeCharacters(night);
         if (internalCounter == 2) xmlWriter.writeCharacters("0");
@@ -605,12 +587,9 @@ void DbSqlExport::generalXmlLoop(QString any, QString dayFunc, QString nightFunc
 		xmlWriter.writeEndElement(); // measurechannel
 
 		desc = "0";
-
-       // continue;
 	}
 
 	xmlWriter.writeEndElement(); // measurepoint
-
 }
 
 void DbSqlExport::optionsSmtp()
@@ -629,7 +608,6 @@ void DbSqlExport::checkSendAfterCreate(int myState) {
     }
 }
 
-
 void DbSqlExport::checkDelAfterSend(int myState) {
 
     if (myState == Qt::Checked) {
@@ -643,8 +621,6 @@ void DbSqlExport::checkDelAfterSend(int myState) {
 void DbSqlExport::slotTimerAlarm()
 {
     if (ui.autoSender->isChecked()) {
-       // QString curTime = (QTime::currentTime().toString("hh:mm:ss"));
-      //  qDebug() << curTime;
         generateXml();
     }
 }
@@ -665,7 +641,6 @@ void DbSqlExport::timerUpdate()
         sBar->showMessage("Autocreate was start in " + curDate + " " + curTime);
     }
 }
-
 
 void DbSqlExport::MessegeAboutReconnectDb(QString)
 {
