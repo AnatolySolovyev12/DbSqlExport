@@ -42,7 +42,7 @@ void ParamSmtp::readDefaultConfig()
 
 	if (!file.open(QIODevice::ReadOnly))
 	{
-		qDebug() << "Dont fide config file. Add file with parameters.";
+		qDebug() << "Dont find config file. Add file with parameters.";
 		return;
 	}
 
