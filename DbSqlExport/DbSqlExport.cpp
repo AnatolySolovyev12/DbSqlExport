@@ -179,10 +179,11 @@ void DbSqlExport::connectDataBase()
 {
     QSqlDatabase mw_db = QSqlDatabase::addDatabase("QODBC"); // Для раблоты ODBC в Windows необходимо задвать пользовательский DNS в администрировании системы. Иначен не будет работать.
 
-    mw_db.setHostName(myParamForSmtp->hostName); // хост где лежит БД
-    mw_db.setDatabaseName(myParamForSmtp->odbc); // указываем имя пользовательского DNS который был создан в системе ранее.
-    mw_db.setUserName(myParamForSmtp->userNameDb);
-    mw_db.setPassword(myParamForSmtp->passDb);
+    QString dbParam = "DRIVER={SQL Server};SERVER=" + myParamForSmtp->hostName + ";DATABASE=" + myParamForSmtp->odbc + ";UID=" + myParamForSmtp->userNameDb + ";PWD=" + myParamForSmtp->passDb + ";";
+
+    mw_db.setDatabaseName(dbParam);
+
+    //mw_db.setDatabaseName("DRIVER={SQL Server};SERVER=10.86.142.14;DATABASE=ProSoft_ASKUE;UID=solexp;PWD=RootToor#;");
 
 	if (!mw_db.open()) // открываем БД. Если не открывает то вернёт false
 	{
