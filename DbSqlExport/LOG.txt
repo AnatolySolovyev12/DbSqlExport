@@ -1,0 +1,80 @@
+[Microsoft][ODBC SQL Server Driver][SQL Server]Cannot open database "ENERGOSFERA-GES" requested by the login. The login failed.
+QODBC: Unable to connect
+[Microsoft][ODBC SQL Server Driver][SQL Server]Cannot open database "ENERGOSFERA-GES" requested by the login. The login failed.
+QODBC: Unable to connect
+[Microsoft][Диспетчер драйверов ODBC] Источник данных не найден и не указан драйвер, используемый по умолчанию
+QODBC: Unable to connect
+[Microsoft][Диспетчер драйверов ODBC] Источник данных не найден и не указан драйвер, используемый по умолчанию
+QODBC: Unable to connect
+[Microsoft][Диспетчер драйверов ODBC] Источник данных не найден и не указан драйвер, используемый по умолчанию
+QODBC: Unable to connect
+[Microsoft][ODBC SQL Server Driver]Не предоставлены ключевые слова DSN и SERVER
+QODBC: Unable to connect
+[Microsoft][ODBC SQL Server Driver]Не предоставлены ключевые слова DSN и SERVER
+QODBC: Unable to connect
+[Microsoft][ODBC SQL Server Driver][SQL Server]Cannot open database "ProSoft_ASKUE" requested by the login. The login failed.
+QODBC: Unable to connect
+[Microsoft][ODBC SQL Server Driver][SQL Server]Cannot open database "ProSoft_ASKUE" requested by the login. The login failed.
+QODBC: Unable to connect
+[Microsoft][Диспетчер драйверов ODBC] Источник данных не найден и не указан драйвер, используемый по умолчанию
+QODBC: Unable to connect
+[Microsoft][Диспетчер драйверов ODBC] Источник данных не найден и не указан драйвер, используемый по умолчанию
+QODBC: Unable to connect
+[Microsoft][ODBC SQL Server Driver][SQL Server]Cannot open database "ProSoft_ASKUE" requested by the login. The login failed.
+QODBC: Unable to connect
+[Microsoft][ODBC SQL Server Driver][SQL Server]Cannot open database "ProSoft_ASKUE" requested by the login. The login failed.
+QODBC: Unable to connect
+[Microsoft][ODBC SQL Server Driver][SQL Server]Cannot open database "ProSoft_ASKUE" requested by the login. The login failed.
+QODBC: Unable to connect
+[Microsoft][ODBC SQL Server Driver][SQL Server]Cannot open database "ProSoft_ASKUE" requested by the login. The login failed.
+QODBC: Unable to connect
+[Microsoft][ODBC SQL Server Driver][SQL Server]Cannot open database "ProSoft_ASKUE" requested by the login. The login failed.
+QODBC: Unable to connect
+[Microsoft][ODBC SQL Server Driver][SQL Server]Cannot open database "ProSoft_ASKUE" requested by the login. The login failed.
+QODBC: Unable to connect
+[Microsoft][ODBC SQL Server Driver][SQL Server]Cannot open database "ProSoft_ASKUE" requested by the login. The login failed.
+QODBC: Unable to connect
+[Microsoft][ODBC SQL Server Driver][SQL Server]Cannot open database "ProSoft_ASKUE" requested by the login. The login failed.
+QODBC: Unable to connect
+[Microsoft][ODBC SQL Server Driver][SQL Server]Cannot open database "ProSoft_ASKUE" requested by the login. The login failed.
+QODBC: Unable to connect
+[Microsoft][ODBC SQL Server Driver][SQL Server]Cannot open database "ProSoft_ASKUE" requested by the login. The login failed.
+QODBC: Unable to connect
+[Microsoft][ODBC SQL Server Driver][SQL Server]Cannot open database "ProSoft_ASKUE" requested by the login. The login failed.
+QODBC: Unable to connect
+[Microsoft][ODBC SQL Server Driver][SQL Server]Cannot open database "ProSoft_ASKUE" requested by the login. The login failed.
+QODBC: Unable to connect
+[Microsoft][ODBC SQL Server Driver][SQL Server]Login failed for user 'solexp1'.
+QODBC: Unable to connect
+[Microsoft][ODBC SQL Server Driver][SQL Server]Cannot open database "DBZS" requested by the login. The login failed.
+QODBC: Unable to connect
+[Microsoft][ODBC SQL Server Driver][SQL Server]Cannot open database "DBZS" requested by the login. The login failed.
+QODBC: Unable to connect
+[Microsoft][ODBC SQL Server Driver][SQL Server]Cannot open database "DBZS" requested by the login. The login failed.
+QODBC: Unable to connect
+[Microsoft][ODBC SQL Server Driver][SQL Server]Cannot open database "DBEN" requested by the login. The login failed.
+QODBC: Unable to connect
+[Microsoft][ODBC SQL Server Driver][SQL Server]Cannot open database "DBEG" requested by the login. The login failed.
+QODBC: Unable to connect
+[Microsoft][ODBC SQL Server Driver][SQL Server]Cannot open database "DBEG" requested by the login. The login failed.
+QODBC: Unable to connect
+[Microsoft][ODBC SQL Server Driver][DBNETLIB]SQL Server не существует, или доступ запрещен. [Microsoft][ODBC SQL Server Driver][DBNETLIB]ConnectionOpen (Connect()).
+QODBC: Unable to connect
+[Microsoft][ODBC SQL Server Driver][DBNETLIB]SQL Server не существует, или доступ запрещен. [Microsoft][ODBC SQL Server Driver][DBNETLIB]ConnectionOpen (Connect()).
+QODBC: Unable to connect
+[Microsoft][ODBC SQL Server Driver][SQL Server]Login failed for user 'solexp1'.
+QODBC: Unable to connect
+[Microsoft][ODBC SQL Server Driver][SQL Server]Cannot open database "ProSoft_ASKUE1" requested by the login. The login failed.
+QODBC: Unable to connect
+[Microsoft][ODBC SQL Server Driver][SQL Server]Login failed for user 'solexp'.
+QODBC: Unable to connect
+[Microsoft][ODBC SQL Server Driver][DBNETLIB]SQL Server не существует, или доступ запрещен. [Microsoft][ODBC SQL Server Driver][DBNETLIB]ConnectionOpen (Connect()).
+QODBC: Unable to connect
+[Microsoft][ODBC SQL Server Driver][SQL Server]Cannot open database "ProSoft_ASKUE1" requested by the login. The login failed.
+QODBC: Unable to connect
+[Microsoft][ODBC SQL Server Driver][SQL Server]Cannot open database "ProSoft_ASKUE2" requested by the login. The login failed.
+QODBC: Unable to connect
+[Microsoft][Диспетчер драйверов ODBC] Источник данных не найден и не указан драйвер, используемый по умолчанию
+QODBC: Unable to connect
+[Microsoft][ODBC SQL Server Driver][DBNETLIB]SQL Server не существует, или доступ запрещен. [Microsoft][ODBC SQL Server Driver][DBNETLIB]ConnectionOpen (Connect()).
+QODBC: Unable to connect
