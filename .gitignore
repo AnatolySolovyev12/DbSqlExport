@@ -362,3 +362,6 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /DbSqlExport/LOG.txt
+/DbSqlExport/config.txt
+/DbSqlExport/LOG.txt
+/.gitignore
