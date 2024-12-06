@@ -26,7 +26,7 @@ public:
     void queryDbResult(QString any);
     void generateXml();
     void checkSendAfterCreate(int myState);
-    void generalXmlLoop(QString any, QString day, QString night, QString counterGuid);
+    void generalXmlLoop(QString any, QString day, QString night, QString counterGuid, QString dateDay);
     void optionsSmtp();
     void checkDelAfterSend(int myState);
 
@@ -50,6 +50,7 @@ private:
     QString day;
     QString night;
     QString guid;
+    QString dateDay;
     int countOfNumbers = 0;
 
     QTimer* timer;
