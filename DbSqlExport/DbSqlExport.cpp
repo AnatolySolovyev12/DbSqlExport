@@ -181,7 +181,6 @@ void DbSqlExport::connectDataBase()
 
     if (myParamForSmtp->hostName == "")
     {
-      //  mw_db.setHostName(myParamForSmtp->hostName); // хост где лежит БД
         mw_db.setDatabaseName(myParamForSmtp->odbc); // указываем имя пользовательского DNS который был создан в системе ранее.
         mw_db.setUserName(myParamForSmtp->userNameDb);
         mw_db.setPassword(myParamForSmtp->passDb);
@@ -263,7 +262,7 @@ void DbSqlExport::queryDbResult(QString any)
 
         iD = query.value(0).toInt(); // ID с показаниями на единицу меньше чем мы выявили по номеру счётчика.
 
-        queryString = "select VALUE_METERING from dbo.METERINGS where  IDOBJECT = '" + any.setNum(iD) + "' AND IDTYPE_OBJECT = '1201001' AND IDOBJECT_AGGREGATE = '1' AND TIME_END = '" + timeInQuery + " 19:00:00.0000000' AND VALUE_METERING != '0'"; // запрашиваем показаний без всякой лишей информации
+        queryString = "select TOP 1 VALUE_METERING, FORMAT(DATEADD(DAY, 1 ,TIME_END), 'yyyy.MM.dd') as TIME_END from dbo.METERINGS where  IDOBJECT = '" + any.setNum(iD) + "' AND IDTYPE_OBJECT = '1201001' AND IDOBJECT_AGGREGATE = '1'  AND VALUE_METERING != '0' order by TIME_END DESC"; // запрашиваем показаний без всякой лишей информации
 
         query.exec(queryString);
 
@@ -271,7 +270,9 @@ void DbSqlExport::queryDbResult(QString any)
 
         day = query.value(0).toString();
 
-        queryString = "select VALUE_METERING from dbo.METERINGS where  IDOBJECT = '" + any.setNum(iD) + "' AND IDTYPE_OBJECT = '1202001' AND IDOBJECT_AGGREGATE = '1' AND TIME_END = '" + timeInQuery + " 19:00:00.0000000' AND VALUE_METERING != '0'";
+        dateDay = query.value(1).toString();
+
+        queryString = "select TOP 1 VALUE_METERING, FORMAT(DATEADD(DAY, 1 ,TIME_END), 'yyyy.MM.dd') as TIME_END from dbo.METERINGS where  IDOBJECT = '" + any.setNum(iD) + "' AND IDTYPE_OBJECT = '1202001' AND IDOBJECT_AGGREGATE = '1'  AND VALUE_METERING != '0' order by TIME_END DESC";
 
         query.exec(queryString);
 
@@ -325,20 +326,21 @@ void DbSqlExport::queryDbResult(QString any)
         iD = query.value(0).toInt();
 
         if (myParamForSmtp->odbc == "DBEG")
-            queryString = "select Val from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and DT = '" + timeInQuery + " 22:00:00:000' and N_Rate = '1'";
+            queryString = "select Val, FORMAT(DT+1, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '1' order by DT DESC";
 
         if (myParamForSmtp->odbc == "DBEN")
-            queryString = "select Val from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and DT = '" + timeInQuery + " 00:00:00:000' and N_Rate = '1'";
+            queryString = "select Val, FORMAT(DT, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '1' order by DT DESC";
 
         query.exec(queryString);
         query.next();
         day = query.value(0).toString();
+        dateDay = query.value(1).toString();
 
         if (myParamForSmtp->odbc == "DBEG")
-            queryString = "select Val from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and DT = '" + timeInQuery + " 22:00:00:000' and N_Rate = '2'";
+            queryString = "select Val, FORMAT(DT+1, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '2' order by DT DESC";
 
         if (myParamForSmtp->odbc == "DBEN")
-            queryString = "select Val from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and DT = '" + timeInQuery + " 00:00:00:000' and N_Rate = '2'";
+            queryString = "select Val, FORMAT(DT, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '2' order by DT DESC";
 
         query.exec(queryString);
         query.next();
@@ -484,7 +486,7 @@ void DbSqlExport::generateXml()
 
         queryDbResult(ui.listWidget->currentItem()->text());
 
-        generalXmlLoop(ui.listWidget->currentItem()->text(), day, night, guid);
+        generalXmlLoop(ui.listWidget->currentItem()->text(), day, night, guid, dateDay);
 
         if (valueForTimer - timer.elapsed() <= 100) // для отслеживания количества выполнений каждые 5 секунд.
         {
@@ -510,7 +512,7 @@ void DbSqlExport::generateXml()
 
     out << "XML was made for = " << (double)countTimer / 1000 << " sec" << Qt::endl;
 
-    mw_db.removeDatabase("DBTESTZ"); // Подключаем пользовательский DNS с ODBC;
+    mw_db.removeDatabase("DBTESTZ"); // Подключаем пользовательский DNS с ODBC;//////////////////////////////////////////////////////////////////////
 
     if(boolSendAfterCreate)
         myParamForSmtp->sendMailfromButton();
@@ -525,7 +527,7 @@ void DbSqlExport::generateXml()
 }
 
 
-void DbSqlExport::generalXmlLoop(QString any, QString dayFunc, QString nightFunc, QString counterGuid)
+void DbSqlExport::generalXmlLoop(QString any, QString dayFunc, QString nightFunc, QString counterGuid, QString dateDay)
 {
 	QString desc = "0";
 
@@ -556,7 +558,7 @@ void DbSqlExport::generalXmlLoop(QString any, QString dayFunc, QString nightFunc
 
 		xmlWriter.writeStartElement("timestamp");
 
-		QString curDate = (QDate::currentDate().toString("yyyy.MM.dd"));
+		QString curDate = dateDay;
 
         for (int i = 0; i < curDate.size(); i++)
         {
