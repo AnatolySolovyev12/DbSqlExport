@@ -270,6 +270,9 @@ void DbSqlExport::queryDbResult(QString any)
 
         day = query.value(0).toString();
 
+        if (day.length() >= 14) //исправл€ем ошибку переноса из Ѕƒ в строку при которой добавл€етс€ куча значений после зап€той
+            day.chop(9);
+
         dateDay = query.value(1).toString();
 
         queryString = "select TOP 1 VALUE_METERING, FORMAT(DATEADD(DAY, 1 ,TIME_END), 'yyyy.MM.dd') as TIME_END from dbo.METERINGS where  IDOBJECT = '" + any.setNum(iD) + "' AND IDTYPE_OBJECT = '1202001' AND IDOBJECT_AGGREGATE = '1'  AND VALUE_METERING != '0' order by TIME_END DESC";
@@ -279,6 +282,9 @@ void DbSqlExport::queryDbResult(QString any)
         query.next();
 
         night = query.value(0).toString();
+
+        if (night.length() >= 14)
+            night.chop(9);
 
         queryString = "select IDOBJECT_FROM from dbo.LINK_OBJECTS where IDOBJECT_TO = '" + any.setNum(guidId) + "' AND IDTYPE_OBJECT_LINK = '1000011'";
 
@@ -334,6 +340,10 @@ void DbSqlExport::queryDbResult(QString any)
         query.exec(queryString);
         query.next();
         day = query.value(0).toString();
+
+        if (day.length() >= 14)
+            day.chop(9);
+
         dateDay = query.value(1).toString();
 
         if (myParamForSmtp->odbc == "DBEG")
@@ -345,6 +355,9 @@ void DbSqlExport::queryDbResult(QString any)
         query.exec(queryString);
         query.next();
         night = query.value(0).toString();
+
+        if (night.length() >= 14)
+            night.chop(9);
 
         queryString = "select ID_Parent from NDIETable where ID_PP = '" + any.setNum(iD) + "'"; // получаем ID дл€ последующего получаени€ GUID
         query.exec(queryString);
