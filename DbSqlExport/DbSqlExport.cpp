@@ -191,6 +191,8 @@ void DbSqlExport::connectDataBase()
         mw_db.setDatabaseName(dbParam);
     }
 
+    //mw_db.setDatabaseName("DRIVER={SQL Server};SERVER=10.86.142.14;DATABASE=ProSoft_ASKUE;UID=solexp;PWD=RootToor#;");
+
 	if (!mw_db.open()) // открываем БД. Если не открывает то вернёт false
 	{
 		QString any;
