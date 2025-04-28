@@ -378,25 +378,20 @@ void DbSqlExport::queryDbResult(QString any)
 		QString timeInQuery = curDate.toString("yyyy-MM-dd"); // Разворачиваем формат даты так как в БД.
 
 		queryString = "select id from [LERS].[dbo].[Equipment] where SerialNumber = '" + any + "'"; // запрашиваем первичный ID по номеру прибора
-		query.exec(queryString);
 
+		query.exec(queryString);
 		query.next();
 
-		qDebug() << query.value(0);
-
 		iD = query.value(0).toInt();
-
-		qDebug() << iD;
-
 
 		queryString = "select MeasurePointID from [LERS].[dbo].[DeviceMeasurePoint] where EquipmentId = '" + any.setNum(iD) + "'"; // получаем ID из ID
 
 		query.exec(queryString);
 		query.next();
+
 		iD = query.value(0).toInt();
 
-
-		queryString = "select Val, TOP(1) FORMAT(DataDate, 'yyyy.MM.dd') as DataDate, Ap1, Ap2 from [LERS].[dbo].[ElectricTotals] where  MeasurePointId = '" + any.setNum(iD) + "' order by DataDate DESC";
+		queryString = "select TOP(1) FORMAT(DataDate, 'yyyy.MM.dd') as DataDate, Ap1, Ap2 from [LERS].[dbo].[ElectricTotals] where  MeasurePointId = '" + any.setNum(iD) + "' order by DataDate DESC";
 
 		query.exec(queryString);
 		query.next();
@@ -413,17 +408,23 @@ void DbSqlExport::queryDbResult(QString any)
 
 		dateDay = query.value(0).toString();
 
-		/*
-		queryString = "select ID_Parent from NDIETable where ID_PP = '" + any.setNum(iD) + "'"; // получаем ID для последующего получаения GUID
-		query.exec(queryString);
-		query.next();
-		iD = query.value(0).toInt();
 
-		queryString = "select Code from NDIETable where ID_DIE = '" + any.setNum(iD) + "'"; // получаем GUID
+		queryString = "select MeasurePoint_Comment, PersonalAccountID from [LERS].[dbo].[MeasurePoint] where MeasurePoint_ID = '" + any.setNum(iD) + "'"; // получаем ID для последующего получаения GUID
 		query.exec(queryString);
 		query.next();
-		guid = query.value(0).toString();
-		*/
+
+		iD = query.value(1).toInt();
+
+		if (!iD)
+			guid = query.value(0).toString();
+		else
+		{
+			queryString = "select PersonalAccount_Number from [LERS].[dbo].[PersonalAccount] where PersonalAccount_ID = '" + any.setNum(iD) + "'"; // получаем ID для последующего получаения GUID
+			query.exec(queryString);
+			query.next();
+
+			guid = query.value(0).toString();
+		}
 	}
 }
 
