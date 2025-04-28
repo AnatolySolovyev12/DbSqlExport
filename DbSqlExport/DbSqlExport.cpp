@@ -401,10 +401,38 @@ void DbSqlExport::queryDbResult(QString any)
 		if (day.length() >= 14)
 			day.chop(9);
 
+		int counterAfterZero = 0;
+		bool afterZero = false;
+
+		for (auto& val : day)
+		{
+			if (val.isDigit()) afterZero = true;
+
+			if (afterZero)
+				counterAfterZero++;
+		}
+
+		for (int val = counterAfterZero; val < 4; val++)
+			day.push_back("0");
+
 		night = query.value(2).toString();
 
 		if (night.length() >= 14)
 			night.chop(9);
+
+		counterAfterZero = 0;
+		afterZero = false;
+
+		for (auto& val : night)
+		{
+			if (val.isDigit()) afterZero = true;
+
+			if (afterZero)
+				counterAfterZero++;
+		}
+
+		for (int val = counterAfterZero; val < 4; val++)
+			night.push_back("0");
 
 		dateDay = query.value(0).toString();
 
