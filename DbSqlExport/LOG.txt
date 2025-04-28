@@ -78,3 +78,13 @@ QODBC: Unable to connect
 QODBC: Unable to connect
 [Microsoft][ODBC SQL Server Driver][DBNETLIB]SQL Server не существует, или доступ запрещен. [Microsoft][ODBC SQL Server Driver][DBNETLIB]ConnectionOpen (Connect()).
 QODBC: Unable to connect
+[Microsoft][Диспетчер драйверов ODBC] Источник данных не найден и не указан драйвер, используемый по умолчанию
+QODBC: Unable to connect
+[Microsoft][Диспетчер драйверов ODBC] Источник данных не найден и не указан драйвер, используемый по умолчанию
+QODBC: Unable to connect
+[Microsoft][Диспетчер драйверов ODBC] Источник данных не найден и не указан драйвер, используемый по умолчанию
+QODBC: Unable to connect
+[Microsoft][Диспетчер драйверов ODBC] Источник данных не найден и не указан драйвер, используемый по умолчанию
+QODBC: Unable to connect
+[Microsoft][Диспетчер драйверов ODBC] Источник данных не найден и не указан драйвер, используемый по умолчанию
+QODBC: Unable to connect
