@@ -686,9 +686,30 @@ void DbSqlExport::generalXmlLoop(QString any, QString dayFunc, QString nightFunc
 
 		xmlWriter.writeStartElement("value");
 
-		if (internalCounter == 0) xmlWriter.writeCharacters(day);
-		if (internalCounter == 1) xmlWriter.writeCharacters(night);
-		if (internalCounter == 2) xmlWriter.writeCharacters("0");
+		if (internalCounter == 0)
+		{
+			day[day.indexOf('.')] = ',';
+
+			for (int val = (day.length() - day.indexOf(',')); val <= 4; val++)
+			{
+				day.push_back("0");
+			}
+
+			xmlWriter.writeCharacters(day);
+		}
+
+		if (internalCounter == 1) 
+		{
+			night[night.indexOf('.')] = ',';
+
+			for (int val = (night.length() - night.indexOf(',')); val <= 4; val++)
+			{
+				night.push_back("0");
+			}
+
+			xmlWriter.writeCharacters(night);
+		}
+		if (internalCounter == 2) xmlWriter.writeCharacters("0,0000");
 
 		xmlWriter.writeEndElement(); // value
 
