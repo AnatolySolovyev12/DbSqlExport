@@ -60,9 +60,6 @@ DbSqlExport::~DbSqlExport()
 {
 }
 
-// Вывод для теста
-// QString curTime = (QTime::currentTime().toString("hh:mm:ss"));
-//  qDebug() << curTime;
 
 void DbSqlExport::addOneNumber() // добавляем номер
 {
@@ -81,7 +78,6 @@ void DbSqlExport::addOneNumber() // добавляем номер
 }
 
 
-
 void DbSqlExport::removeNumber() // удаление элемента 
 {
 	int r = ui.listWidget->currentRow();
@@ -95,7 +91,6 @@ void DbSqlExport::removeNumber() // удаление элемента
 }
 
 
-
 void DbSqlExport::clearAllNumbers() // метод clear() удаляет все элементы из виджета списка:
 {
 
@@ -106,7 +101,6 @@ void DbSqlExport::clearAllNumbers() // метод clear() удаляет все элементы из вид
 		countOfNumbers = 0;
 	}
 }
-
 
 
 void DbSqlExport::addSomeNumbers()
@@ -176,6 +170,7 @@ void DbSqlExport::addSomeNumbers()
 	delete excelDonor;
 }
 
+
 void DbSqlExport::connectDataBase()
 {
 	QSqlDatabase mw_db = QSqlDatabase::addDatabase("QODBC"); // Для раблоты ODBC в Windows необходимо задвать пользовательский DNS в администрировании системы. Иначен не будет работать.
@@ -192,7 +187,7 @@ void DbSqlExport::connectDataBase()
 		mw_db.setDatabaseName(dbParam);
 	}
 
-    //mw_db.setDatabaseName("DRIVER={SQL Server};SERVER=10.86.142.14;DATABASE=ProSoft_ASKUE;UID=solexp;PWD=RootToor#;");
+	//mw_db.setDatabaseName("DRIVER={SQL Server};SERVER=10.86.142.14;DATABASE=ProSoft_ASKUE;UID=solexp;PWD=RootToor#;");
 
 	if (!mw_db.open()) // открываем БД. Если не открывает то вернёт false
 	{
@@ -225,6 +220,7 @@ void DbSqlExport::connectDataBase()
 		dbLabel->setStyleSheet("color: rgb(0, 255, 0)");
 	}
 }
+
 
 void DbSqlExport::queryDbResult(QString any)
 {
@@ -379,7 +375,7 @@ void DbSqlExport::queryDbResult(QString any)
 
 		QString timeInQuery = curDate.toString("yyyy-MM-dd"); // Разворачиваем формат даты так как в БД.
 
-		queryString = "select id from [LERS].[dbo].[Equipment] where SerialNumber = '" + any + "'"; // запрашиваем первичный ID по номеру прибора
+		queryString = "select id from [LERS].[dbo].[Equipment] where SerialNumber = '" + any + "' order by id DESC"; // запрашиваем первичный ID по номеру прибора
 
 		query.exec(queryString);
 		query.next();
@@ -400,44 +396,15 @@ void DbSqlExport::queryDbResult(QString any)
 
 		day = query.value(1).toString();
 
-		if (day.length() >= 14)
+		if (day.length() >= 18)
 			day.chop(9);
-
-		int counterAfterZero = 0;
-		bool afterZero = false;
-
-		for (auto& val : day)
-		{
-			if (val.isDigit()) afterZero = true;
-
-			if (afterZero)
-				counterAfterZero++;
-		}
-
-		for (int val = counterAfterZero; val < 4; val++)
-			day.push_back("0");
 
 		night = query.value(2).toString();
 
-		if (night.length() >= 14)
+		if (night.length() >= 18)
 			night.chop(9);
 
-		counterAfterZero = 0;
-		afterZero = false;
-
-		for (auto& val : night)
-		{
-			if (val.isDigit()) afterZero = true;
-
-			if (afterZero)
-				counterAfterZero++;
-		}
-
-		for (int val = counterAfterZero; val < 4; val++)
-			night.push_back("0");
-
 		dateDay = query.value(0).toString();
-
 
 		queryString = "select MeasurePoint_Comment, PersonalAccountID from [LERS].[dbo].[MeasurePoint] where MeasurePoint_ID = '" + any.setNum(iD) + "'"; // получаем ID для последующего получаения GUID
 		query.exec(queryString);
@@ -457,6 +424,7 @@ void DbSqlExport::queryDbResult(QString any)
 		}
 	}
 }
+
 
 void DbSqlExport::generateXml()
 {
@@ -612,7 +580,7 @@ void DbSqlExport::generateXml()
 
 	out << "XML was made for = " << (double)countTimer / 1000 << " sec" << Qt::endl;
 
-	mw_db.removeDatabase("DBTESTZ"); // Подключаем пользовательский DNS с ODBC;//////////////////////////////////////////////////////////////////////
+	mw_db.removeDatabase(myParamForSmtp->odbc); 
 
 	if (boolSendAfterCreate)
 		myParamForSmtp->sendMailfromButton();
@@ -690,22 +658,38 @@ void DbSqlExport::generalXmlLoop(QString any, QString dayFunc, QString nightFunc
 		{
 			day[day.indexOf('.')] = ',';
 
-			for (int val = (day.length() - day.indexOf(',')); val <= 4; val++)
+			if ((day.length() - day.indexOf(',')) > 4)
+				day.chop(day.length() - (day.indexOf(',') + 5));
+
+			if (day != '0')
 			{
-				day.push_back("0");
+				for (int val = (day.length() - day.indexOf(',')); val <= 4; val++)
+				{
+					day.push_back("0");
+				}
 			}
+			else
+				day = "0,0000";
 
 			xmlWriter.writeCharacters(day);
 		}
 
-		if (internalCounter == 1) 
+		if (internalCounter == 1)
 		{
 			night[night.indexOf('.')] = ',';
 
-			for (int val = (night.length() - night.indexOf(',')); val <= 4; val++)
+			if ((night.length() - night.indexOf(',')) > 4)
+				night.chop(night.length() - (night.indexOf(',') + 5));
+
+			if (night != '0')
 			{
-				night.push_back("0");
+				for (int val = (night.length() - night.indexOf(',')); val <= 4; val++)
+				{
+					night.push_back("0");
+				}
 			}
+			else
+				night = "0,0000";
 
 			xmlWriter.writeCharacters(night);
 		}
@@ -723,11 +707,13 @@ void DbSqlExport::generalXmlLoop(QString any, QString dayFunc, QString nightFunc
 	xmlWriter.writeEndElement(); // measurepoint
 }
 
+
 void DbSqlExport::optionsSmtp()
 {
 	myParamForSmtp->show();
 	myParamForSmtp->readDefaultConfig();
 }
+
 
 void DbSqlExport::checkSendAfterCreate(int myState) {
 
@@ -739,6 +725,7 @@ void DbSqlExport::checkSendAfterCreate(int myState) {
 	}
 }
 
+
 void DbSqlExport::checkDelAfterSend(int myState) {
 
 	if (myState == Qt::Checked) {
@@ -749,12 +736,14 @@ void DbSqlExport::checkDelAfterSend(int myState) {
 	}
 }
 
+
 void DbSqlExport::slotTimerAlarm()
 {
 	if (ui.autoSender->isChecked()) {
 		generateXml();
 	}
 }
+
 
 void DbSqlExport::timerUpdate()
 {
@@ -772,6 +761,7 @@ void DbSqlExport::timerUpdate()
 		sBar->showMessage("Autocreate was start in " + curDate + " " + curTime);
 	}
 }
+
 
 void DbSqlExport::MessegeAboutReconnectDb(QString)
 {
