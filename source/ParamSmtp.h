@@ -6,7 +6,6 @@
 #include <QMessageBox>
 #include "SMTP.h"
 #include <QFileDialog>
-#include <SMTP.h>
 #include <QString>
 
 class ParamSmtp : public QMainWindow
