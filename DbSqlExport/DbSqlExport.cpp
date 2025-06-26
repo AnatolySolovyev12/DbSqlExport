@@ -153,7 +153,7 @@ void DbSqlExport::addSomeNumbers()
 
 		if (!currentString.isEmpty())
 		{
-			ui.listWidget->addItem(currentString);
+			ui.listWidget->addItem(currentString.trimmed());
 			int r = ui.listWidget->count() - 1;
 			ui.listWidget->setCurrentRow(r); //наконец, выделяем текущий добавленный элемент с помощью метода setCurrentRow().
 			countOfNumbers++;
@@ -199,7 +199,7 @@ void DbSqlExport::connectDataBase()
 
 		qDebug() << "Cannot open database: " << mw_db.lastError();
 
-		QFile file("LOG.txt");
+		QFile file(QCoreApplication::applicationDirPath() + "\\LOG.txt");
 		file.open(QIODevice::WriteOnly | QIODevice::Append);
 		QTextStream out(&file); // поток записываемых данных направляем в файл
 
