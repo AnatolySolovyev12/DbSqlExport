@@ -38,7 +38,7 @@ void ParamSmtp::sendMailfromButton()
 
 void ParamSmtp::readDefaultConfig()
 {
-	QFile file(QCoreApplication::applicationDirPath() + "\\config.txt");
+	QFile file("config.txt");
 
 	if (!file.open(QIODevice::ReadOnly))
 	{
@@ -145,7 +145,7 @@ void ParamSmtp::readDefaultConfig()
 
 void ParamSmtp::writeCurrent()
 {
-    QFile file(QCoreApplication::applicationDirPath() + "\\config.txt");
+    QFile file("config.txt");
 
     // Открываем файл в режиме "Только для записи"
     if (file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {

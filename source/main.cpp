@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
     DbSqlExport w;
 
     w.setWindowTitle("DbSqlExport by Solovev");
-    w.setWindowIcon(QIcon(QCoreApplication::applicationDirPath() + "\\icon.png"));
+    w.setWindowIcon(QIcon("icon.png"));
 
     w.show();
     return a.exec();
