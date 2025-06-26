@@ -149,11 +149,11 @@ void DbSqlExport::addSomeNumbers()
 	for (int row = 1; row <= countRowsDonor; ++row)
 	{
 		cell = sheetDonor->querySubObject("Cells(int,int)", row, 1); // так указываем с какой ячейкой работать
-		QString currentString = cell->property("Value").toString();
+		QString currentString = cell->property("Value").toString().trimmed();
 
 		if (!currentString.isEmpty())
 		{
-			ui.listWidget->addItem(currentString.trimmed());
+			ui.listWidget->addItem(currentString);
 			int r = ui.listWidget->count() - 1;
 			ui.listWidget->setCurrentRow(r); //наконец, выделяем текущий добавленный элемент с помощью метода setCurrentRow().
 			countOfNumbers++;
