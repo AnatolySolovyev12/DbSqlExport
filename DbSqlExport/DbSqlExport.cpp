@@ -769,3 +769,38 @@ void DbSqlExport::MessegeAboutReconnectDb(QString)
 }
 
 
+
+
+//use[ProSoft_ASKUE - Utek]
+
+/*
+select ID_Point from MeterMountHist where ID_MeterInfo = (select ID_MeterInfo from MeterInfo where SN = '101000004224')
+
+select ID_PP from dbo.PointParams where ID_Point = (select ID_Point from MeterMountHist where ID_MeterInfo = (select ID_MeterInfo from MeterInfo where SN = '101000004224')) and ID_Param = '4'
+*/
+//select* from NDIEParams
+//select* from NDIETable
+
+
+/*
+insert into NDIETable (ID_Format, NodeType, Name, Code, ID_Rec, ID_Parent)
+Values (34, 4, 'Счетчик СПОДЭС-D №101000004224', '9999999999', (select ID_DIE from NDIETable where Name = 'Дополнительный тестовый макет'),
+(select ID_DIE from NDIETable where ID_Parent = (select ID_DIE from NDIETable where Name = 'Дополнительный тестовый макет') and NodeType = 3))
+
+insert into NDIEParams(ID_DIE, ID_DIEPrmType, Value, IntVal)
+values ((select TOP 1 ID_DIE from NDIETable ORDER BY ID_DIE DESC), 61, (select ID_Point from MeterMountHist where ID_MeterInfo = (select ID_MeterInfo from MeterInfo where SN = '101000004224')),
+(select ID_Point from MeterMountHist where ID_MeterInfo = (select ID_MeterInfo from MeterInfo where SN = '101000004224')))
+
+insert into NDIETable (ID_Format, NodeType, Name, Code, ID_Rec, ID_Parent, ID_PP) Values (34, 2, 'Активная энергия, прием', '01', (select ID_DIE from NDIETable where Name = 'Дополнительный тестовый макет'), (select TOP 1 ID_DIE from NDIETable ORDER BY ID_DIE DESC), 1766)
+*/
+
+//--select TOP 1 ID_DIE from NDIETable ORDER BY ID_DIE DESC
+
+//--update NDIETable set ID_PP = 1766 where ID_DIE = 21
+
+/*
+delete from NDIETable where ID_PP = 1766 OR Code = '9999999999'
+delete from NDIEParams where IntVal = '512'
+*/
+
+
