@@ -921,14 +921,14 @@ void DbSqlExport::importClassBirth()
 
 	if (myParamForSmtp->odbc == "DBEN" || myParamForSmtp->odbc == "DBEG" || myParamForSmtp->odbc == "DBEY")
 	{
-		queryString = "select count(*) from NDIETable where NodeType = 0"; // Запрашиваем список макетов
+		queryString = "select count(*) from NDIETable where NodeType = 0 and ID_Format = 34"; // Запрашиваем список макетов
 
 		query.exec(queryString);
 		query.next();
 
 		int countOfMaket = query.value(0).toInt();
 
-		queryString = "select Name from NDIETable where NodeType = 0"; // Запрашиваем список макетов
+		queryString = "select Name from NDIETable where NodeType = 0 and ID_Format = 34"; // Запрашиваем список макетов
 		
 		query.exec(queryString);
 		
