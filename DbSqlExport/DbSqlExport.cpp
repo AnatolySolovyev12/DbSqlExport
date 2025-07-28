@@ -18,7 +18,7 @@ QTextStream out(stdout);
 QTextStream in(stdin);
 
 DbSqlExport::DbSqlExport(QWidget* parent)
-	: QMainWindow(parent)
+	: QMainWindow(parent), importClass(new Import80020CLass())
 {
 	ui.setupUi(this);
 
@@ -303,7 +303,7 @@ void DbSqlExport::queryDbResult(QString any)
 		guid = query.value(0).toString();
 	}
 
-	if (myParamForSmtp->odbc == "DBEG" || myParamForSmtp->odbc == "DBEN")
+	if (myParamForSmtp->odbc == "DBEG" || myParamForSmtp->odbc == "DBEN" || myParamForSmtp->odbc == "DBEY")
 	{
 		QDate curDate = QDate::currentDate();
 
@@ -331,7 +331,7 @@ void DbSqlExport::queryDbResult(QString any)
 
 		iD = query.value(0).toInt();
 
-		if (myParamForSmtp->odbc == "DBEG")
+		if (myParamForSmtp->odbc == "DBEG" || myParamForSmtp->odbc == "DBEY")
 			queryString = "select Val, FORMAT(DT+1, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '1' order by DT DESC";
 
 		if (myParamForSmtp->odbc == "DBEN")
@@ -346,7 +346,7 @@ void DbSqlExport::queryDbResult(QString any)
 
 		dateDay = query.value(1).toString();
 
-		if (myParamForSmtp->odbc == "DBEG")
+		if (myParamForSmtp->odbc == "DBEG" || myParamForSmtp->odbc == "DBEY")
 			queryString = "select Val, FORMAT(DT+1, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '2' order by DT DESC";
 
 		if (myParamForSmtp->odbc == "DBEN")
@@ -581,7 +581,7 @@ void DbSqlExport::generateXml()
 
 	out << "XML was made for = " << (double)countTimer / 1000 << " sec" << Qt::endl;
 
-	mw_db.removeDatabase(myParamForSmtp->odbc); 
+	mw_db.removeDatabase(myParamForSmtp->odbc);
 
 	if (boolSendAfterCreate)
 		myParamForSmtp->sendMailfromButton();
@@ -772,6 +772,14 @@ void DbSqlExport::MessegeAboutReconnectDb(QString)
 
 void DbSqlExport::import80020()
 {
+	bufferFor80020Import.clear();
+
+	if (myParamForSmtp->odbc != "DBEN" || myParamForSmtp->odbc != "DBEG" || myParamForSmtp->odbc != "DBEY")
+	{
+		sBar->showMessage("Wrong DataBase. Please connect for correct DB.");
+		return;
+	}
+
 	QString addFileDonor = QFileDialog::getOpenFileName(0, "Add list of numbers", "", "*.xls *.xlsx");
 
 	if (addFileDonor == "")
@@ -853,8 +861,8 @@ void DbSqlExport::import80020()
 					delete excelDonor;
 					return;
 				}
-				
-				for(auto& val : serialString)
+
+				for (auto& val : serialString)
 				{
 					if (!val.isDigit())
 					{
@@ -879,43 +887,18 @@ void DbSqlExport::import80020()
 
 				bufferFor80020Import.push_back(qMakePair(serialString, iDlString));
 
-
-
-
 				countOfNumbers++;
 			}
 		}
 
 		qDebug() << "Count of object for import = " << bufferFor80020Import.length();
 
-
 		importClassBirth();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	}
 	else
 	{
 		qDebug() << "Incorrect format of file. Not find second column.";
 	}
-
-
-
-
-
-
-
 
 	delete cell;
 	cell = nullptr;
@@ -925,17 +908,44 @@ void DbSqlExport::import80020()
 
 	delete workbookDonor;
 	delete excelDonor;
-
-
-
-
 }
+
 
 void DbSqlExport::importClassBirth()
 {
-	Import80020CLass* temporary = new Import80020CLass();
+	QSqlQuery query;
+	QString queryString;
 
-	temporary->show();
+	if (myParamForSmtp->odbc == "DBEN" || myParamForSmtp->odbc == "DBEG" || myParamForSmtp->odbc == "DBEY")
+	{
+		queryString = "select count(*) from NDIETable where NodeType = 0"; // Запрашиваем список макетов
+
+		query.exec(queryString);
+		query.next();
+
+		int countOfMaket = query.value(0).toInt();
+
+		queryString = "select Name from NDIETable where NodeType = 0"; // Запрашиваем список макетов
+		
+		query.exec(queryString);
+		
+		for(int valuesOfQuery = 0; valuesOfQuery < countOfMaket; valuesOfQuery++)
+		{
+			query.next();
+			importClass->setMaket(query.value(0).toString());
+		}
+		
+		importClass->show();
+	}
+}
+
+
+void DbSqlExport::processWriteInDb()
+{
+
+
+
+
 
 }
 

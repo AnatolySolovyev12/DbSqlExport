@@ -36,6 +36,8 @@ public:
     void import80020();
     void importClassBirth();
 
+    void processWriteInDb();
+
     QXmlStreamWriter xmlWriter;
     QSqlDatabase mw_db;
 
@@ -66,5 +68,5 @@ private:
 
     QList<QPair<QString, QString>>bufferFor80020Import;
 
-    Import80020CLass* temporaryClass = nullptr;
+    Import80020CLass* importClass = nullptr;
 };

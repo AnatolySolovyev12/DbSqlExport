@@ -12,6 +12,8 @@ public:
 
 	~Import80020CLass();
 
+	void setMaket(QString any);
+
 private:
 	Ui::Import80020CLassClass ui;
 
