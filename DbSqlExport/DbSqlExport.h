@@ -36,7 +36,7 @@ public:
     void import80020();
     void importClassBirth();
 
-    void processWriteInDb();
+
 
     QXmlStreamWriter xmlWriter;
     QSqlDatabase mw_db;
@@ -48,7 +48,8 @@ private slots:
     void slotTimerAlarm();
     void timerUpdate();
     void MessegeAboutReconnectDb(QString);
- 
+    void processWriteInDb(QString any);
+
 private:
     Ui::DbSqlExportClass ui;
     

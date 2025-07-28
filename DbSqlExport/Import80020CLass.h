@@ -2,6 +2,7 @@
 
 #include <QMainWindow>
 #include "ui_Import80020CLass.h"
+#include <QTimer>
 
 class Import80020CLass : public QMainWindow
 {
@@ -13,6 +14,11 @@ public:
 	~Import80020CLass();
 
 	void setMaket(QString any);
+	void clearWidget();
+	void generateSignalForImport();
+
+signals:
+	void status(const QString&);
 
 private:
 	Ui::Import80020CLassClass ui;

@@ -30,7 +30,7 @@ DbSqlExport::DbSqlExport(QWidget* parent)
 	connect(ui.pushButtonAddFrom, &QPushButton::clicked, this, &DbSqlExport::addSomeNumbers);
 	connect(ui.pushButtonClose, SIGNAL(clicked()), this, SLOT(close()));
 	connect(ui.pushButtonGenXml, &QPushButton::clicked, this, &DbSqlExport::generateXml);
-	connect(ui.importDbButton, &QPushButton::clicked, this, &DbSqlExport::importClassBirth);
+	connect(ui.importDbButton, &QPushButton::clicked, this, &DbSqlExport::import80020);
 	connect(ui.pushButtonSendFiles, &QPushButton::clicked, this, &DbSqlExport::optionsSmtp);
 
 	connect(ui.checkBoxSendAfterCreate, &QCheckBox::stateChanged, this, &DbSqlExport::checkSendAfterCreate);
@@ -43,6 +43,8 @@ DbSqlExport::DbSqlExport(QWidget* parent)
 	timer->start(myParamForSmtp->timerTime * 3600000); // Каждые три секунды
 
 	connect(myParamForSmtp, SIGNAL(status(QString)), this, SLOT(MessegeAboutReconnectDb(QString))); // делаем реконект к БД после каждого сохранения настроек.
+
+	connect(importClass, SIGNAL(status(QString)), this, SLOT(processWriteInDb(QString))); // делаем реконект к БД после каждого сохранения настроек.
 
 	sBar = new QStatusBar();
 	QMainWindow::setStatusBar(sBar);
@@ -774,12 +776,13 @@ void DbSqlExport::import80020()
 {
 	bufferFor80020Import.clear();
 
-	if (myParamForSmtp->odbc != "DBEN" || myParamForSmtp->odbc != "DBEG" || myParamForSmtp->odbc != "DBEY")
+	/*
+	if (myParamForSmtp->odbc != QString("DBEN") || myParamForSmtp->odbc != QString("DBEG") || myParamForSmtp->odbc != QString("DBEY"))
 	{
 		sBar->showMessage("Wrong DataBase. Please connect for correct DB.");
 		return;
 	}
-
+	*/
 	QString addFileDonor = QFileDialog::getOpenFileName(0, "Add list of numbers", "", "*.xls *.xlsx");
 
 	if (addFileDonor == "")
@@ -929,6 +932,8 @@ void DbSqlExport::importClassBirth()
 		
 		query.exec(queryString);
 		
+		importClass->clearWidget();
+
 		for(int valuesOfQuery = 0; valuesOfQuery < countOfMaket; valuesOfQuery++)
 		{
 			query.next();
@@ -940,12 +945,42 @@ void DbSqlExport::importClassBirth()
 }
 
 
-void DbSqlExport::processWriteInDb()
+void DbSqlExport::processWriteInDb(QString any)
 {
+	QSqlQuery query;
+	QString queryString;
+
+	for (auto& val : bufferFor80020Import)
+	{
+		queryString = "select ID_MeterInfo from MeterInfo where SN = '" + val.first + "'"; // запрашиваем первичный ID по номеру прибора
+		query.exec(queryString);
+		query.next();
+		QString iD = query.value(0).toString();
+
+		queryString = "select ID_Point from MeterMountHist where ID_MeterInfo = '" + iD + "'"; // получаем ID из счётчика
+		query.exec(queryString);
+		query.next();
+		QString secondiD = query.value(0).toString();
+
+		queryString = "insert into NDIETable(ID_Format, NodeType, Name, Code, ID_Rec, ID_Parent) Values(34, 4, 'Счетчик СПОДЭС-D №" + val.first + "', '" + val.second + "', (select ID_DIE from NDIETable where Name = '" + any + "'), (select ID_DIE from NDIETable where ID_Parent = (select ID_DIE from NDIETable where Name = '" + any + "') and NodeType = 3))";
+		query.exec(queryString);
+
+		queryString = "insert into NDIEParams(ID_DIE, ID_DIEPrmType, Value, IntVal) values((select TOP 1 ID_DIE from NDIETable ORDER BY ID_DIE DESC), 61, " + secondiD + ", " + secondiD + ")";
+		query.exec(queryString);
 
 
+		queryString = "select * from dbo.PointParams where ID_Point = '" + secondiD + "' and ID_Param = '4'"; // получаем ID параметра активной энергии счётчика
+		query.exec(queryString);
+		query.next();
+		QString IdParams = query.value(0).toString();
+
+		queryString = "insert into NDIETable(ID_Format, NodeType, Name, Code, ID_Rec, ID_Parent, ID_PP) Values(34, 2, 'Активная энергия, прием', '01', (select ID_DIE from NDIETable where Name = '" + any + "'), (select TOP 1 ID_DIE from NDIETable ORDER BY ID_DIE DESC), " + IdParams + ")";
+	}
+}
+	/*
 
 
+		
 
 }
 
