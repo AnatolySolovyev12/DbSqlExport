@@ -8,6 +8,9 @@
 #include "ParamSmtp.h"
 #include <QTimer>
 
+#include <QPair>
+#include <Import80020Class.h>
+
 
 
 class DbSqlExport : public QMainWindow
@@ -29,6 +32,9 @@ public:
     void generalXmlLoop(QString any, QString day, QString night, QString counterGuid, QString dateDay);
     void optionsSmtp();
     void checkDelAfterSend(int myState);
+    
+    void import80020();
+    void importClassBirth();
 
     QXmlStreamWriter xmlWriter;
     QSqlDatabase mw_db;
@@ -57,4 +63,8 @@ private:
 
     QStatusBar * sBar;
     QLabel* dbLabel;
+
+    QList<QPair<QString, QString>>bufferFor80020Import;
+
+    Import80020CLass* temporaryClass = nullptr;
 };

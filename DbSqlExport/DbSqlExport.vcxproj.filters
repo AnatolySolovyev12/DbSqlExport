@@ -46,12 +46,18 @@
     <ClCompile Include="ParamSmtp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Import80020CLass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="SMTP.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="ParamSmtp.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Import80020CLass.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
@@ -67,6 +73,9 @@
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="ParamSmtp.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="Import80020CLass.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>

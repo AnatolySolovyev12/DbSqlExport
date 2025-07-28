@@ -102,6 +102,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QPushButton" name="importDbButton">
+         <property name="text">
+          <string>Import 80020*</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QPushButton" name="pushButtonSendFiles">
          <property name="text">
           <string>Options</string>

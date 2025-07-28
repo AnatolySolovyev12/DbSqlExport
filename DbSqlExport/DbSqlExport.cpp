@@ -30,6 +30,7 @@ DbSqlExport::DbSqlExport(QWidget* parent)
 	connect(ui.pushButtonAddFrom, &QPushButton::clicked, this, &DbSqlExport::addSomeNumbers);
 	connect(ui.pushButtonClose, SIGNAL(clicked()), this, SLOT(close()));
 	connect(ui.pushButtonGenXml, &QPushButton::clicked, this, &DbSqlExport::generateXml);
+	connect(ui.importDbButton, &QPushButton::clicked, this, &DbSqlExport::importClassBirth);
 	connect(ui.pushButtonSendFiles, &QPushButton::clicked, this, &DbSqlExport::optionsSmtp);
 
 	connect(ui.checkBoxSendAfterCreate, &QCheckBox::stateChanged, this, &DbSqlExport::checkSendAfterCreate);
@@ -769,6 +770,174 @@ void DbSqlExport::MessegeAboutReconnectDb(QString)
 }
 
 
+void DbSqlExport::import80020()
+{
+	QString addFileDonor = QFileDialog::getOpenFileName(0, "Add list of numbers", "", "*.xls *.xlsx");
+
+	if (addFileDonor == "")
+	{
+		return;
+	}
+
+	QAxObject* excelDonor = new QAxObject("Excel.Application", 0);
+	QAxObject* workbooksDonor = excelDonor->querySubObject("Workbooks");
+	QAxObject* workbookDonor = workbooksDonor->querySubObject("Open(const QString&)", addFileDonor); // 
+	QAxObject* sheetsDonor = workbookDonor->querySubObject("Worksheets");
+
+	int listDonor = sheetsDonor->property("Count").toInt(); // так можем получить количество листов в документе
+
+	if (listDonor > 1)
+	{
+		do
+		{
+			listDonor = QInputDialog::getInt(this, "List nomber", "Whats list do you need?");
+
+			if (!listDonor)
+			{
+				return;
+			}
+
+		} while (listDonor <= 0 || (listDonor > (sheetsDonor->property("Count").toInt())));
+
+	}
+
+	QAxObject* sheetDonor = sheetsDonor->querySubObject("Item(int)", listDonor);// Тут определяем лист с которым будем работать
+
+	QAxObject* usedRangeDonor = sheetDonor->querySubObject("UsedRange"); // так можем получить количество строк в документе
+	QAxObject* rowsDonor = usedRangeDonor->querySubObject("Rows");
+	int countRowsDonor = rowsDonor->property("Count").toInt();
+
+	QAxObject* usedRangeColDonor = sheetDonor->querySubObject("UsedRange"); // так можем получить количество столбцов в документе
+	QAxObject* columnsDonor = usedRangeColDonor->querySubObject("Columns");
+	int countColsDonor = columnsDonor->property("Count").toInt();
+
+	QAxObject* cell = nullptr;
+
+	if (!(countColsDonor < 2))
+	{
+
+		for (int row = 1; row <= countRowsDonor; ++row)
+		{
+			cell = sheetDonor->querySubObject("Cells(int,int)", row, 1); // так указываем с какой ячейкой работать
+			QString serialString = cell->property("Value").toString().trimmed();
+
+			cell = sheetDonor->querySubObject("Cells(int,int)", row, 2); // так указываем с какой ячейкой работать
+			QString iDlString = cell->property("Value").toString().trimmed();
+
+			if (!serialString.isEmpty())
+			{
+				if (serialString.length() > 18)
+				{
+					qDebug() << "Incorrect length in row #" << row;
+					delete cell;
+					cell = nullptr;
+
+					workbookDonor->dynamicCall("Close()"); // обязательно используем в работе с Excel иначе документы будет фbоном открыт в системе
+					excelDonor->dynamicCall("Quit()");
+
+					delete workbookDonor;
+					delete excelDonor;
+					return;
+				}
+
+				if (serialString.length() < 5)
+				{
+					qDebug() << "Incorrect length in row #" << row;
+					delete cell;
+					cell = nullptr;
+
+					workbookDonor->dynamicCall("Close()"); // обязательно используем в работе с Excel иначе документы будет фbоном открыт в системе
+					excelDonor->dynamicCall("Quit()");
+
+					delete workbookDonor;
+					delete excelDonor;
+					return;
+				}
+				
+				for(auto& val : serialString)
+				{
+					if (!val.isDigit())
+					{
+						qDebug() << "Incorrect number in row #" << row;
+						delete cell;
+						cell = nullptr;
+
+						workbookDonor->dynamicCall("Close()"); // обязательно используем в работе с Excel иначе документы будет фbоном открыт в системе
+						excelDonor->dynamicCall("Quit()");
+
+						delete workbookDonor;
+						delete excelDonor;
+						return;
+					}
+				}
+
+				if (iDlString.length() > 40)
+				{
+					iDlString = "";
+					qDebug() << "Incorrect length for ID in row #" << row << ". Id will equal void.";
+				}
+
+				bufferFor80020Import.push_back(qMakePair(serialString, iDlString));
+
+
+
+
+				countOfNumbers++;
+			}
+		}
+
+		qDebug() << "Count of object for import = " << bufferFor80020Import.length();
+
+
+		importClassBirth();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	}
+	else
+	{
+		qDebug() << "Incorrect format of file. Not find second column.";
+	}
+
+
+
+
+
+
+
+
+	delete cell;
+	cell = nullptr;
+
+	workbookDonor->dynamicCall("Close()"); // обязательно используем в работе с Excel иначе документы будет фbоном открыт в системе
+	excelDonor->dynamicCall("Quit()");
+
+	delete workbookDonor;
+	delete excelDonor;
+
+
+
+
+}
+
+void DbSqlExport::importClassBirth()
+{
+	Import80020CLass* temporary = new Import80020CLass();
+
+	temporary->show();
+
+}
 
 
 //use[ProSoft_ASKUE - Utek]

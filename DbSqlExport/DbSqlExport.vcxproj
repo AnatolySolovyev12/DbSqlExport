@@ -102,6 +102,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Import80020CLass.cpp" />
     <ClCompile Include="ParamSmtp.cpp" />
     <ClCompile Include="SMTP.cpp" />
     <QtRcc Include="DbSqlExport.qrc" />
@@ -109,6 +110,7 @@
     <QtMoc Include="DbSqlExport.h" />
     <ClCompile Include="DbSqlExport.cpp" />
     <ClCompile Include="main.cpp" />
+    <QtUic Include="Import80020CLass.ui" />
     <QtUic Include="ParamSmtp.ui" />
   </ItemGroup>
   <ItemGroup>
@@ -116,6 +118,7 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="ParamSmtp.h" />
+    <QtMoc Include="Import80020CLass.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
