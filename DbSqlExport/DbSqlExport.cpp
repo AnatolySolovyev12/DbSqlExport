@@ -941,6 +941,7 @@ void DbSqlExport::importClassBirth()
 		}
 		
 		importClass->show();
+		importClass->setCurRow();
 	}
 }
 

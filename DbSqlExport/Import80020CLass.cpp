@@ -1,10 +1,9 @@
 #include "Import80020CLass.h"
 
-Import80020CLass::Import80020CLass(QWidget *parent)
+Import80020CLass::Import80020CLass(QWidget* parent)
 	: QMainWindow(parent)
 {
 	ui.setupUi(this);
-	ui.listWidgetMaket80020->currentItem() == nullptr;
 	connect(ui.importButton, &QPushButton::clicked, this, &Import80020CLass::generateSignalForImport);
 	connect(ui.cancelButton, SIGNAL(clicked()), this, SLOT(close()));
 }
@@ -29,4 +28,9 @@ void Import80020CLass::generateSignalForImport()
 	emit status(ui.listWidgetMaket80020->currentItem()->text());
 	ui.importButton->hide();
 	QTimer::singleShot(5000, [this]() {ui.importButton->show(); });
+}
+
+void Import80020CLass::setCurRow()
+{
+	ui.listWidgetMaket80020->setCurrentRow(0);
 }

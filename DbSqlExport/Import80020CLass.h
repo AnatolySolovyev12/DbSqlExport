@@ -16,6 +16,7 @@ public:
 	void setMaket(QString any);
 	void clearWidget();
 	void generateSignalForImport();
+	void setCurRow();
 
 signals:
 	void status(const QString&);
