@@ -777,10 +777,10 @@ void DbSqlExport::import80020()
 		return;
 	}
 
-	QAxObject* excelDonor = new QAxObject("Excel.Application", 0);
-	QAxObject* workbooksDonor = excelDonor->querySubObject("Workbooks");
-	QAxObject* workbookDonor = workbooksDonor->querySubObject("Open(const QString&)", addFileDonor); // 
-	QAxObject* sheetsDonor = workbookDonor->querySubObject("Worksheets");
+	QSharedPointer<QAxObject>excelDonor(new QAxObject("Excel.Application", 0));
+	QSharedPointer<QAxObject>workbooksDonor(excelDonor->querySubObject("Workbooks"));
+	QSharedPointer<QAxObject>workbookDonor(workbooksDonor->querySubObject("Open(const QString&)", addFileDonor));
+	QSharedPointer<QAxObject>sheetsDonor(workbookDonor->querySubObject("Worksheets"));
 
 	int listDonor = sheetsDonor->property("Count").toInt(); // так можем получить количество листов в документе
 
@@ -799,27 +799,23 @@ void DbSqlExport::import80020()
 
 	}
 
-	QAxObject* sheetDonor = sheetsDonor->querySubObject("Item(int)", listDonor);// Тут определяем лист с которым будем работать
-
-	QAxObject* usedRangeDonor = sheetDonor->querySubObject("UsedRange"); // так можем получить количество строк в документе
-	QAxObject* rowsDonor = usedRangeDonor->querySubObject("Rows");
+	QSharedPointer<QAxObject>sheetDonor(sheetsDonor->querySubObject("Item(int)", listDonor));
+	QSharedPointer<QAxObject>usedRangeDonor(sheetDonor->querySubObject("UsedRange"));
+	QSharedPointer<QAxObject>rowsDonor(usedRangeDonor->querySubObject("Rows"));
 	int countRowsDonor = rowsDonor->property("Count").toInt();
-
-	QAxObject* usedRangeColDonor = sheetDonor->querySubObject("UsedRange"); // так можем получить количество столбцов в документе
-	QAxObject* columnsDonor = usedRangeColDonor->querySubObject("Columns");
+	QSharedPointer<QAxObject>usedRangeColDonor(sheetDonor->querySubObject("UsedRange"));
+	QSharedPointer<QAxObject>columnsDonor(usedRangeColDonor->querySubObject("Columns"));
 	int countColsDonor = columnsDonor->property("Count").toInt();
-
-	QAxObject* cell = nullptr;
 
 	if (!(countColsDonor < 2))
 	{
 
 		for (int row = 1; row <= countRowsDonor; ++row)
 		{
-			cell = sheetDonor->querySubObject("Cells(int,int)", row, 1); // так указываем с какой ячейкой работать
+			QSharedPointer<QAxObject>cell(sheetDonor.data()->querySubObject("Cells(int,int)", row, 1)); // так указываем с какой ячейкой работать
 			QString serialString = cell->property("Value").toString().trimmed();
 
-			cell = sheetDonor->querySubObject("Cells(int,int)", row, 2); // так указываем с какой ячейкой работать
+			cell.reset(sheetDonor->querySubObject("Cells(int,int)", row, 2)); // так указываем с какой ячейкой работать
 			QString iDlString = cell->property("Value").toString().trimmed();
 
 			if (!serialString.isEmpty())
@@ -827,28 +823,18 @@ void DbSqlExport::import80020()
 				if (serialString.length() > 18)
 				{
 					qDebug() << "Incorrect length in row #" << row;
-					delete cell;
-					cell = nullptr;
 
 					workbookDonor->dynamicCall("Close()"); // обязательно используем в работе с Excel иначе документы будет фbоном открыт в системе
 					excelDonor->dynamicCall("Quit()");
-
-					delete workbookDonor;
-					delete excelDonor;
 					return;
 				}
 
 				if (serialString.length() < 5)
 				{
 					qDebug() << "Incorrect length in row #" << row;
-					delete cell;
-					cell = nullptr;
 
 					workbookDonor->dynamicCall("Close()"); // обязательно используем в работе с Excel иначе документы будет фbоном открыт в системе
 					excelDonor->dynamicCall("Quit()");
-
-					delete workbookDonor;
-					delete excelDonor;
 					return;
 				}
 
@@ -857,14 +843,9 @@ void DbSqlExport::import80020()
 					if (!val.isDigit())
 					{
 						qDebug() << "Incorrect number in row #" << row;
-						delete cell;
-						cell = nullptr;
 
 						workbookDonor->dynamicCall("Close()"); // обязательно используем в работе с Excel иначе документы будет фbоном открыт в системе
 						excelDonor->dynamicCall("Quit()");
-
-						delete workbookDonor;
-						delete excelDonor;
 						return;
 					}
 				}
@@ -890,14 +871,8 @@ void DbSqlExport::import80020()
 		qDebug() << "Incorrect format of file. Not find second column.";
 	}
 
-	delete cell;
-	cell = nullptr;
-
 	workbookDonor->dynamicCall("Close()"); // обязательно используем в работе с Excel иначе документы будет фbоном открыт в системе
 	excelDonor->dynamicCall("Quit()");
-
-	delete workbookDonor;
-	delete excelDonor;
 }
 
 
@@ -916,17 +891,17 @@ void DbSqlExport::importClassBirth()
 		int countOfMaket = query.value(0).toInt();
 
 		queryString = "select Name from NDIETable where NodeType = 0 and ID_Format = 34"; // Запрашиваем список макетов
-		
+
 		query.exec(queryString);
-		
+
 		importClass->clearWidget();
 
-		for(int valuesOfQuery = 0; valuesOfQuery < countOfMaket; valuesOfQuery++)
+		for (int valuesOfQuery = 0; valuesOfQuery < countOfMaket; valuesOfQuery++)
 		{
 			query.next();
 			importClass->setMaket(query.value(0).toString());
 		}
-		
+
 		importClass->show();
 		importClass->setCurRow();
 	}
@@ -938,7 +913,7 @@ void DbSqlExport::processWriteInDb(QString any)
 	QSqlQuery query;
 	QString queryString;
 
-	QPointer<QProgressBar> temporaryProgressBarPtr (importClass->getPtrProgressBar());
+	QPointer<QProgressBar> temporaryProgressBarPtr(importClass->getPtrProgressBar());
 
 	int valueProgressBar = 1;
 
@@ -973,6 +948,6 @@ void DbSqlExport::processWriteInDb(QString any)
 		valueProgressBar++;
 	}
 
-temporaryProgressBarPtr->hide();
+	temporaryProgressBarPtr->hide();
 }
 
