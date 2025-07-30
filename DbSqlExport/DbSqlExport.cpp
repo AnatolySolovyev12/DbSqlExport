@@ -96,8 +96,6 @@ void DbSqlExport::removeNumber() // удаление элемента
 
 void DbSqlExport::clearAllNumbers() // метод clear() удаляет все элементы из виджета списка:
 {
-
-
 	if (ui.listWidget->count() != 0)
 	{
 		ui.listWidget->clear();
@@ -114,11 +112,10 @@ void DbSqlExport::addSomeNumbers()
 	{
 		return;
 	}
-
-	QAxObject* excelDonor = new QAxObject("Excel.Application", 0);
-	QAxObject* workbooksDonor = excelDonor->querySubObject("Workbooks");
-	QAxObject* workbookDonor = workbooksDonor->querySubObject("Open(const QString&)", addFileDonor); // 
-	QAxObject* sheetsDonor = workbookDonor->querySubObject("Worksheets");
+	QSharedPointer<QAxObject>excelDonor(new QAxObject("Excel.Application", 0));
+	QSharedPointer<QAxObject>workbooksDonor(excelDonor->querySubObject("Workbooks"));
+	QSharedPointer<QAxObject>workbookDonor(workbooksDonor->querySubObject("Open(const QString&)", addFileDonor));
+	QSharedPointer<QAxObject>sheetsDonor(workbookDonor->querySubObject("Worksheets"));
 
 	int listDonor = sheetsDonor->property("Count").toInt(); // так можем получить количество листов в документе
 
@@ -137,21 +134,17 @@ void DbSqlExport::addSomeNumbers()
 
 	}
 
-	QAxObject* sheetDonor = sheetsDonor->querySubObject("Item(int)", listDonor);// Тут определяем лист с которым будем работать
-
-	QAxObject* usedRangeDonor = sheetDonor->querySubObject("UsedRange"); // так можем получить количество строк в документе
-	QAxObject* rowsDonor = usedRangeDonor->querySubObject("Rows");
+	QSharedPointer<QAxObject>sheetDonor(sheetsDonor->querySubObject("Item(int)", listDonor));
+	QSharedPointer<QAxObject>usedRangeDonor(sheetDonor->querySubObject("UsedRange"));
+	QSharedPointer<QAxObject>rowsDonor(usedRangeDonor->querySubObject("Rows"));
 	int countRowsDonor = rowsDonor->property("Count").toInt();
-
-	QAxObject* usedRangeColDonor = sheetDonor->querySubObject("UsedRange"); // так можем получить количество столбцов в документе
-	QAxObject* columnsDonor = usedRangeColDonor->querySubObject("Columns");
+	QSharedPointer<QAxObject>usedRangeColDonor(sheetDonor->querySubObject("UsedRange"));
+	QSharedPointer<QAxObject>columnsDonor(usedRangeColDonor->querySubObject("Columns"));
 	int countColsDonor = columnsDonor->property("Count").toInt();
-
-	QAxObject* cell = nullptr;
 
 	for (int row = 1; row <= countRowsDonor; ++row)
 	{
-		cell = sheetDonor->querySubObject("Cells(int,int)", row, 1); // так указываем с какой ячейкой работать
+		QSharedPointer<QAxObject>cell(sheetDonor.data()->querySubObject("Cells(int,int)", row, 1)); // так указываем с какой ячейкой работать
 		QString currentString = cell->property("Value").toString().trimmed();
 
 		if (!currentString.isEmpty())
@@ -163,14 +156,8 @@ void DbSqlExport::addSomeNumbers()
 		}
 	}
 
-	delete cell;
-	cell = nullptr;
-
 	workbookDonor->dynamicCall("Close()"); // обязательно используем в работе с Excel иначе документы будет фbоном открыт в системе
 	excelDonor->dynamicCall("Quit()");
-
-	delete workbookDonor;
-	delete excelDonor;
 }
 
 
@@ -467,7 +454,6 @@ void DbSqlExport::generateXml()
 
 	file.open(QIODevice::WriteOnly);
 
-	// QXmlStreamWriter xmlWriter(&file); // инициализируем объект QXmlStreamWriter ссылкой на объект с которым будем работать
 	xmlWriter.setDevice(&file);
 	xmlWriter.setAutoFormatting(true); // необходимо для автоматического перехода на новую строку
 	xmlWriter.setAutoFormattingIndent(2); // задаём количество пробелов в отступе (по умолчанию 4)
@@ -951,6 +937,11 @@ void DbSqlExport::processWriteInDb(QString any)
 	QSqlQuery query;
 	QString queryString;
 
+	QSharedPointer<QProgressBar> temporaryProgressBarPtr (importClass->getPtrProgressBar());
+
+	temporaryProgressBarPtr->setRange(0, bufferFor80020Import.length());
+	int valueProgressBar = 1;
+
 	for (auto& val : bufferFor80020Import)
 	{
 		queryString = "select ID_MeterInfo from MeterInfo where SN = '" + val.first + "'"; // запрашиваем первичный ID по номеру прибора
@@ -977,6 +968,11 @@ void DbSqlExport::processWriteInDb(QString any)
 
 		queryString = "insert into NDIETable(ID_Format, NodeType, Name, Code, ID_Rec, ID_Parent, ID_PP) Values(34, 2, 'Активная энергия, прием', '01', (select ID_DIE from NDIETable where Name = '" + any + "'), (select TOP 1 ID_DIE from NDIETable ORDER BY ID_DIE DESC), " + IdParams + ")";
 		query.exec(queryString);
+
+		temporaryProgressBarPtr->setValue(valueProgressBar);
+		valueProgressBar++;
 	}
+
+	temporaryProgressBarPtr->hide();
 }
 
