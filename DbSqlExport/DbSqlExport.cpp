@@ -769,6 +769,7 @@ void DbSqlExport::import80020()
 		return;
 	}
 	*/
+
 	QString addFileDonor = QFileDialog::getOpenFileName(0, "Add list of numbers", "", "*.xls *.xlsx");
 
 	if (addFileDonor == "")
@@ -937,9 +938,8 @@ void DbSqlExport::processWriteInDb(QString any)
 	QSqlQuery query;
 	QString queryString;
 
-	QSharedPointer<QProgressBar> temporaryProgressBarPtr (importClass->getPtrProgressBar());
+	QPointer<QProgressBar> temporaryProgressBarPtr (importClass->getPtrProgressBar());
 
-	temporaryProgressBarPtr->setRange(0, bufferFor80020Import.length());
 	int valueProgressBar = 1;
 
 	for (auto& val : bufferFor80020Import)
@@ -973,6 +973,6 @@ void DbSqlExport::processWriteInDb(QString any)
 		valueProgressBar++;
 	}
 
-	temporaryProgressBarPtr->hide();
+temporaryProgressBarPtr->hide();
 }
 

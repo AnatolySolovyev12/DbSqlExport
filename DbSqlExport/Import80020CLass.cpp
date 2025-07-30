@@ -6,9 +6,9 @@ Import80020CLass::Import80020CLass(QWidget* parent)
 	ui.setupUi(this);
 	connect(ui.importButton, &QPushButton::clicked, this, &Import80020CLass::generateSignalForImport);
 	connect(ui.cancelButton, SIGNAL(clicked()), this, SLOT(close()));
-	
 
 	ui.progressBar->hide();
+	barSharePtr = ui.progressBar;
 }
 
 Import80020CLass::~Import80020CLass()
@@ -32,7 +32,7 @@ void Import80020CLass::generateSignalForImport()
 	ui.progressBar->show();
 	ui.importButton->hide();
 	emit status(ui.listWidgetMaket80020->currentItem()->text());
-	QTimer::singleShot(5000, [this]() {ui.importButton->show(); });
+	QTimer::singleShot(5000, [this]() {ui.importButton->show();});
 }
 
 void Import80020CLass::setCurRow()
@@ -40,7 +40,7 @@ void Import80020CLass::setCurRow()
 	ui.listWidgetMaket80020->setCurrentRow(0);
 }
 
-QProgressBar* Import80020CLass::getPtrProgressBar()
+QPointer<QProgressBar> Import80020CLass::getPtrProgressBar()
 {
-	return ui.progressBar;
+	return barSharePtr;
 }

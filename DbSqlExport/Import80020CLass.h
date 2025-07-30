@@ -4,6 +4,7 @@
 #include "ui_Import80020CLass.h"
 #include <QTimer>
 #include <QProgressBar>
+#include <QPointer>
 
 class Import80020CLass : public QMainWindow
 {
@@ -18,12 +19,13 @@ public:
 	void clearWidget();
 	void generateSignalForImport();
 	void setCurRow();
-	QProgressBar* getPtrProgressBar();
+	QPointer<QProgressBar> getPtrProgressBar();
 
 signals:
 	void status(const QString&);
 
 private:
 	Ui::Import80020CLassClass ui;
+	QPointer<QProgressBar> barSharePtr;
 };
 
