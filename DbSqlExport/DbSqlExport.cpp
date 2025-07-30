@@ -418,6 +418,13 @@ void DbSqlExport::queryDbResult(QString any)
 
 void DbSqlExport::generateXml()
 {
+	
+	if (!dbconnect)
+	{
+		sBar->showMessage("Need connect to DB.");
+		return;
+	}
+	
 	QElapsedTimer timer;
 	int countTimer = 0; // для итогового вывода времени потраченного на выполнение
 	int countDoingIterationForTime = 0; // считаем количество выполнений
@@ -761,15 +768,25 @@ void DbSqlExport::MessegeAboutReconnectDb(QString)
 void DbSqlExport::import80020()
 {
 	bufferFor80020Import.clear();
-
-	/*
-	if (myParamForSmtp->odbc != QString("DBEN") || myParamForSmtp->odbc != QString("DBEG") || myParamForSmtp->odbc != QString("DBEY"))
+	
+	if (!dbconnect)
 	{
-		sBar->showMessage("Wrong DataBase. Please connect for correct DB.");
+		sBar->showMessage("Need connect to DB.");
 		return;
 	}
-	*/
 
+	if (myParamForSmtp->odbc == QString("DBZS") || myParamForSmtp->odbc == QString("DBZM") || myParamForSmtp->odbc == QString("DBKV"))
+	{
+		sBar->showMessage("Wrong DataBase for this function. Please connect for correct DB.");
+		return;
+	}
+
+	if (myParamForSmtp->userNameDb != QString("solexpimp"))
+	{
+		sBar->showMessage("Wrong User for this function. Please connect for correct DB.");
+		return;
+	}
+	
 	QString addFileDonor = QFileDialog::getOpenFileName(0, "Add list of numbers", "", "*.xls *.xlsx");
 
 	if (addFileDonor == "")
