@@ -18,7 +18,7 @@ QTextStream out(stdout);
 QTextStream in(stdin);
 
 DbSqlExport::DbSqlExport(QWidget* parent)
-	: QMainWindow(parent), importClass(new Import80020CLass())
+	: QMainWindow(parent), importClass(new Import80020CLass()), importTreeCLass(new importTreeObjectClass())
 {
 	ui.setupUi(this);
 
@@ -43,6 +43,13 @@ DbSqlExport::DbSqlExport(QWidget* parent)
 	timer->start(myParamForSmtp->timerTime * 3600000); // Каждые три секунды
 
 	connect(myParamForSmtp, SIGNAL(status(QString)), this, SLOT(MessegeAboutReconnectDb(QString))); // делаем реконект к БД после каждого сохранения настроек.
+
+
+	importMenu = new QMenu(ui.importDbButton);
+	importMenu->addAction("&80020*", this, &DbSqlExport::import80020);
+	importMenu->addAction("&TreeObjects", this, &DbSqlExport::importTreeObjectBirth);
+	ui.importDbButton->setMenu(importMenu);
+
 
 	connect(importClass, SIGNAL(status(QString)), this, SLOT(processWriteInDb(QString))); // делаем реконект к БД после каждого сохранения настроек.
 
@@ -966,5 +973,13 @@ void DbSqlExport::processWriteInDb(QString any)
 	}
 
 	temporaryProgressBarPtr->hide();
+}
+
+
+
+void DbSqlExport::importTreeObjectBirth()
+{
+	importTreeCLass->show();
+
 }
 

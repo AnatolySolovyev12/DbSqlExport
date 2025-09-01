@@ -49,6 +49,9 @@
     <ClCompile Include="Import80020CLass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="importTreeObjectClass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="SMTP.h">
@@ -58,6 +61,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Import80020CLass.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="importTreeObjectClass.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
@@ -76,6 +82,9 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="Import80020CLass.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="importTreeObjectClass.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>

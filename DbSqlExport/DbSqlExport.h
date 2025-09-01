@@ -11,6 +11,9 @@
 #include <QPair>
 #include <Import80020Class.h>
 
+#include "importTreeObjectClass.h"
+#include <qmenu.h>
+
 
 
 class DbSqlExport : public QMainWindow
@@ -36,6 +39,7 @@ public:
     void import80020();
     void importClassBirth();
 
+    void importTreeObjectBirth();
 
 
     QXmlStreamWriter xmlWriter;
@@ -70,4 +74,8 @@ private:
     QList<QPair<QString, QString>>bufferFor80020Import;
 
     Import80020CLass* importClass = nullptr;
+
+    QMenu* importMenu = nullptr;
+
+    importTreeObjectClass* importTreeCLass = nullptr;
 };

@@ -104,7 +104,7 @@
        <item>
         <widget class="QPushButton" name="importDbButton">
          <property name="text">
-          <string>Import 80020*</string>
+          <string>Import</string>
          </property>
         </widget>
        </item>
