@@ -2,13 +2,13 @@ DbSqlExport
 
 What can:
 1) Accept the list of devices one by one or a list
-2) Generate XML with readings and device identifiers in a specific format (80020 *) taken from the database
-3) Generate XML at specific intervals
+2) Generate XML with readings and device identifiers in a specific format (80020*) taken from the database
+3) Imports records from XLS (Serial/GUID) into the Export/Import module of the Energosphere software complex into the target layout 80020*. 
 4) Send an email with attached XML to the desired address
 5) Automatically delete the file after sending if necessary
 6) Outputs certain information to the console
 
-![DbSqlExport](https://github.com/user-attachments/assets/750fb802-43d3-451e-8cd4-dd361a1a4368)
+![Анимация 3](https://github.com/user-attachments/assets/b877ded6-bc36-4162-9899-f5d3e8dd1ad6)
 
 Console log:
 
