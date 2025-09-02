@@ -9,7 +9,8 @@ class importTreeObjectClass : public QMainWindow
 
 public:
 	importTreeObjectClass(QWidget *parent = nullptr);
-	~importTreeObjectClass();
+
+	QTreeWidget* returnWidget();
 
 private:
 	Ui::importTreeObjectClassClass ui;

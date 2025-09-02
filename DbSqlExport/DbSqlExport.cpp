@@ -30,7 +30,7 @@ DbSqlExport::DbSqlExport(QWidget* parent)
 	connect(ui.pushButtonAddFrom, &QPushButton::clicked, this, &DbSqlExport::addSomeNumbers);
 	connect(ui.pushButtonClose, SIGNAL(clicked()), this, SLOT(close()));
 	connect(ui.pushButtonGenXml, &QPushButton::clicked, this, &DbSqlExport::generateXml);
-	connect(ui.importDbButton, &QPushButton::clicked, this, &DbSqlExport::import80020);
+
 	connect(ui.pushButtonSendFiles, &QPushButton::clicked, this, &DbSqlExport::optionsSmtp);
 
 	connect(ui.checkBoxSendAfterCreate, &QCheckBox::stateChanged, this, &DbSqlExport::checkSendAfterCreate);
@@ -44,10 +44,24 @@ DbSqlExport::DbSqlExport(QWidget* parent)
 
 	connect(myParamForSmtp, SIGNAL(status(QString)), this, SLOT(MessegeAboutReconnectDb(QString))); // делаем реконект к БД после каждого сохранения настроек.
 
-
 	importMenu = new QMenu(ui.importDbButton);
-	importMenu->addAction("&80020*", this, &DbSqlExport::import80020);
-	importMenu->addAction("&TreeObjects", this, &DbSqlExport::importTreeObjectBirth);
+	//importMenu->addAction("&80020*", this, &DbSqlExport::import80020);
+	//importMenu->addAction("&TreeObjects", this, &DbSqlExport::importTreeObjectBirth);
+
+	importMenu->addAction("&80020*", [this]() {
+
+		importBool80020 = true;
+		import80020();
+
+		});
+
+	importMenu->addAction("&TreeObjects", [this]() {
+
+		importBool80020 = false;
+		import80020();
+
+		});
+
 	ui.importDbButton->setMenu(importMenu);
 
 
@@ -425,13 +439,13 @@ void DbSqlExport::queryDbResult(QString any)
 
 void DbSqlExport::generateXml()
 {
-	
+
 	if (!dbconnect)
 	{
 		sBar->showMessage("Need connect to DB.");
 		return;
 	}
-	
+
 	QElapsedTimer timer;
 	int countTimer = 0; // для итогового вывода времени потраченного на выполнение
 	int countDoingIterationForTime = 0; // считаем количество выполнений
@@ -775,7 +789,7 @@ void DbSqlExport::MessegeAboutReconnectDb(QString)
 void DbSqlExport::import80020()
 {
 	bufferFor80020Import.clear();
-	
+
 	if (!dbconnect)
 	{
 		sBar->showMessage("Need connect to DB.");
@@ -793,7 +807,7 @@ void DbSqlExport::import80020()
 		sBar->showMessage("Wrong User for this function. Please connect for correct DB.");
 		return;
 	}
-	
+
 	QString addFileDonor = QFileDialog::getOpenFileName(0, "Add list of numbers", "", "*.xls *.xlsx");
 
 	if (addFileDonor == "")
@@ -888,7 +902,10 @@ void DbSqlExport::import80020()
 
 		qDebug() << "Count of object for import = " << bufferFor80020Import.length();
 
-		importClassBirth();
+		if (importBool80020)
+			importClassBirth80020();
+		else
+			importTreeObjectBirth();
 	}
 	else
 	{
@@ -900,7 +917,7 @@ void DbSqlExport::import80020()
 }
 
 
-void DbSqlExport::importClassBirth()
+void DbSqlExport::importClassBirth80020()
 {
 	QSqlQuery query;
 	QString queryString;
@@ -979,7 +996,104 @@ void DbSqlExport::processWriteInDb(QString any)
 
 void DbSqlExport::importTreeObjectBirth()
 {
-	importTreeCLass->show();
+	QSqlQuery query;
+	QString queryString;
+	int parentID;
+	QTreeWidget* temporaryTreeWidgetPtr = importTreeCLass->returnWidget();
 
+	if (myParamForSmtp->odbc == "DBEN" || myParamForSmtp->odbc == "DBEG" || myParamForSmtp->odbc == "DBEY")
+	{
+		QTreeWidget* temporaryTreeWidgetPtr = importTreeCLass->returnWidget();
+
+		temporaryTreeWidgetPtr->clear();
+
+		queryString = "SELECT count(*) FROM Points"; // Запрашиваем список макетов
+
+		query.exec(queryString);
+		query.next();
+
+		int countOfMaket = query.value(0).toInt();
+
+		qDebug() << countOfMaket;
+		
+		queryString = "SELECT ID_Point, PointName, ID_Parent FROM Points where Point_Type != '21' and Point_Type != '145' order by ID_Parent "; // Запрашиваем список макетов
+
+		query.exec(queryString);
+
+		for (int valuesOfQuery = 0; valuesOfQuery <= countOfMaket; valuesOfQuery++)
+		{
+			query.next();
+
+			parentID = query.value(2).toInt();
+
+			QTreeWidgetItem* any = nullptr;
+
+			if (parentID == 0)
+			{
+				any = new QTreeWidgetItem();
+				temporaryTreeWidgetPtr->addTopLevelItem(any);
+			}
+			else
+			{
+				any = new QTreeWidgetItem();
+
+				QList <QTreeWidgetItem*> myList = temporaryTreeWidgetPtr->findItems(QString::number(parentID), Qt::MatchRecursive, 1);
+
+				for (auto& val : myList)
+				{
+					val->addChild(any);
+				}
+			}
+
+			any->setText(0, query.value(1).toString());
+			any->setText(1, query.value(0).toString());
+		}
+
+		QTreeWidgetItem* any = new QTreeWidgetItem();
+
+		QList <QTreeWidgetItem*> myList = temporaryTreeWidgetPtr->findItems("Новые счетчики", Qt::MatchRecursive, 0);
+
+		for (auto& val : myList)
+		{
+			delete val;
+		}
+
+		QList <QTreeWidgetItem*> myListSecond = temporaryTreeWidgetPtr->findItems("Ведро (для мусора)", Qt::MatchRecursive, 0);
+
+		for (auto& val : myListSecond)
+		{
+			delete val;
+		}
+	}
+
+	for (int countOfTop = 0; countOfTop < temporaryTreeWidgetPtr->topLevelItemCount(); countOfTop++)
+	{
+		QTreeWidgetItem* some = temporaryTreeWidgetPtr->topLevelItem(countOfTop);
+		recursionSorting(some);
+		some = nullptr;
+	}
+
+	importTreeCLass->show();
 }
 
+
+
+void DbSqlExport::recursionSorting(QTreeWidgetItem* some)
+{
+	if (some->childCount())
+	{
+		some->sortChildren(0, Qt::AscendingOrder);
+
+		int count = some->childCount();
+
+		for (int x = 0; x < count; x++)
+		{
+			recursionSorting(some->child(x));
+		}
+	}
+	else
+	{
+		return;
+	}
+
+}

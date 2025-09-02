@@ -37,9 +37,10 @@ public:
     void checkDelAfterSend(int myState);
     
     void import80020();
-    void importClassBirth();
+    void importClassBirth80020();
 
     void importTreeObjectBirth();
+    void recursionSorting(QTreeWidgetItem* some);
 
 
     QXmlStreamWriter xmlWriter;
@@ -78,4 +79,6 @@ private:
     QMenu* importMenu = nullptr;
 
     importTreeObjectClass* importTreeCLass = nullptr;
+
+    bool importBool80020;
 };

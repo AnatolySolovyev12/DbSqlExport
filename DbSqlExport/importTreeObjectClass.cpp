@@ -6,12 +6,9 @@ importTreeObjectClass::importTreeObjectClass(QWidget *parent)
 	ui.setupUi(this);
 
 	connect(ui.cancelButton, SIGNAL(clicked()), this, SLOT(close()));
-
-
-
-
 }
 
-importTreeObjectClass::~importTreeObjectClass()
-{}
-
+QTreeWidget* importTreeObjectClass::returnWidget()
+{
+	return ui.treeWidget;
+}
