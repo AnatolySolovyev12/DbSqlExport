@@ -62,8 +62,9 @@ DbSqlExport::DbSqlExport(QWidget* parent)
 
 	ui.importDbButton->setMenu(importMenu);
 
-
 	connect(importClass, SIGNAL(status(QString)), this, SLOT(processWriteInDb(QString))); // делаем реконект к БД после каждого сохранения настроек.
+
+	connect(importTreeCLass, SIGNAL(status(QString)), this, SLOT(processWriteInDbTreeObject(QString))); // делаем реконект к БД после каждого сохранения настроек.
 
 	sBar = new QStatusBar();
 	QMainWindow::setStatusBar(sBar);
@@ -1082,7 +1083,6 @@ void DbSqlExport::importTreeObjectBirth()
 }
 
 
-
 void DbSqlExport::recursionSorting(QTreeWidgetItem* some)
 {
 	if (some->childCount())
@@ -1100,4 +1100,29 @@ void DbSqlExport::recursionSorting(QTreeWidgetItem* some)
 	{
 		return;
 	}
+}
+
+
+void DbSqlExport::processWriteInDbTreeObject(QString any)
+{
+	QSqlQuery query;
+	QString queryString;
+
+	//QPointer<QProgressBar> temporaryProgressBarPtr(importClass->getPtrProgressBar());
+
+	//int valueProgressBar = 1;
+
+	for (auto& val : bufferFor80020Import)
+	{
+		queryString = "insert into Points(PointName, ID_Parent, Point_Type) values('" + val.second + "', " + any + ", 145)";
+		query.exec(queryString);
+
+		queryString = "update Points set ID_Parent = (SELECT TOP (1) ID_Point FROM Points  order by ID_Point DESC) where PointName like '%" + val.first + "%'"; // получаем ID параметра активной энергии счётчика
+		query.exec(queryString);
+
+		//temporaryProgressBarPtr->setValue(valueProgressBar);
+		//valueProgressBar++;
+	}
+
+	//temporaryProgressBarPtr->hide();
 }
