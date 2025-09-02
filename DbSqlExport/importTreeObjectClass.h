@@ -2,6 +2,7 @@
 
 #include <QMainWindow>
 #include "ui_importTreeObjectClass.h"
+#include <QTimer>
 
 class importTreeObjectClass : public QMainWindow
 {
@@ -11,6 +12,10 @@ public:
 	importTreeObjectClass(QWidget *parent = nullptr);
 
 	QTreeWidget* returnWidget();
+	void generateSignalForImport();
+
+signals:
+	void status(const QString&);
 
 private:
 	Ui::importTreeObjectClassClass ui;

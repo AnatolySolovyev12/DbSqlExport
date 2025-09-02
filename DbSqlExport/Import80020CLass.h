@@ -13,8 +13,6 @@ class Import80020CLass : public QMainWindow
 public:
 	Import80020CLass(QWidget* parent = nullptr);
 
-	~Import80020CLass();
-
 	void setMaket(QString any);
 	void clearWidget();
 	void generateSignalForImport();

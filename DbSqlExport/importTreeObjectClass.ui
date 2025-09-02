@@ -33,6 +33,11 @@
       <string>ID</string>
      </property>
     </column>
+    <column>
+     <property name="text">
+      <string>Type</string>
+     </property>
+    </column>
    </widget>
    <widget class="QPushButton" name="cancelButton">
     <property name="geometry">
@@ -47,7 +52,7 @@
      <string>Cancel</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_2">
+   <widget class="QPushButton" name="importButton">
     <property name="geometry">
      <rect>
       <x>390</x>

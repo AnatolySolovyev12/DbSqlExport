@@ -45,8 +45,6 @@ DbSqlExport::DbSqlExport(QWidget* parent)
 	connect(myParamForSmtp, SIGNAL(status(QString)), this, SLOT(MessegeAboutReconnectDb(QString))); // делаем реконект к БД после каждого сохранения настроек.
 
 	importMenu = new QMenu(ui.importDbButton);
-	//importMenu->addAction("&80020*", this, &DbSqlExport::import80020);
-	//importMenu->addAction("&TreeObjects", this, &DbSqlExport::importTreeObjectBirth);
 
 	importMenu->addAction("&80020*", [this]() {
 
@@ -993,7 +991,6 @@ void DbSqlExport::processWriteInDb(QString any)
 }
 
 
-
 void DbSqlExport::importTreeObjectBirth()
 {
 	QSqlQuery query;
@@ -1007,7 +1004,7 @@ void DbSqlExport::importTreeObjectBirth()
 
 		temporaryTreeWidgetPtr->clear();
 
-		queryString = "SELECT count(*) FROM Points"; // Запрашиваем список макетов
+		queryString = "SELECT count(*) FROM Points where Point_Type != '21' and Point_Type != '145'"; // Запрашиваем список макетов
 
 		query.exec(queryString);
 		query.next();
@@ -1016,11 +1013,11 @@ void DbSqlExport::importTreeObjectBirth()
 
 		qDebug() << countOfMaket;
 		
-		queryString = "SELECT ID_Point, PointName, ID_Parent FROM Points where Point_Type != '21' and Point_Type != '145' order by ID_Parent "; // Запрашиваем список макетов
+		queryString = "SELECT ID_Point, PointName, ID_Parent, Point_Type FROM Points where Point_Type != '21' and Point_Type != '145' order by ID_Parent"; // Запрашиваем список макетов
 
 		query.exec(queryString);
 
-		for (int valuesOfQuery = 0; valuesOfQuery <= countOfMaket; valuesOfQuery++)
+		for (int valuesOfQuery = 0; valuesOfQuery < countOfMaket; valuesOfQuery++)
 		{
 			query.next();
 
@@ -1047,6 +1044,12 @@ void DbSqlExport::importTreeObjectBirth()
 
 			any->setText(0, query.value(1).toString());
 			any->setText(1, query.value(0).toString());
+			any->setText(2, query.value(3).toString());
+
+			if (any->text(2) == "144")
+			{
+				any->setBackground(0, QColor(120, 228, 171, 255));
+			}
 		}
 
 		QTreeWidgetItem* any = new QTreeWidgetItem();
@@ -1073,6 +1076,8 @@ void DbSqlExport::importTreeObjectBirth()
 		some = nullptr;
 	}
 
+	temporaryTreeWidgetPtr->setCurrentItem(nullptr);
+
 	importTreeCLass->show();
 }
 
@@ -1095,5 +1100,4 @@ void DbSqlExport::recursionSorting(QTreeWidgetItem* some)
 	{
 		return;
 	}
-
 }
