@@ -590,6 +590,10 @@ void DbSqlExport::generateXml()
 
 			qDebug() << ct.toString() << "   " << countDoingIterationForTime;
 
+			sBar->showMessage(ct.toString() + "   " + QString::number(countDoingIterationForTime));
+
+			QCoreApplication::processEvents(); // для корректного отображения количества итераций в statusBar
+
 			countDoingIterationForTime = 0;
 		}
 	}
@@ -605,6 +609,8 @@ void DbSqlExport::generateXml()
 	countTimer = timer.elapsed();
 
 	out << "XML was made for = " << (double)countTimer / 1000 << " sec" << Qt::endl;
+
+	QTimer::singleShot(2000, [this, countTimer]() {sBar->showMessage("XML was made for = " + QString::number((double)countTimer / 1000) + " sec"); });
 
 	mw_db.removeDatabase(myParamForSmtp->odbc);
 
