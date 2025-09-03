@@ -1129,9 +1129,11 @@ void DbSqlExport::processWriteInDbTreeObject(QString any)
 		queryString = "insert into Points(PointName, ID_Parent, Point_Type) values('" + val.second + "', " + any + ", 145)";
 		query.exec(queryString);
 
-		queryString = "update Points set ID_Parent = (SELECT TOP (1) ID_Point FROM Points  order by ID_Point DESC) where PointName like '%" + val.first + "%'"; // получаем ID параметра активной энергии счётчика
+		queryString = "update Points set ID_Parent = (SELECT TOP (1) ID_Point FROM Points  order by ID_Point DESC) where PointName like '%" + val.first + "%'"; 
 		query.exec(queryString);
 
+
+		queryString = "insert into Point_TariffCategory values(1, (SELECT ID_Point FROM Points  where PointName like '%" + val.first + "'), '1990 - 01 - 01 00:00 : 00.000', '2050 - 01 - 01 00 : 00 : 00.000')";
 		//temporaryProgressBarPtr->setValue(valueProgressBar);
 		//valueProgressBar++;
 	}
