@@ -74,6 +74,10 @@ DbSqlExport::DbSqlExport(QWidget* parent)
 	sBar->addPermanentWidget(dbLabel);
 	dbLabel->setStyleSheet("color: rgb(255, 0, 0)");
 
+	dbLabelOdbcOrIp = new QLabel();
+	sBar->addPermanentWidget(dbLabelOdbcOrIp);
+	dbLabelOdbcOrIp->setStyleSheet("color: rgb(0, 0, 0)");
+
 	sBar->setStyleSheet("QStatusBar::item {border: None;}");
 
 	connectDataBase();
@@ -227,7 +231,9 @@ void DbSqlExport::connectDataBase()
 		qDebug() << "DataBase is CONNECT.";
 		dbconnect = true;
 		dbLabel->setText("SQL Connected");
-		dbLabel->setStyleSheet("color: rgb(0, 255, 0)");
+		dbLabel->setStyleSheet("color: rgb(27, 194, 22)");
+
+		dbLabelOdbcOrIp->setText("(" + myParamForSmtp->odbc + ")");
 	}
 }
 
@@ -1017,7 +1023,7 @@ void DbSqlExport::importTreeObjectBirth()
 
 		temporaryTreeWidgetPtr->clear();
 
-		queryString = "SELECT count(*) FROM Points where Point_Type != '21' and Point_Type != '145'"; // Запрашиваем список макетов
+		queryString = "SELECT count(*) FROM Points where Point_Type != '21' and Point_Type != '145' and Point_Type != '10' and Point_Type != '81' and Point_Type != '43' and Point_Type != '255' and Point_Type != '49'"; // Запрашиваем список макетов
 
 		query.exec(queryString);
 		query.next();
@@ -1026,7 +1032,7 @@ void DbSqlExport::importTreeObjectBirth()
 
 		qDebug() << countOfMaket;
 		
-		queryString = "SELECT ID_Point, PointName, ID_Parent, Point_Type FROM Points where Point_Type != '21' and Point_Type != '145' order by ID_Parent"; // Запрашиваем список макетов
+		queryString = "SELECT ID_Point, PointName, ID_Parent, Point_Type FROM Points where Point_Type != '21' and Point_Type != '145' and Point_Type != '10' and Point_Type != '81'  and Point_Type != '43' and Point_Type != '255' and Point_Type != '49' order by ID_Parent"; // Запрашиваем список макетов
 
 		query.exec(queryString);
 
@@ -1065,7 +1071,7 @@ void DbSqlExport::importTreeObjectBirth()
 			}
 		}
 
-		QTreeWidgetItem* any = new QTreeWidgetItem();
+		//QTreeWidgetItem* any = new QTreeWidgetItem();
 
 		QList <QTreeWidgetItem*> myList = temporaryTreeWidgetPtr->findItems("Новые счетчики", Qt::MatchRecursive, 0);
 

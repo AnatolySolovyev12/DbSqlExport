@@ -72,6 +72,7 @@ private:
 
     QStatusBar * sBar;
     QLabel* dbLabel;
+    QLabel* dbLabelOdbcOrIp;
 
     QList<QPair<QString, QString>>bufferFor80020Import;
 
