@@ -24,6 +24,9 @@ DbSqlExport::DbSqlExport(QWidget* parent)
 
 	myParamForSmtp = new ParamSmtp();
 
+	ui.generalProgressBar->hide();
+	ui.generalProgressBar->setValue(0);
+
 	connect(ui.pushButtonAddNumber, &QPushButton::clicked, this, &DbSqlExport::addOneNumber);
 	connect(ui.pushButtonDeleteNumber, &QPushButton::clicked, this, &DbSqlExport::removeNumber);
 	connect(ui.pushButtonDeleteAll, &QPushButton::clicked, this, &DbSqlExport::clearAllNumbers);
@@ -1036,8 +1039,16 @@ void DbSqlExport::importTreeObjectBirth()
 
 		query.exec(queryString);
 
+		ui.generalProgressBar->setMaximum(countOfMaket);
+
+		ui.generalProgressBar->show();
+
+		sBar->showMessage("Count of object for import = " + QString::number(bufferFor80020Import.length()) + ". Tree object = " + QString::number(countOfMaket));
+
 		for (int valuesOfQuery = 0; valuesOfQuery < countOfMaket; valuesOfQuery++)
 		{
+			ui.generalProgressBar->setValue(valuesOfQuery);
+
 			query.next();
 
 			parentID = query.value(2).toInt();
@@ -1097,6 +1108,7 @@ void DbSqlExport::importTreeObjectBirth()
 
 	temporaryTreeWidgetPtr->setCurrentItem(nullptr);
 
+	ui.generalProgressBar->hide();
 	importTreeCLass->show();
 }
 
