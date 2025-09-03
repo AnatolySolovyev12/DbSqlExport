@@ -3,6 +3,8 @@
 #include <QMainWindow>
 #include "ui_importTreeObjectClass.h"
 #include <QTimer>
+#include <QPointer>
+#include <QProgressBar>
 
 class importTreeObjectClass : public QMainWindow
 {
@@ -13,11 +15,14 @@ public:
 
 	QTreeWidget* returnWidget();
 	void generateSignalForImport();
+	QPointer<QProgressBar> getPtrProgressBar();
 
 signals:
 	void status(const QString&);
 
 private:
 	Ui::importTreeObjectClassClass ui;
+
+	QPointer<QProgressBar> barPointerPtr = nullptr;
 };
 

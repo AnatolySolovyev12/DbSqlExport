@@ -56,7 +56,7 @@ DbSqlExport::DbSqlExport(QWidget* parent)
 
 		});
 
-	importMenu->addAction("&TreeObjects", [this]() {
+	importMenu->addAction("&Tree Objects", [this]() {
 
 		importBool80020 = false;
 		import80020();
@@ -71,7 +71,6 @@ DbSqlExport::DbSqlExport(QWidget* parent)
 
 	sBar = new QStatusBar();
 	QMainWindow::setStatusBar(sBar);
-	sBar->showMessage("Autocreate was stoped");
 
 	dbLabel = new QLabel();
 	sBar->addPermanentWidget(dbLabel);
@@ -238,6 +237,8 @@ void DbSqlExport::connectDataBase()
 
 		dbLabelOdbcOrIp->setText("(" + myParamForSmtp->odbc + ")");
 	}
+
+	sBar->showMessage("");
 }
 
 
@@ -1138,9 +1139,11 @@ void DbSqlExport::processWriteInDbTreeObject(QString any)
 	QSqlQuery query;
 	QString queryString;
 
-	//QPointer<QProgressBar> temporaryProgressBarPtr(importClass->getPtrProgressBar());
+	QPointer<QProgressBar> temporaryProgressBarPtr(importTreeCLass->getPtrProgressBar());
 
-	//int valueProgressBar = 1;
+	temporaryProgressBarPtr->setValue(0);
+	temporaryProgressBarPtr->setMaximum(bufferFor80020Import.length());
+	temporaryProgressBarPtr->show();
 
 	for (auto& val : bufferFor80020Import)
 	{
@@ -1153,9 +1156,8 @@ void DbSqlExport::processWriteInDbTreeObject(QString any)
 		queryString = "insert into Point_TariffCategory values(1, (SELECT ID_Point FROM Points  where PointName like '%" + val.first + "'), '1990 - 01 - 01 00:00 : 00.000', '2050 - 01 - 01 00 : 00 : 00.000')";
 		query.exec(queryString);
 
-		//temporaryProgressBarPtr->setValue(valueProgressBar);
-		//valueProgressBar++;
+		temporaryProgressBarPtr->setValue(temporaryProgressBarPtr->value() + 1);
 	}
 
-	//temporaryProgressBarPtr->hide();
+	temporaryProgressBarPtr->hide();
 }
