@@ -4,7 +4,8 @@
 #include "ui_importTreeObjectClass.h"
 #include <QTimer>
 #include <QPointer>
-#include <QProgressBar>
+//#include <QProgressBar>
+//#include <QCheckBox>
 
 class importTreeObjectClass : public QMainWindow
 {
@@ -17,12 +18,15 @@ public:
 	void generateSignalForImport();
 	QPointer<QProgressBar> getPtrProgressBar();
 
+	QPointer<QCheckBox> getPtrCheckBoxTariff();
+
 signals:
 	void status(const QString&);
 
 private:
 	Ui::importTreeObjectClassClass ui;
 
-	QPointer<QProgressBar> barPointerPtr = nullptr;
+	//QPointer<QProgressBar> barPointerPtr = nullptr;
+	//QPointer<QCheckBox> checkTariffPtr = nullptr;
 };
 

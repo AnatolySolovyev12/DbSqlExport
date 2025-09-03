@@ -6,8 +6,11 @@ importTreeObjectClass::importTreeObjectClass(QWidget *parent)
 	ui.setupUi(this);
 	connect(ui.importButton, &QPushButton::clicked, this, &importTreeObjectClass::generateSignalForImport);
 	connect(ui.cancelButton, SIGNAL(clicked()), this, SLOT(close()));
-	barPointerPtr = ui.progressBar;
-	barPointerPtr->hide();
+	//barPointerPtr = ui.progressBar;
+	ui.progressBar->hide();
+	ui.checkBox->setChecked(true);
+
+	//checkTariffPtr = ui.checkBox;
 }
 
 
@@ -31,5 +34,11 @@ void importTreeObjectClass::generateSignalForImport()
 
 QPointer<QProgressBar> importTreeObjectClass::getPtrProgressBar()
 {
-	return barPointerPtr;
+	return ui.progressBar;
+}
+
+
+QPointer<QCheckBox> importTreeObjectClass::getPtrCheckBoxTariff()
+{
+	return ui.checkBox;
 }
