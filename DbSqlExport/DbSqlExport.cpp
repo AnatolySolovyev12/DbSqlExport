@@ -405,7 +405,7 @@ void DbSqlExport::queryDbResult(QString any)
 		query.next();
 
 		day = query.value(1).toString();
-
+		
 		if (day.length() >= 18)
 			day.chop(9);
 
@@ -674,14 +674,20 @@ void DbSqlExport::generalXmlLoop(QString any, QString dayFunc, QString nightFunc
 		{
 			day[day.indexOf('.')] = ',';
 
-			if ((day.length() - day.indexOf(',')) > 4)
-				day.chop(day.length() - (day.indexOf(',') + 5));
+			if (day.indexOf(',') != -1)
+			{
+				if ((day.length() - day.indexOf(',')) > 4)
+					day.chop(day.length() - (day.indexOf(',') + 5));
+			}
 
 			if (day != '0')
 			{
-				for (int val = (day.length() - day.indexOf(',')); val <= 4; val++)
+				if (day.indexOf(',') != -1)
 				{
-					day.push_back("0");
+					for (int val = (day.length() - day.indexOf(',')); val <= 4; val++)
+					{
+						day.push_back("0");
+					}
 				}
 			}
 			else
@@ -694,14 +700,20 @@ void DbSqlExport::generalXmlLoop(QString any, QString dayFunc, QString nightFunc
 		{
 			night[night.indexOf('.')] = ',';
 
-			if ((night.length() - night.indexOf(',')) > 4)
-				night.chop(night.length() - (night.indexOf(',') + 5));
+			if (night.indexOf(',') != -1)
+			{
+				if ((night.length() - night.indexOf(',')) > 4)
+					night.chop(night.length() - (night.indexOf(',') + 5));
+			}
 
 			if (night != '0')
 			{
-				for (int val = (night.length() - night.indexOf(',')); val <= 4; val++)
+				if (night.indexOf(',') != -1)
 				{
-					night.push_back("0");
+					for (int val = (night.length() - night.indexOf(',')); val <= 4; val++)
+					{
+						night.push_back("0");
+					}
 				}
 			}
 			else
