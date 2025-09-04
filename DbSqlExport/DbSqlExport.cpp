@@ -959,6 +959,8 @@ void DbSqlExport::import80020()
 
 	workbookDonor->dynamicCall("Close()"); // обязательно используем в работе с Excel иначе документы будет фbоном открыт в системе
 	excelDonor->dynamicCall("Quit()");
+
+	//qDebug() << bufferHouseStreet;////////////////////////////////////////////////
 }
 
 
@@ -1172,6 +1174,7 @@ void DbSqlExport::processWriteInDbTreeObject(QString any)
 {
 	QSqlQuery query;
 	QString queryString;
+	int idObjectWasFind;
 
 	QPointer<QProgressBar> temporaryProgressBarPtr(importTreeCLass->getPtrProgressBar());
 
@@ -1181,11 +1184,24 @@ void DbSqlExport::processWriteInDbTreeObject(QString any)
 
 	for (auto& val : bufferForSerialIdOrGuid)
 	{
-		queryString = "insert into Points(PointName, ID_Parent, Point_Type) values('" + val.second + "', " + any + ", 145)";
+		queryString = "select ID_Point from Points where PointName = '" + val.second + "' and ID_Parent = " + any;
 		query.exec(queryString);
+		query.next();
+		
+		if (!query.isNull(0))
+		{
+			idObjectWasFind = query.value(0).toInt();
+			queryString = "update Points set ID_Parent = " + QString::number(idObjectWasFind) + " where PointName like '%" + val.first + "%'";
+			query.exec(queryString);
+		}
+		else
+		{
+			queryString = "insert into Points(PointName, ID_Parent, Point_Type) values('" + val.second + "', " + any + ", 145)";
+			query.exec(queryString);
 
-		queryString = "update Points set ID_Parent = (SELECT TOP (1) ID_Point FROM Points  order by ID_Point DESC) where PointName like '%" + val.first + "%'"; 
-		query.exec(queryString);
+			queryString = "update Points set ID_Parent = (SELECT TOP (1) ID_Point FROM Points  order by ID_Point DESC) where PointName like '%" + val.first + "%'";
+			query.exec(queryString);
+		}
 
 		if (importTreeCLass->getPtrCheckBoxTariff().data()->isChecked())
 		{
