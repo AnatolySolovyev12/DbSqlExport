@@ -815,7 +815,7 @@ void DbSqlExport::MessegeAboutReconnectDb(QString)
 
 void DbSqlExport::import80020()
 {
-	bufferFor80020Import.clear();
+	bufferForSerialIdOrGuid.clear();
 
 	if (!dbconnect)
 	{
@@ -888,6 +888,7 @@ void DbSqlExport::import80020()
 				if (serialString.length() > 18)
 				{
 					qDebug() << "Incorrect length in row #" << row;
+					sBar->showMessage("Incorrect length in row #" + QString::number(row), 5000);
 
 					workbookDonor->dynamicCall("Close()"); // обязательно используем в работе с Excel иначе документы будет фbоном открыт в системе
 					excelDonor->dynamicCall("Quit()");
@@ -897,6 +898,7 @@ void DbSqlExport::import80020()
 				if (serialString.length() < 5)
 				{
 					qDebug() << "Incorrect length in row #" << row;
+					sBar->showMessage("Incorrect length in row #" + QString::number(row), 5000);
 
 					workbookDonor->dynamicCall("Close()"); // обязательно используем в работе с Excel иначе документы будет фbоном открыт в системе
 					excelDonor->dynamicCall("Quit()");
@@ -908,6 +910,7 @@ void DbSqlExport::import80020()
 					if (!val.isDigit())
 					{
 						qDebug() << "Incorrect number in row #" << row;
+						sBar->showMessage("Incorrect number in row #" + QString::number(row), 5000);
 
 						workbookDonor->dynamicCall("Close()"); // обязательно используем в работе с Excel иначе документы будет фbоном открыт в системе
 						excelDonor->dynamicCall("Quit()");
@@ -919,15 +922,29 @@ void DbSqlExport::import80020()
 				{
 					iDlString = "";
 					qDebug() << "Incorrect length for ID in row #" << row << ". Id will equal void.";
+					sBar->showMessage("Incorrect length for ID in row #" + QString::number(row) + ". Id will equal void.", 5000);
 				}
 
-				bufferFor80020Import.push_back(qMakePair(serialString, iDlString));
+				bufferForSerialIdOrGuid.push_back(qMakePair(serialString, iDlString));
 
 				countOfNumbers++;
+
+				if (countColsDonor > 2)
+				{
+					cell.reset(sheetDonor->querySubObject("Cells(int,int)", row, 3)); // так указываем с какой ячейкой работать
+					QString house = cell->property("Value").toString().trimmed();
+
+					cell.reset(sheetDonor->querySubObject("Cells(int,int)", row, 4)); // так указываем с какой ячейкой работать
+					QString street = cell->property("Value").toString().trimmed();
+
+					bufferHouseStreet.push_back(qMakePair(house, street));
+				}
 			}
 		}
 
-		qDebug() << "Count of object for import = " << bufferFor80020Import.length();
+		qDebug() << "Count of object for import = " << bufferForSerialIdOrGuid.length();
+
+		sBar->showMessage("Count of object for import = " + QString::number(bufferForSerialIdOrGuid.length()), 5000);
 
 		if (importBool80020)
 			importClassBirth80020();
@@ -937,6 +954,7 @@ void DbSqlExport::import80020()
 	else
 	{
 		qDebug() << "Incorrect format of file. Not find second column.";
+		sBar->showMessage("Incorrect format of file. Not find second column.", 5000);
 	}
 
 	workbookDonor->dynamicCall("Close()"); // обязательно используем в работе с Excel иначе документы будет фbоном открыт в системе
@@ -985,7 +1003,7 @@ void DbSqlExport::processWriteInDb(QString any)
 
 	int valueProgressBar = 1;
 
-	for (auto& val : bufferFor80020Import)
+	for (auto& val : bufferForSerialIdOrGuid)
 	{
 		queryString = "select ID_MeterInfo from MeterInfo where SN = '" + val.first + "'"; // запрашиваем первичный ID по номеру прибора
 		query.exec(queryString);
@@ -1050,7 +1068,7 @@ void DbSqlExport::importTreeObjectBirth()
 
 		ui.generalProgressBar->show();
 
-		sBar->showMessage("Count of object for import = " + QString::number(bufferFor80020Import.length()) + ". Tree object = " + QString::number(countOfMaket));
+		sBar->showMessage("Count of object for import = " + QString::number(bufferForSerialIdOrGuid.length()) + ". Tree object = " + QString::number(countOfMaket));
 
 		for (int valuesOfQuery = 0; valuesOfQuery < countOfMaket; valuesOfQuery++)
 		{
@@ -1086,6 +1104,16 @@ void DbSqlExport::importTreeObjectBirth()
 			if (any->text(2) == "144")
 			{
 				any->setBackground(0, QColor(120, 228, 171, 255));
+			}
+
+			if (any->text(2) == "143")
+			{
+				any->setBackground(0, QColor(243, 255, 63, 255));
+			}
+
+			if (any->text(2) == "141")
+			{
+				any->setBackground(0, QColor(241, 116, 116, 255));
 			}
 		}
 
@@ -1148,10 +1176,10 @@ void DbSqlExport::processWriteInDbTreeObject(QString any)
 	QPointer<QProgressBar> temporaryProgressBarPtr(importTreeCLass->getPtrProgressBar());
 
 	temporaryProgressBarPtr->setValue(0);
-	temporaryProgressBarPtr->setMaximum(bufferFor80020Import.length());
+	temporaryProgressBarPtr->setMaximum(bufferForSerialIdOrGuid.length());
 	temporaryProgressBarPtr->show();
 
-	for (auto& val : bufferFor80020Import)
+	for (auto& val : bufferForSerialIdOrGuid)
 	{
 		queryString = "insert into Points(PointName, ID_Parent, Point_Type) values('" + val.second + "', " + any + ", 145)";
 		query.exec(queryString);

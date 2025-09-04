@@ -74,7 +74,9 @@ private:
     QLabel* dbLabel;
     QLabel* dbLabelOdbcOrIp;
 
-    QList<QPair<QString, QString>>bufferFor80020Import;
+    QList<QPair<QString, QString>>bufferForSerialIdOrGuid;
+
+    QList<QPair<QString, QString>>bufferHouseStreet;
 
     Import80020CLass* importClass = nullptr;
 
