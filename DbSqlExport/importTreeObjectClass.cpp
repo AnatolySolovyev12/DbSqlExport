@@ -26,7 +26,7 @@ void importTreeObjectClass::generateSignalForImport()
 
 	if (ui.treeWidget->currentItem()->text(2) == "144" || ui.treeWidget->currentItem()->text(2) == "143")
 	{
-		emit status(ui.treeWidget->currentItem()->text(1));
+		emit status(ui.treeWidget->currentItem()->text(1), ui.treeWidget->currentItem()->text(2));
 		ui.importButton->hide();
 		QTimer::singleShot(5000, [this]() {ui.importButton->show(); });
 	}

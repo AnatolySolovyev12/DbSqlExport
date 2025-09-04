@@ -67,7 +67,7 @@ DbSqlExport::DbSqlExport(QWidget* parent)
 
 	connect(importClass, SIGNAL(status(QString)), this, SLOT(processWriteInDb(QString))); // делаем реконект к БД после каждого сохранения настроек.
 
-	connect(importTreeCLass, SIGNAL(status(QString)), this, SLOT(processWriteInDbTreeObject(QString))); // делаем реконект к БД после каждого сохранения настроек.
+	connect(importTreeCLass, SIGNAL(status(QString, QString)), this, SLOT(processWriteInDbTreeObject(QString, QString))); // делаем реконект к БД после каждого сохранения настроек.
 
 	sBar = new QStatusBar();
 	QMainWindow::setStatusBar(sBar);
@@ -816,6 +816,7 @@ void DbSqlExport::MessegeAboutReconnectDb(QString)
 void DbSqlExport::import80020()
 {
 	bufferForSerialIdOrGuid.clear();
+	bufferHouseStreet.clear();
 
 	if (!dbconnect)
 	{
@@ -1119,8 +1120,6 @@ void DbSqlExport::importTreeObjectBirth()
 			}
 		}
 
-		//QTreeWidgetItem* any = new QTreeWidgetItem();
-
 		QList <QTreeWidgetItem*> myList = temporaryTreeWidgetPtr->findItems("Новые счетчики", Qt::MatchRecursive, 0);
 
 		for (auto& val : myList)
@@ -1170,7 +1169,7 @@ void DbSqlExport::recursionSorting(QTreeWidgetItem* some)
 }
 
 
-void DbSqlExport::processWriteInDbTreeObject(QString any)
+void DbSqlExport::processWriteInDbTreeObject(QString any, QString idAny)
 {
 	QSqlQuery query;
 	QString queryString;
@@ -1182,35 +1181,96 @@ void DbSqlExport::processWriteInDbTreeObject(QString any)
 	temporaryProgressBarPtr->setMaximum(bufferForSerialIdOrGuid.length());
 	temporaryProgressBarPtr->show();
 
-	for (auto& val : bufferForSerialIdOrGuid)
+	int counterOfIterations = 0;
+
+	int houseId;
+
+	if (idAny == QString::number(143))
 	{
-		queryString = "select ID_Point from Points where PointName = '" + val.second + "' and ID_Parent = " + any;
-		query.exec(queryString);
-		query.next();
-		
-		if (!query.isNull(0))
+		for (auto& val : bufferHouseStreet)
 		{
-			idObjectWasFind = query.value(0).toInt();
-			queryString = "update Points set ID_Parent = " + QString::number(idObjectWasFind) + " where PointName like '%" + val.first + "%'";
+			queryString = "select ID_Point from Points where PointName = '" + val.first + "' and ID_Parent = " + any;
 			query.exec(queryString);
-		}
-		else
-		{
-			queryString = "insert into Points(PointName, ID_Parent, Point_Type) values('" + val.second + "', " + any + ", 145)";
-			query.exec(queryString);
+			query.next();
 
-			queryString = "update Points set ID_Parent = (SELECT TOP (1) ID_Point FROM Points  order by ID_Point DESC) where PointName like '%" + val.first + "%'";
-			query.exec(queryString);
-		}
+			if (query.isNull(0)) // запись согласно запросу не найдена
+			{
+				queryString = "insert into Points(PointName, ID_Parent, Point_Type) values('" + val.first + "', " + any + ", 144)";
+				query.exec(queryString);
+				queryString = "select ID_Point from Points where PointName = '" + val.first + "' and ID_Parent = " + any;
+				query.exec(queryString);
+				query.next();
+				houseId = query.value(0).toInt();
+			}
+			else
+			{
+				houseId = query.value(0).toInt();
+			}
 
-		if (importTreeCLass->getPtrCheckBoxTariff().data()->isChecked())
-		{
-			queryString = "insert into Point_TariffCategory values(1, (SELECT ID_Point FROM Points  where PointName like '%" + val.first + "'), '1990 - 01 - 01 00:00 : 00.000', '2050 - 01 - 01 00 : 00 : 00.000')";
+			queryString = "select ID_Point from Points where PointName = '" + bufferForSerialIdOrGuid[counterOfIterations].second + "' and ID_Parent = " + QString::number(houseId);
 			query.exec(queryString);
-		}
+			query.next();
 
-		temporaryProgressBarPtr->setValue(temporaryProgressBarPtr->value() + 1);
+			if (!query.isNull(0)) // запись согласно запросу найдена
+			{
+				idObjectWasFind = query.value(0).toInt();
+				queryString = "update Points set ID_Parent = " + QString::number(idObjectWasFind) + " where PointName like '%" + bufferForSerialIdOrGuid[counterOfIterations].first + "%'";
+				query.exec(queryString);
+			}
+			else
+			{
+				queryString = "insert into Points(PointName, ID_Parent, Point_Type) values('" + bufferForSerialIdOrGuid[counterOfIterations].second + "', " + QString::number(houseId) + ", 145)";
+				query.exec(queryString);
+
+				queryString = "update Points set ID_Parent = (SELECT TOP (1) ID_Point FROM Points  order by ID_Point DESC) where PointName like '%" + bufferForSerialIdOrGuid[counterOfIterations].first + "%'";
+				query.exec(queryString);
+			}
+
+			if (importTreeCLass->getPtrCheckBoxTariff().data()->isChecked())
+			{
+				queryString = "insert into Point_TariffCategory values(1, (SELECT ID_Point FROM Points  where PointName like '%" + bufferForSerialIdOrGuid[counterOfIterations].first + "'), '1990 - 01 - 01 00:00 : 00.000', '2050 - 01 - 01 00 : 00 : 00.000')";
+				query.exec(queryString);
+			}
+
+			counterOfIterations++;
+
+			temporaryProgressBarPtr->setValue(temporaryProgressBarPtr->value() + 1);
+		}
 	}
 
-	temporaryProgressBarPtr->hide();
+
+	if (idAny == QString::number(144))
+	{
+		for (auto& val : bufferForSerialIdOrGuid)
+		{
+			queryString = "select ID_Point from Points where PointName = '" + val.second + "' and ID_Parent = " + any;
+			query.exec(queryString);
+			query.next();
+
+			if (!query.isNull(0)) // запись согласно запросу найдена
+			{
+				idObjectWasFind = query.value(0).toInt();
+				queryString = "update Points set ID_Parent = " + QString::number(idObjectWasFind) + " where PointName like '%" + val.first + "%'";
+				query.exec(queryString);
+			}
+			else
+			{
+				queryString = "insert into Points(PointName, ID_Parent, Point_Type) values('" + val.second + "', " + any + ", 145)";
+				query.exec(queryString);
+
+				queryString = "update Points set ID_Parent = (SELECT TOP (1) ID_Point FROM Points  order by ID_Point DESC) where PointName like '%" + val.first + "%'";
+				query.exec(queryString);
+			}
+
+			if (importTreeCLass->getPtrCheckBoxTariff().data()->isChecked())
+			{
+				queryString = "insert into Point_TariffCategory values(1, (SELECT ID_Point FROM Points  where PointName like '%" + val.first + "'), '1990 - 01 - 01 00:00 : 00.000', '2050 - 01 - 01 00 : 00 : 00.000')";
+				query.exec(queryString);
+			}
+
+			temporaryProgressBarPtr->setValue(temporaryProgressBarPtr->value() + 1);
+		}
+	}
+
+	temporaryProgressBarPtr.data()->hide();
 }

@@ -54,7 +54,7 @@ private slots:
     void timerUpdate();
     void MessegeAboutReconnectDb(QString);
     void processWriteInDb(QString any);
-    void processWriteInDbTreeObject(QString any);
+    void processWriteInDbTreeObject(QString any, QString idAny);
 
 private:
     Ui::DbSqlExportClass ui;

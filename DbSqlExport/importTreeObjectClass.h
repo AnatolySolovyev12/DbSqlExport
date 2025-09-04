@@ -19,7 +19,7 @@ public:
 	QPointer<QCheckBox> getPtrCheckBoxTariff();
 
 signals:
-	void status(const QString&);
+	void status(const QString&, const QString&);
 
 private:
 	Ui::importTreeObjectClassClass ui;
