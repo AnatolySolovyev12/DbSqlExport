@@ -24,7 +24,7 @@ void importTreeObjectClass::generateSignalForImport()
 {
 	if (ui.treeWidget->currentItem() == nullptr) return;
 
-	if (ui.treeWidget->currentItem()->text(2) == "144" || ui.treeWidget->currentItem()->text(2) == "143")
+	if (ui.treeWidget->currentItem()->text(2) == "144" || ui.treeWidget->currentItem()->text(2) == "143" || ui.treeWidget->currentItem()->text(2) == "141")
 	{
 		emit status(ui.treeWidget->currentItem()->text(1), ui.treeWidget->currentItem()->text(2));
 		ui.importButton->hide();
