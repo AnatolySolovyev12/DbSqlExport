@@ -18,6 +18,8 @@ public:
 	void generateSignalForImport();
 	void setCurRow();
 	QPointer<QProgressBar> getPtrProgressBar();
+	void printMessage(QString any);
+	void clearTextEdit();
 
 signals:
 	void status(const QString&);

@@ -991,6 +991,7 @@ void DbSqlExport::importClassBirth80020()
 			importClass->setMaket(query.value(0).toString());
 		}
 
+		importClass->clearTextEdit();
 		importClass->show();
 		importClass->setCurRow();
 	}
@@ -999,6 +1000,9 @@ void DbSqlExport::importClassBirth80020()
 
 void DbSqlExport::processWriteInDb(QString any)
 {
+	importClass->clearTextEdit();
+	QString errorQuery = "";
+
 	QSqlQuery query;
 	QString queryString;
 
@@ -1006,11 +1010,18 @@ void DbSqlExport::processWriteInDb(QString any)
 
 	int valueProgressBar = 1;
 
+	importClass->printMessage("Count of import object was = " + QString::number(bufferForSerialIdOrGuid.length()));
+
+
 	for (auto& val : bufferForSerialIdOrGuid)
 	{
 		queryString = "select ID_MeterInfo from MeterInfo where SN = '" + val.first + "'"; // запрашиваем первичный ID по номеру прибора
 		query.exec(queryString);
 		query.next();
+		if (query.isNull(0)) // запись согласно запросу не найдена
+		{
+			errorQuery += val.first + "\n";
+		}
 		QString iD = query.value(0).toString();
 
 		queryString = "select ID_Point from MeterMountHist where ID_MeterInfo = '" + iD + "'"; // получаем ID из счётчика
@@ -1038,6 +1049,8 @@ void DbSqlExport::processWriteInDb(QString any)
 	}
 
 	temporaryProgressBarPtr->hide();
+
+	importClass->printMessage("Device not found in DataBase: \n" + errorQuery);
 }
 
 
@@ -1329,6 +1342,11 @@ void DbSqlExport::processWriteInDbTreeObject(QString any, QString idAny)
 				idObjectWasFind = query.value(0).toInt();
 				queryString = "update Points set ID_Parent = " + QString::number(idObjectWasFind) + " where PointName like '%" + bufferForSerialIdOrGuid[counterOfIterations].first + "%'";
 				query.exec(queryString);
+
+				if (query.numRowsAffected() == 0)
+				{
+					errorQuery += bufferForSerialIdOrGuid[counterOfIterations].first + "\n";
+				}
 			}
 			else
 			{
@@ -1338,6 +1356,11 @@ void DbSqlExport::processWriteInDbTreeObject(QString any, QString idAny)
 				queryString = "update Points set ID_Parent = (SELECT TOP (1) ID_Point FROM Points  order by ID_Point DESC) where PointName like '%" + bufferForSerialIdOrGuid[counterOfIterations].first + "%'";
 				query.exec(queryString);
 				createRoom++;
+
+				if (query.numRowsAffected() == 0)
+				{
+					errorQuery += bufferForSerialIdOrGuid[counterOfIterations].first + "\n";
+				}
 			}
 
 			if (importTreeCLass->getPtrCheckBoxTariff().data()->isChecked())
@@ -1366,6 +1389,11 @@ void DbSqlExport::processWriteInDbTreeObject(QString any, QString idAny)
 				idObjectWasFind = query.value(0).toInt();
 				queryString = "update Points set ID_Parent = " + QString::number(idObjectWasFind) + " where PointName like '%" + val.first + "%'";
 				query.exec(queryString);
+
+				if (query.numRowsAffected() == 0)
+				{
+					errorQuery += val.first + "\n";
+				}
 			}
 			else
 			{
@@ -1375,6 +1403,11 @@ void DbSqlExport::processWriteInDbTreeObject(QString any, QString idAny)
 				queryString = "update Points set ID_Parent = (SELECT TOP (1) ID_Point FROM Points  order by ID_Point DESC) where PointName like '%" + val.first + "%'";
 				query.exec(queryString);
 				createRoom++;
+
+				if (query.numRowsAffected() == 0)
+				{
+					errorQuery += val.first + "\n";
+				}
 			}
 
 			if (importTreeCLass->getPtrCheckBoxTariff().data()->isChecked())

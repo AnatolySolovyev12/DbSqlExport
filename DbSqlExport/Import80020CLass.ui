@@ -7,33 +7,18 @@
     <x>0</x>
     <y>0</y>
     <width>449</width>
-    <height>452</height>
+    <height>544</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Import80020CLass</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QWidget" name="gridLayoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>19</x>
-      <y>19</y>
-      <width>401</width>
-      <height>301</height>
-     </rect>
-    </property>
-    <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="0">
-      <widget class="QListWidget" name="listWidgetMaket80020"/>
-     </item>
-    </layout>
-   </widget>
    <widget class="QPushButton" name="importButton">
     <property name="geometry">
      <rect>
       <x>250</x>
-      <y>340</y>
+      <y>430</y>
       <width>75</width>
       <height>24</height>
      </rect>
@@ -46,7 +31,7 @@
     <property name="geometry">
      <rect>
       <x>340</x>
-      <y>340</y>
+      <y>430</y>
       <width>75</width>
       <height>24</height>
      </rect>
@@ -59,13 +44,33 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>370</y>
+      <y>460</y>
       <width>431</width>
       <height>23</height>
      </rect>
     </property>
     <property name="value">
      <number>24</number>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="textEdit">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>310</y>
+      <width>399</width>
+      <height>111</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QListWidget" name="listWidgetMaket80020">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>10</y>
+      <width>399</width>
+      <height>301</height>
+     </rect>
     </property>
    </widget>
   </widget>

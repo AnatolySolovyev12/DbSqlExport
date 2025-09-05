@@ -9,6 +9,7 @@ Import80020CLass::Import80020CLass(QWidget* parent)
 
 	ui.progressBar->hide();
 	barSharePtr = ui.progressBar;
+	ui.textEdit->setReadOnly(true);
 }
 
 
@@ -40,4 +41,14 @@ void Import80020CLass::setCurRow()
 QPointer<QProgressBar> Import80020CLass::getPtrProgressBar()
 {
 	return barSharePtr;
+}
+
+void Import80020CLass::printMessage(QString any)
+{
+	ui.textEdit->append(any + "\n");
+}
+
+void Import80020CLass::clearTextEdit()
+{
+	ui.textEdit->clear();
 }
