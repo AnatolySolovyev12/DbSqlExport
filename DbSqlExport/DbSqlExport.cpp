@@ -1145,6 +1145,7 @@ void DbSqlExport::importTreeObjectBirth()
 	temporaryTreeWidgetPtr->setCurrentItem(nullptr);
 
 	ui.generalProgressBar->hide();
+	importTreeCLass->clearTextEdit();
 	importTreeCLass->show();
 }
 
@@ -1171,8 +1172,11 @@ void DbSqlExport::recursionSorting(QTreeWidgetItem* some)
 
 void DbSqlExport::processWriteInDbTreeObject(QString any, QString idAny)
 {
+	importTreeCLass->clearTextEdit();
+
 	QSqlQuery query;
 	QString queryString;
+	QString errorQuery = "";
 	int idObjectWasFind;
 
 	QPointer<QProgressBar> temporaryProgressBarPtr(importTreeCLass->getPtrProgressBar());
@@ -1184,6 +1188,30 @@ void DbSqlExport::processWriteInDbTreeObject(QString any, QString idAny)
 	int counterOfIterations = 0;
 	int houseId;
 	int streetId;
+
+	int createStreet = 0;
+	int createHouse = 0;
+	int createRoom = 0;
+
+	QString nameTypeObject;
+
+	switch (idAny.toInt())
+	{
+	case(141): {
+		nameTypeObject = "Town";
+		break;
+	}
+	case(143): {
+		nameTypeObject = "Street";
+		break;
+	}
+	case(144): {
+		nameTypeObject = "House";
+		break;
+	}
+	}
+
+	importTreeCLass->printMessage("Count of import object was = " + QString::number(bufferForSerialIdOrGuid.length()) + ". Object imported into: " + nameTypeObject);
 
 	if (idAny == QString::number(141))
 	{
@@ -1201,6 +1229,7 @@ void DbSqlExport::processWriteInDbTreeObject(QString any, QString idAny)
 				query.exec(queryString);
 				query.next();
 				streetId = query.value(0).toInt();
+				createStreet++;
 			}
 			else
 			{
@@ -1219,6 +1248,7 @@ void DbSqlExport::processWriteInDbTreeObject(QString any, QString idAny)
 				query.exec(queryString);
 				query.next();
 				houseId = query.value(0).toInt();
+				createHouse++;
 			}
 			else
 			{
@@ -1234,14 +1264,25 @@ void DbSqlExport::processWriteInDbTreeObject(QString any, QString idAny)
 				idObjectWasFind = query.value(0).toInt();
 				queryString = "update Points set ID_Parent = " + QString::number(idObjectWasFind) + " where PointName like '%" + bufferForSerialIdOrGuid[counterOfIterations].first + "%'";
 				query.exec(queryString);
+
+				if (query.numRowsAffected() == 0)
+				{
+					errorQuery += bufferForSerialIdOrGuid[counterOfIterations].first + "\n";
+				}
 			}
 			else
 			{
 				queryString = "insert into Points(PointName, ID_Parent, Point_Type) values('" + bufferForSerialIdOrGuid[counterOfIterations].second + "', " + QString::number(houseId) + ", 145)";
 				query.exec(queryString);
+				createRoom++;
 
 				queryString = "update Points set ID_Parent = (SELECT TOP (1) ID_Point FROM Points  order by ID_Point DESC) where PointName like '%" + bufferForSerialIdOrGuid[counterOfIterations].first + "%'";
 				query.exec(queryString);
+
+				if (query.numRowsAffected() == 0)
+				{
+					errorQuery += bufferForSerialIdOrGuid[counterOfIterations].first + "\n";
+				}
 			}
 
 			if (importTreeCLass->getPtrCheckBoxTariff().data()->isChecked())
@@ -1272,6 +1313,7 @@ void DbSqlExport::processWriteInDbTreeObject(QString any, QString idAny)
 				query.exec(queryString);
 				query.next();
 				houseId = query.value(0).toInt();
+				createHouse++;
 			}
 			else
 			{
@@ -1295,6 +1337,7 @@ void DbSqlExport::processWriteInDbTreeObject(QString any, QString idAny)
 
 				queryString = "update Points set ID_Parent = (SELECT TOP (1) ID_Point FROM Points  order by ID_Point DESC) where PointName like '%" + bufferForSerialIdOrGuid[counterOfIterations].first + "%'";
 				query.exec(queryString);
+				createRoom++;
 			}
 
 			if (importTreeCLass->getPtrCheckBoxTariff().data()->isChecked())
@@ -1331,6 +1374,7 @@ void DbSqlExport::processWriteInDbTreeObject(QString any, QString idAny)
 
 				queryString = "update Points set ID_Parent = (SELECT TOP (1) ID_Point FROM Points  order by ID_Point DESC) where PointName like '%" + val.first + "%'";
 				query.exec(queryString);
+				createRoom++;
 			}
 
 			if (importTreeCLass->getPtrCheckBoxTariff().data()->isChecked())
@@ -1342,6 +1386,10 @@ void DbSqlExport::processWriteInDbTreeObject(QString any, QString idAny)
 			temporaryProgressBarPtr->setValue(temporaryProgressBarPtr->value() + 1);
 		}
 	}
+
+	importTreeCLass->printMessage("Streets was added =  " + QString::number(createStreet) + "\nHouses was added =  " + QString::number(createHouse) + "\nRooms was added =  " + QString::number(createRoom));
+
+	importTreeCLass->printMessage("Device not found in DataBase: \n" + errorQuery);
 
 	temporaryProgressBarPtr.data()->hide();
 }

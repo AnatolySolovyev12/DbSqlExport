@@ -15,8 +15,9 @@ public:
 	QTreeWidget* returnWidget();
 	void generateSignalForImport();
 	QPointer<QProgressBar> getPtrProgressBar();
-
 	QPointer<QCheckBox> getPtrCheckBoxTariff();
+	void printMessage(QString any);
+	void clearTextEdit();
 
 signals:
 	void status(const QString&, const QString&);

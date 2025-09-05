@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>619</width>
-    <height>609</height>
+    <height>665</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
       <x>10</x>
       <y>0</y>
       <width>601</width>
-      <height>481</height>
+      <height>411</height>
      </rect>
     </property>
     <column>
@@ -43,7 +43,7 @@
     <property name="geometry">
      <rect>
       <x>490</x>
-      <y>500</y>
+      <y>550</y>
       <width>75</width>
       <height>24</height>
      </rect>
@@ -56,7 +56,7 @@
     <property name="geometry">
      <rect>
       <x>390</x>
-      <y>500</y>
+      <y>550</y>
       <width>75</width>
       <height>24</height>
      </rect>
@@ -69,7 +69,7 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>530</y>
+      <y>580</y>
       <width>581</width>
       <height>23</height>
      </rect>
@@ -82,13 +82,26 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>500</y>
+      <y>560</y>
       <width>121</width>
       <height>20</height>
      </rect>
     </property>
     <property name="text">
      <string>Add tariff category</string>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="textEdit">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>410</y>
+      <width>601</width>
+      <height>131</height>
+     </rect>
     </property>
    </widget>
   </widget>

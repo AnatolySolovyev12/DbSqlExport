@@ -10,7 +10,7 @@ importTreeObjectClass::importTreeObjectClass(QWidget* parent)
 
 	ui.progressBar->hide();
 	ui.checkBox->setChecked(true);
-
+	ui.textEdit->setReadOnly(true);
 }
 
 
@@ -44,4 +44,15 @@ QPointer<QProgressBar> importTreeObjectClass::getPtrProgressBar()
 QPointer<QCheckBox> importTreeObjectClass::getPtrCheckBoxTariff()
 {
 	return ui.checkBox;
+}
+
+
+void importTreeObjectClass::printMessage(QString any)
+{
+	ui.textEdit->append(any + "\n");
+}
+
+void importTreeObjectClass::clearTextEdit()
+{
+	ui.textEdit->clear();
 }
