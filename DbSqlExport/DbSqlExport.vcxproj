@@ -130,6 +130,7 @@
     <ResourceCompile Include="DbSqlExport5.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="icon2.ico" />
     <Image Include="iconApp.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
