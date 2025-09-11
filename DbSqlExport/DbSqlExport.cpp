@@ -330,35 +330,12 @@ void DbSqlExport::queryDbResult(QString any)
 			curDate = curDate.addDays(-1);
 
 		QString timeInQuery = curDate.toString("yyyy-MM-dd"); // Разворачиваем формат даты так как в БД.
-		/*
-		queryString = "select ID_MeterInfo from MeterInfo where SN = '" + any + "'"; // запрашиваем первичный ID по номеру прибора
-		query.exec(queryString);
 
-		query.next();
-
-		iD = query.value(0).toInt();
-
-		queryString = "select ID_Point from MeterMountHist where ID_MeterInfo = '" + any.setNum(iD) + "'"; // получаем ID из счётчика
-
-		query.exec(queryString);
-		query.next();
-		iD = query.value(0).toInt();
-
-		queryString = "select * from dbo.PointParams where ID_Point = '" + any.setNum(iD) + "' and ID_Param = '4'"; // получаем ID параметра активной энергии счётчика
-		query.exec(queryString);
-		query.next();
-
-		iD = query.value(0).toInt();
-		*/
-		if (myParamForSmtp->odbc == "DBEG" || myParamForSmtp->odbc == "DBEY")
-			//queryString = "select Val, FORMAT(DT+1, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '1' order by DT DESC";
+		if (myParamForSmtp->odbc == "DBEG" || myParamForSmtp->odbc == "DBEY") // Запрашиваем последние суточные показания с датой по первому тарифу
 			queryString = "select TOP(1) Val, FORMAT(DT + 1, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = (select PP.ID_PP from PointParams as PP join Points as P on PP.ID_Point = P.ID_Point where PointName like '%" + any + "' and ID_Param = '4') and N_Rate = '1' order by DT DESC";
 
-
 		if (myParamForSmtp->odbc == "DBEN")
-			//queryString = "select Val, FORMAT(DT, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '1' order by DT DESC";
-		queryString = "select TOP(1) Val, FORMAT(DT, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = (select PP.ID_PP from PointParams as PP join Points as P on PP.ID_Point = P.ID_Point where PointName like '%" + any + "' and ID_Param = '4') and N_Rate = '1' order by DT DESC";
-
+			queryString = "select TOP(1) Val, FORMAT(DT, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = (select PP.ID_PP from PointParams as PP join Points as P on PP.ID_Point = P.ID_Point where PointName like '%" + any + "' and ID_Param = '4') and N_Rate = '1' order by DT DESC";
 
 		query.exec(queryString);
 		query.next();
@@ -369,15 +346,11 @@ void DbSqlExport::queryDbResult(QString any)
 
 		dateDay = query.value(1).toString();
 
-		if (myParamForSmtp->odbc == "DBEG" || myParamForSmtp->odbc == "DBEY")
-			//queryString = "select Val, FORMAT(DT+1, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '2' order by DT DESC";
-		queryString = "select TOP(1) Val, FORMAT(DT + 1, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = (select PP.ID_PP from PointParams as PP join Points as P on PP.ID_Point = P.ID_Point where PointName like '%" + any + "' and ID_Param = '4') and N_Rate = '2' order by DT DESC";
-
+		if (myParamForSmtp->odbc == "DBEG" || myParamForSmtp->odbc == "DBEY") // Запрашиваем последние суточные показания с датой по второму тарифу
+			queryString = "select TOP(1) Val, FORMAT(DT + 1, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = (select PP.ID_PP from PointParams as PP join Points as P on PP.ID_Point = P.ID_Point where PointName like '%" + any + "' and ID_Param = '4') and N_Rate = '2' order by DT DESC";
 
 		if (myParamForSmtp->odbc == "DBEN")
-			//queryString = "select Val, FORMAT(DT, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '2' order by DT DESC";
-		queryString = "select TOP(1) Val, FORMAT(DT, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = (select PP.ID_PP from PointParams as PP join Points as P on PP.ID_Point = P.ID_Point where PointName like '%" + any + "' and ID_Param = '4') and N_Rate = '2' order by DT DESC";
-
+			queryString = "select TOP(1) Val, FORMAT(DT, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = (select PP.ID_PP from PointParams as PP join Points as P on PP.ID_Point = P.ID_Point where PointName like '%" + any + "' and ID_Param = '4') and N_Rate = '2' order by DT DESC";
 
 		query.exec(queryString);
 		query.next();
@@ -385,14 +358,8 @@ void DbSqlExport::queryDbResult(QString any)
 
 		if (night.length() >= 14)
 			night.chop(9);
-		/*
-		queryString = "select ID_Parent from NDIETable where ID_PP = '" + any.setNum(iD) + "'"; // получаем ID для последующего получаения GUID
-		query.exec(queryString);
-		query.next();
-		iD = query.value(0).toInt();
 
-		queryString = "select Code from NDIETable where ID_DIE = '" + any.setNum(iD) + "'"; // получаем GUID
-		*/
+		// Запрашиваем ID из Import/Export
 		queryString = "select Code from NDIETable where ID_DIE = (select ID_Parent from NDIETable where ID_PP = ((select PP.ID_PP from PointParams as PP join Points as P on PP.ID_Point = P.ID_Point where PointName like '%" + any + "' and ID_Param = '4')))";
 		query.exec(queryString);
 		query.next();
@@ -425,7 +392,7 @@ void DbSqlExport::queryDbResult(QString any)
 		query.next();
 
 		day = query.value(1).toString();
-		
+
 		if (day.length() >= 18)
 			day.chop(9);
 
@@ -1085,7 +1052,7 @@ void DbSqlExport::importTreeObjectBirth()
 		int countOfMaket = query.value(0).toInt();
 
 		qDebug() << countOfMaket;
-		
+
 		queryString = "SELECT ID_Point, PointName, ID_Parent, Point_Type FROM Points where Point_Type != '21' and Point_Type != '145' and Point_Type != '10' and Point_Type != '81'  and Point_Type != '43' and Point_Type != '255' and Point_Type != '49' order by ID_Parent"; // Запрашиваем список макетов
 
 		query.exec(queryString);
