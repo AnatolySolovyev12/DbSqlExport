@@ -360,7 +360,7 @@ void DbSqlExport::queryDbResult(QString any)
 			night.chop(9);
 
 		// Запрашиваем ID из Import/Export
-		queryString = "select Code from NDIETable where ID_DIE = (select ID_Parent from NDIETable where ID_PP = ((select PP.ID_PP from PointParams as PP join Points as P on PP.ID_Point = P.ID_Point where PointName like '%" + any + "' and ID_Param = '4')))";
+		queryString = "select Code from NDIETable where ID_DIE = (select TOP(1) ID_Parent from NDIETable where ID_PP = ((select PP.ID_PP from PointParams as PP join Points as P on PP.ID_Point = P.ID_Point where PointName like '%" + any + "' and ID_Param = '4')))";
 		query.exec(queryString);
 		query.next();
 		guid = query.value(0).toString();
