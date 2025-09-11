@@ -321,7 +321,7 @@ void DbSqlExport::queryDbResult(QString any)
 
 		guid = query.value(0).toString();
 	}
-
+	/*
 	if (myParamForSmtp->odbc == "DBEG" || myParamForSmtp->odbc == "DBEN" || myParamForSmtp->odbc == "DBEY")
 	{
 		QDate curDate = QDate::currentDate();
@@ -361,6 +361,68 @@ void DbSqlExport::queryDbResult(QString any)
 
 		// Запрашиваем ID из Import/Export
 		queryString = "select Code from NDIETable where ID_DIE = (select TOP(1) ID_Parent from NDIETable where ID_PP = ((select PP.ID_PP from PointParams as PP join Points as P on PP.ID_Point = P.ID_Point where PointName like '%" + any + "' and ID_Param = '4')))";
+		query.exec(queryString);
+		query.next();
+		guid = query.value(0).toString();
+	}
+	*/
+	if (myParamForSmtp->odbc == "DBEG" || myParamForSmtp->odbc == "DBEN" || myParamForSmtp->odbc == "DBEY")
+	{
+		QDate curDate = QDate::currentDate();
+
+		if (myParamForSmtp->odbc == "DBEG")
+			curDate = curDate.addDays(-1);
+
+		QString timeInQuery = curDate.toString("yyyy-MM-dd"); // Разворачиваем формат даты так как в БД.
+
+		queryString = "select ID_Point from Points  where PointName like '%" + any + "'";
+
+		query.exec(queryString);
+
+		query.next();
+
+		iD = query.value(0).toInt();
+
+		queryString = "select ID_PP from PointParams where ID_Point = '" + any.setNum(iD) + "' and ID_Param = '4'";
+		query.exec(queryString);
+		query.next();
+
+		iD = query.value(0).toInt();
+
+		if (myParamForSmtp->odbc == "DBEG" || myParamForSmtp->odbc == "DBEY")
+			queryString = "select TOP(1) Val, FORMAT(DT+1, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '1' order by DT DESC";
+
+		if (myParamForSmtp->odbc == "DBEN")
+			queryString = "select TOP(1) Val, FORMAT(DT, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '1' order by DT DESC";
+
+		query.exec(queryString);
+		query.next();
+		day = query.value(0).toString();
+
+		if (day.length() >= 14)
+			day.chop(9);
+
+		dateDay = query.value(1).toString();
+
+		if (myParamForSmtp->odbc == "DBEG" || myParamForSmtp->odbc == "DBEY")
+			queryString = "select TOP(1) Val, FORMAT(DT+1, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '2' order by DT DESC";
+
+		if (myParamForSmtp->odbc == "DBEN")
+			queryString = "select TOP(1) Val, FORMAT(DT, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '2' order by DT DESC";
+
+		query.exec(queryString);
+		query.next();
+		night = query.value(0).toString();
+
+		if (night.length() >= 14)
+			night.chop(9);
+
+		queryString = "select TOP(1) ID_Parent from NDIETable where ID_PP = '" + any.setNum(iD) + "'"; // получаем ID для последующего получаения GUID
+		query.exec(queryString);
+		query.next();
+		iD = query.value(0).toInt();
+
+		queryString = "select Code from NDIETable where ID_DIE = '" + any.setNum(iD) + "'"; // получаем GUID
 		query.exec(queryString);
 		query.next();
 		guid = query.value(0).toString();
