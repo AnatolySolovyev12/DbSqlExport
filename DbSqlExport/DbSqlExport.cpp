@@ -381,11 +381,15 @@ void DbSqlExport::queryDbResult(QString any)
 
 		query.next();
 
+		if (query.isNull(0)) return;
+
 		iD = query.value(0).toInt();
 
 		queryString = "select ID_PP from PointParams where ID_Point = '" + any.setNum(iD) + "' and ID_Param = '4'";
 		query.exec(queryString);
 		query.next();
+
+		if (query.isNull(0)) return;
 
 		iD = query.value(0).toInt();
 
@@ -420,6 +424,9 @@ void DbSqlExport::queryDbResult(QString any)
 		queryString = "select TOP(1) ID_Parent from NDIETable where ID_PP = '" + any.setNum(iD) + "'"; // получаем ID для последующего получаения GUID
 		query.exec(queryString);
 		query.next();
+
+		if (query.isNull(0)) return;
+
 		iD = query.value(0).toInt();
 
 		queryString = "select Code from NDIETable where ID_DIE = '" + any.setNum(iD) + "'"; // получаем GUID
