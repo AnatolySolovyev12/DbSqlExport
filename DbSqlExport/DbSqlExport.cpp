@@ -330,7 +330,7 @@ void DbSqlExport::queryDbResult(QString any)
 			curDate = curDate.addDays(-1);
 
 		QString timeInQuery = curDate.toString("yyyy-MM-dd"); // Разворачиваем формат даты так как в БД.
-
+		/*
 		queryString = "select ID_MeterInfo from MeterInfo where SN = '" + any + "'"; // запрашиваем первичный ID по номеру прибора
 		query.exec(queryString);
 
@@ -349,12 +349,16 @@ void DbSqlExport::queryDbResult(QString any)
 		query.next();
 
 		iD = query.value(0).toInt();
-
+		*/
 		if (myParamForSmtp->odbc == "DBEG" || myParamForSmtp->odbc == "DBEY")
-			queryString = "select Val, FORMAT(DT+1, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '1' order by DT DESC";
+			//queryString = "select Val, FORMAT(DT+1, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '1' order by DT DESC";
+			queryString = "select TOP(1) Val, FORMAT(DT + 1, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = (select PP.ID_PP from PointParams as PP join Points as P on PP.ID_Point = P.ID_Point where PointName like '%" + any + "' and ID_Param = '4') and N_Rate = '1' order by DT DESC";
+
 
 		if (myParamForSmtp->odbc == "DBEN")
-			queryString = "select Val, FORMAT(DT, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '1' order by DT DESC";
+			//queryString = "select Val, FORMAT(DT, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '1' order by DT DESC";
+		queryString = "select TOP(1) Val, FORMAT(DT, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = (select PP.ID_PP from PointParams as PP join Points as P on PP.ID_Point = P.ID_Point where PointName like '%" + any + "' and ID_Param = '4') and N_Rate = '1' order by DT DESC";
+
 
 		query.exec(queryString);
 		query.next();
@@ -366,10 +370,14 @@ void DbSqlExport::queryDbResult(QString any)
 		dateDay = query.value(1).toString();
 
 		if (myParamForSmtp->odbc == "DBEG" || myParamForSmtp->odbc == "DBEY")
-			queryString = "select Val, FORMAT(DT+1, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '2' order by DT DESC";
+			//queryString = "select Val, FORMAT(DT+1, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '2' order by DT DESC";
+		queryString = "select TOP(1) Val, FORMAT(DT + 1, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = (select PP.ID_PP from PointParams as PP join Points as P on PP.ID_Point = P.ID_Point where PointName like '%" + any + "' and ID_Param = '4') and N_Rate = '2' order by DT DESC";
+
 
 		if (myParamForSmtp->odbc == "DBEN")
-			queryString = "select Val, FORMAT(DT, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '2' order by DT DESC";
+			//queryString = "select Val, FORMAT(DT, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '2' order by DT DESC";
+		queryString = "select TOP(1) Val, FORMAT(DT, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = (select PP.ID_PP from PointParams as PP join Points as P on PP.ID_Point = P.ID_Point where PointName like '%" + any + "' and ID_Param = '4') and N_Rate = '2' order by DT DESC";
+
 
 		query.exec(queryString);
 		query.next();
@@ -377,13 +385,15 @@ void DbSqlExport::queryDbResult(QString any)
 
 		if (night.length() >= 14)
 			night.chop(9);
-
+		/*
 		queryString = "select ID_Parent from NDIETable where ID_PP = '" + any.setNum(iD) + "'"; // получаем ID для последующего получаения GUID
 		query.exec(queryString);
 		query.next();
 		iD = query.value(0).toInt();
 
 		queryString = "select Code from NDIETable where ID_DIE = '" + any.setNum(iD) + "'"; // получаем GUID
+		*/
+		queryString = "select Code from NDIETable where ID_DIE = (select ID_Parent from NDIETable where ID_PP = ((select PP.ID_PP from PointParams as PP join Points as P on PP.ID_Point = P.ID_Point where PointName like '%" + any + "' and ID_Param = '4')))";
 		query.exec(queryString);
 		query.next();
 		guid = query.value(0).toString();
