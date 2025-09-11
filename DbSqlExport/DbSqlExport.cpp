@@ -381,7 +381,14 @@ void DbSqlExport::queryDbResult(QString any)
 
 		query.next();
 
-		if (query.isNull(0)) return;
+		if (query.isNull(0))
+		{
+			day = "";
+			night = "";
+			dateDay = "";
+			guid = "";
+			return;
+		}
 
 		iD = query.value(0).toInt();
 
@@ -389,7 +396,14 @@ void DbSqlExport::queryDbResult(QString any)
 		query.exec(queryString);
 		query.next();
 
-		if (query.isNull(0)) return;
+		if (query.isNull(0))
+		{
+			day = "";
+			night = "";
+			dateDay = "";
+			guid = "";
+			return;
+		}
 
 		iD = query.value(0).toInt();
 
@@ -425,7 +439,11 @@ void DbSqlExport::queryDbResult(QString any)
 		query.exec(queryString);
 		query.next();
 
-		if (query.isNull(0)) return;
+		if (query.isNull(0))
+		{
+			guid = "";
+			return;
+		}
 
 		iD = query.value(0).toInt();
 
