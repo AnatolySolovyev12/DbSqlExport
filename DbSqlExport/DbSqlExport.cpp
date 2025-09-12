@@ -321,8 +321,9 @@ void DbSqlExport::queryDbResult(QString any)
 
 		guid = query.value(0).toString();
 	}
+
 	/*
-	if (myParamForSmtp->odbc == "DBEG" || myParamForSmtp->odbc == "DBEN" || myParamForSmtp->odbc == "DBEY")
+	if (myParamForSmtp->odbc == "DBEG" || myParamForSmtp->odbc == "DBEN" || myParamForSmtp->odbc == "DBEY") // Вариант с ужатыми и усложнёнными запросам. Работает медленней в 2 раза. Не практично.
 	{
 		QDate curDate = QDate::currentDate();
 
@@ -366,6 +367,7 @@ void DbSqlExport::queryDbResult(QString any)
 		guid = query.value(0).toString();
 	}
 	*/
+
 	if (myParamForSmtp->odbc == "DBEG" || myParamForSmtp->odbc == "DBEN" || myParamForSmtp->odbc == "DBEY")
 	{
 		QDate curDate = QDate::currentDate();
