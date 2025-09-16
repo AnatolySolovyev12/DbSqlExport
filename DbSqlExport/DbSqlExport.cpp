@@ -168,6 +168,8 @@ void DbSqlExport::addSomeNumbers()
 	QSharedPointer<QAxObject>columnsDonor(usedRangeColDonor->querySubObject("Columns"));
 	int countColsDonor = columnsDonor->property("Count").toInt();
 
+	ui.listWidget->clear();
+
 	for (int row = 1; row <= countRowsDonor; ++row)
 	{
 		QSharedPointer<QAxObject>cell(sheetDonor.data()->querySubObject("Cells(int,int)", row, 1)); // так указываем с какой ячейкой работать
@@ -370,6 +372,7 @@ void DbSqlExport::queryDbResult(QString any)
 
 	if (myParamForSmtp->odbc == "DBEG" || myParamForSmtp->odbc == "DBEN" || myParamForSmtp->odbc == "DBEY")
 	{
+		qDebug() << "test algorithm reading from db";///////////////////////////////////////////////////////////////
 		QDate curDate = QDate::currentDate();
 
 		if (myParamForSmtp->odbc == "DBEG")
@@ -514,7 +517,6 @@ void DbSqlExport::queryDbResult(QString any)
 
 void DbSqlExport::generateXml()
 {
-
 	if (!dbconnect)
 	{
 		sBar->showMessage("Need connect to DB.");
@@ -539,7 +541,7 @@ void DbSqlExport::generateXml()
 	}
 
 	QString savedFile;
-
+	
 	if (!ui.autoSender->isChecked())
 		savedFile = QFileDialog::getSaveFileName(0, "Save XML", fileName, "*.xml"); // В последнем параметре также можно прописать tr("Xml files (*.xml)"). Это будет как приписка с указанием формата. Удобно.
 	else
@@ -644,10 +646,17 @@ void DbSqlExport::generateXml()
 
 		ui.listWidget->setCurrentRow(i);
 
+		/*auto currentItem = ui.listWidget->item(i);
+		if (!currentItem)
+		{
+			qWarning() << "Null item in list at index" << i;
+			continue;
+		}*/
+
 		queryDbResult(ui.listWidget->currentItem()->text());
-
+		qDebug() << "after queryDbResult";/////////////////////////////////////////////////////////////////////////////
 		generalXmlLoop(ui.listWidget->currentItem()->text(), day, night, guid, dateDay);
-
+		qDebug() << "after generalXmlLoop";/////////////////////////////////////////////////////////////////////////////
 		if (valueForTimer - timer.elapsed() <= 100) // для отслеживания количества выполнений каждые 5 секунд.
 		{
 			valueForTimer += 5000;
@@ -662,8 +671,9 @@ void DbSqlExport::generateXml()
 
 			countDoingIterationForTime = 0;
 		}
+		qDebug() << "after fps";/////////////////////////////////////////////////////////////////////////////////
 	}
-
+	qDebug() << "after general algorithm";////////////////////////////////////////////////////////////////////////
 	xmlWriter.writeEndElement(); // area
 
 	xmlWriter.writeEndElement(); // message
@@ -815,6 +825,8 @@ void DbSqlExport::generalXmlLoop(QString any, QString dayFunc, QString nightFunc
 	}
 
 	xmlWriter.writeEndElement(); // measurepoint
+	qDebug() << "finish xml writing";/////////////////////////////////////////////////////////////////////////////////
+
 }
 
 
@@ -1026,8 +1038,6 @@ void DbSqlExport::import80020()
 
 	workbookDonor->dynamicCall("Close()"); // обязательно используем в работе с Excel иначе документы будет фbоном открыт в системе
 	excelDonor->dynamicCall("Quit()");
-
-	//qDebug() << bufferHouseStreet;////////////////////////////////////////////////
 }
 
 
