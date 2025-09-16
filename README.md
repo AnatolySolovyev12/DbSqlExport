@@ -10,10 +10,14 @@ What can:
 7) Automatically delete the file after sending if necessary
 8) Outputs certain information to the console
 
+80020*
 ![80020](https://github.com/user-attachments/assets/2e5c0b0f-88a2-4036-ab42-a73d909bf81b)
 
+Tree
 ![tree](https://github.com/user-attachments/assets/82f737e2-7e79-4d66-a6a8-6988ec176ae4)
 
+References
 ![reference](https://github.com/user-attachments/assets/8d51688a-808f-472f-aa1c-f179c6c7d496)
 
+XML80020*
 ![xml](https://github.com/user-attachments/assets/e9c78bf5-4ae6-41a0-88f6-65f697b08b48)
