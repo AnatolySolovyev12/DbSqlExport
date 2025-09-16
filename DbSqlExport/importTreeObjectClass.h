@@ -18,9 +18,12 @@ public:
 	QPointer<QCheckBox> getPtrCheckBoxTariff();
 	void printMessage(QString any);
 	void clearTextEdit();
+	void generateSignalForImportReference();
 
 signals:
 	void status(const QString&, const QString&);
+signals:
+	void importReferenceSignal(const QString&, const QString&);
 
 private:
 	Ui::importTreeObjectClassClass ui;

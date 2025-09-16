@@ -66,8 +66,8 @@ DbSqlExport::DbSqlExport(QWidget* parent)
 	ui.importDbButton->setMenu(importMenu);
 
 	connect(importClass, SIGNAL(status(QString)), this, SLOT(processWriteInDb(QString))); // делаем реконект к БД после каждого сохранения настроек.
-
 	connect(importTreeCLass, SIGNAL(status(QString, QString)), this, SLOT(processWriteInDbTreeObject(QString, QString))); // делаем реконект к БД после каждого сохранения настроек.
+	connect(importTreeCLass, SIGNAL(importReferenceSignal(QString, QString)), this, SLOT(processWriteReferenceInDb(QString, QString))); // делаем реконект к БД после каждого сохранения настроек.
 
 	sBar = new QStatusBar();
 	QMainWindow::setStatusBar(sBar);
@@ -1487,6 +1487,86 @@ void DbSqlExport::processWriteInDbTreeObject(QString any, QString idAny)
 	}
 
 	importTreeCLass->printMessage("Streets was added =  " + QString::number(createStreet) + "\nHouses was added =  " + QString::number(createHouse) + "\nRooms was added =  " + QString::number(createRoom));
+
+	importTreeCLass->printMessage("Device not found in DataBase: \n" + errorQuery);
+
+	temporaryProgressBarPtr.data()->hide();
+}
+
+
+void DbSqlExport::processWriteReferenceInDb(QString any, QString idAny)
+{
+	importTreeCLass->clearTextEdit();
+
+	QSqlQuery query;
+	QString queryString;
+	QString errorQuery = "";
+	int idObjectWasFind;
+	QString pointName = "";
+
+	QPointer<QProgressBar> temporaryProgressBarPtr(importTreeCLass->getPtrProgressBar());
+
+	temporaryProgressBarPtr->setValue(0);
+	temporaryProgressBarPtr->setMaximum(bufferForSerialIdOrGuid.length());
+	temporaryProgressBarPtr->show();
+
+	int houseId;
+	int streetId;
+
+	int createReference = 0;
+
+	QString nameTypeObject;
+
+	switch (idAny.toInt())
+	{
+	case(141): {
+		nameTypeObject = "Town";
+		break;
+	}
+	case(143): {
+		nameTypeObject = "Street";
+		break;
+	}
+	case(144): {
+		nameTypeObject = "House";
+		break;
+	}
+	}
+
+	importTreeCLass->printMessage("Count of import object was = " + QString::number(bufferForSerialIdOrGuid.length()) + ". Object imported into: " + nameTypeObject);
+
+	//if (idAny == QString::number(144))
+	//{
+		for (auto& val : bufferForSerialIdOrGuid)
+		{
+			queryString = "select ID_Parent from Points where PointName like '%" + val.first + "%'";
+			query.exec(queryString);
+			query.next();
+
+			if (!query.isNull(0)) // запись согласно запросу найдена
+			{
+				idObjectWasFind = query.value(0).toInt();
+
+				queryString = "select PointName from Points where ID_Point = '" + QString::number(idObjectWasFind) + "'";
+				query.exec(queryString);
+				query.next();
+				pointName = query.value(0).toString();
+
+				queryString = "insert into Points(PointName, ID_Parent, Point_Type, ID_Ref) values('" + pointName + "', " + any + ", 255, " + QString::number(idObjectWasFind) + ")";;
+				query.exec(queryString);
+
+				createReference++;
+			}
+			else
+			{
+				errorQuery += val.first + "\n";
+			}
+
+			temporaryProgressBarPtr->setValue(temporaryProgressBarPtr->value() + 1);
+		}
+	//}
+
+	importTreeCLass->printMessage("References was added =  " + QString::number(createReference));
 
 	importTreeCLass->printMessage("Device not found in DataBase: \n" + errorQuery);
 
