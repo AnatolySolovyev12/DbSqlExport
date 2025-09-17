@@ -168,8 +168,6 @@ void DbSqlExport::addSomeNumbers()
 	QSharedPointer<QAxObject>columnsDonor(usedRangeColDonor->querySubObject("Columns"));
 	int countColsDonor = columnsDonor->property("Count").toInt();
 
-	ui.listWidget->clear();
-
 	for (int row = 1; row <= countRowsDonor; ++row)
 	{
 		QSharedPointer<QAxObject>cell(sheetDonor.data()->querySubObject("Cells(int,int)", row, 1)); // так указываем с какой ячейкой работать
@@ -372,7 +370,6 @@ void DbSqlExport::queryDbResult(QString any)
 
 	if (myParamForSmtp->odbc == "DBEG" || myParamForSmtp->odbc == "DBEN" || myParamForSmtp->odbc == "DBEY")
 	{
-		qDebug() << "test algorithm reading from db";///////////////////////////////////////////////////////////////
 		QDate curDate = QDate::currentDate();
 
 		if (myParamForSmtp->odbc == "DBEG")
@@ -541,7 +538,7 @@ void DbSqlExport::generateXml()
 	}
 
 	QString savedFile;
-	
+
 	if (!ui.autoSender->isChecked())
 		savedFile = QFileDialog::getSaveFileName(0, "Save XML", fileName, "*.xml"); // В последнем параметре также можно прописать tr("Xml files (*.xml)"). Это будет как приписка с указанием формата. Удобно.
 	else
@@ -646,17 +643,9 @@ void DbSqlExport::generateXml()
 
 		ui.listWidget->setCurrentRow(i);
 
-		/*auto currentItem = ui.listWidget->item(i);
-		if (!currentItem)
-		{
-			qWarning() << "Null item in list at index" << i;
-			continue;
-		}*/
-
 		queryDbResult(ui.listWidget->currentItem()->text());
-		qDebug() << "after queryDbResult";/////////////////////////////////////////////////////////////////////////////
 		generalXmlLoop(ui.listWidget->currentItem()->text(), day, night, guid, dateDay);
-		qDebug() << "after generalXmlLoop";/////////////////////////////////////////////////////////////////////////////
+
 		if (valueForTimer - timer.elapsed() <= 100) // для отслеживания количества выполнений каждые 5 секунд.
 		{
 			valueForTimer += 5000;
@@ -671,9 +660,8 @@ void DbSqlExport::generateXml()
 
 			countDoingIterationForTime = 0;
 		}
-		qDebug() << "after fps";/////////////////////////////////////////////////////////////////////////////////
 	}
-	qDebug() << "after general algorithm";////////////////////////////////////////////////////////////////////////
+
 	xmlWriter.writeEndElement(); // area
 
 	xmlWriter.writeEndElement(); // message
@@ -825,8 +813,6 @@ void DbSqlExport::generalXmlLoop(QString any, QString dayFunc, QString nightFunc
 	}
 
 	xmlWriter.writeEndElement(); // measurepoint
-	qDebug() << "finish xml writing";/////////////////////////////////////////////////////////////////////////////////
-
 }
 
 
@@ -893,6 +879,7 @@ void DbSqlExport::MessegeAboutReconnectDb(QString)
 
 void DbSqlExport::import80020()
 {
+	countOfNumbersForImport = 0;
 	bufferForSerialIdOrGuid.clear();
 	bufferHouseStreet.clear();
 
@@ -1006,7 +993,7 @@ void DbSqlExport::import80020()
 
 				bufferForSerialIdOrGuid.push_back(qMakePair(serialString, iDlString));
 
-				countOfNumbers++;
+				countOfNumbersForImport++;
 
 				if (countColsDonor > 2)
 				{
@@ -1545,36 +1532,32 @@ void DbSqlExport::processWriteReferenceInDb(QString any, QString idAny)
 
 	importTreeCLass->printMessage("Count of import object was = " + QString::number(bufferForSerialIdOrGuid.length()) + ". Object imported into: " + nameTypeObject);
 
-	//if (idAny == QString::number(144))
-	//{
-		for (auto& val : bufferForSerialIdOrGuid)
+	for (auto& val : bufferForSerialIdOrGuid)
+	{
+		queryString = "select ID_Parent from Points where PointName like '%" + val.first + "%'";
+		query.exec(queryString);
+		query.next();
+
+		if (!query.isNull(0)) // запись согласно запросу найдена
 		{
-			queryString = "select ID_Parent from Points where PointName like '%" + val.first + "%'";
+			idObjectWasFind = query.value(0).toInt();
+
+			queryString = "select PointName from Points where ID_Point = '" + QString::number(idObjectWasFind) + "'";
 			query.exec(queryString);
 			query.next();
+			pointName = query.value(0).toString();
 
-			if (!query.isNull(0)) // запись согласно запросу найдена
-			{
-				idObjectWasFind = query.value(0).toInt();
+			queryString = "insert into Points(PointName, ID_Parent, Point_Type, ID_Ref) values('" + pointName + "', " + any + ", 255, " + QString::number(idObjectWasFind) + ")";;
+			query.exec(queryString);
 
-				queryString = "select PointName from Points where ID_Point = '" + QString::number(idObjectWasFind) + "'";
-				query.exec(queryString);
-				query.next();
-				pointName = query.value(0).toString();
-
-				queryString = "insert into Points(PointName, ID_Parent, Point_Type, ID_Ref) values('" + pointName + "', " + any + ", 255, " + QString::number(idObjectWasFind) + ")";;
-				query.exec(queryString);
-
-				createReference++;
-			}
-			else
-			{
-				errorQuery += val.first + "\n";
-			}
-
-			temporaryProgressBarPtr->setValue(temporaryProgressBarPtr->value() + 1);
+			createReference++;
 		}
-	//}
+		else
+		{
+			errorQuery += val.first + "\n";
+		}
+		temporaryProgressBarPtr->setValue(temporaryProgressBarPtr->value() + 1);
+	}
 
 	importTreeCLass->printMessage("References was added =  " + QString::number(createReference));
 

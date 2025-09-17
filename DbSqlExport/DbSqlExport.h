@@ -68,6 +68,7 @@ private:
     QString guid;
     QString dateDay;
     int countOfNumbers = 0;
+    int countOfNumbersForImport = 0;
 
     QTimer* timer;
 
