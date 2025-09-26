@@ -7,13 +7,10 @@
 #include <QSqlDatabase>
 #include "ParamSmtp.h"
 #include <QTimer>
-
 #include <QPair>
 #include <Import80020Class.h>
-
 #include "importTreeObjectClass.h"
 #include <qmenu.h>
-
 
 
 class DbSqlExport : public QMainWindow
@@ -22,7 +19,6 @@ class DbSqlExport : public QMainWindow
 
 public:
     DbSqlExport(QWidget *parent = nullptr);
-    ~DbSqlExport();
 
     void addOneNumber();
     void removeNumber();
@@ -41,6 +37,11 @@ public:
 
     void importTreeObjectBirth();
     void recursionSorting(QTreeWidgetItem* some);
+    void startGenerateWithQCouncurent();
+
+    void setDisableAllButton();
+    void setEnableAllButton();
+    
 
 
     QXmlStreamWriter xmlWriter;
@@ -56,6 +57,13 @@ private slots:
     void processWriteInDb(QString any);
     void processWriteInDbTreeObject(QString any, QString idAny);
     void processWriteReferenceInDb(QString any, QString idAny);
+    void statusBarRefreshAfterSignal(QString any);
+
+signals:
+    void statusBarSignal(const QString& messege);
+signals:
+    void buttonEnable();
+
 
 private:
     Ui::DbSqlExportClass ui;

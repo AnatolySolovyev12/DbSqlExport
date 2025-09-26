@@ -5,14 +5,13 @@
 #include <QFile>
 #include <QSqlError>
 #include <QSqlQuery>
-
 #include <QSqlRecord>
-
 #include <QTime>
 #include <QXmlStreamWriter>
 #include <QXmlStreamAttribute>
 #include <QElapsedTimer>
 #include <QtNetwork/QSslSocket>
+#include <QtConcurrent>
 
 QTextStream out(stdout);
 QTextStream in(stdin);
@@ -32,7 +31,8 @@ DbSqlExport::DbSqlExport(QWidget* parent)
 	connect(ui.pushButtonDeleteAll, &QPushButton::clicked, this, &DbSqlExport::clearAllNumbers);
 	connect(ui.pushButtonAddFrom, &QPushButton::clicked, this, &DbSqlExport::addSomeNumbers);
 	connect(ui.pushButtonClose, SIGNAL(clicked()), this, SLOT(close()));
-	connect(ui.pushButtonGenXml, &QPushButton::clicked, this, &DbSqlExport::generateXml);
+
+	connect(ui.pushButtonGenXml, &QPushButton::clicked, this, &DbSqlExport::startGenerateWithQCouncurent);
 
 	connect(ui.pushButtonSendFiles, &QPushButton::clicked, this, &DbSqlExport::optionsSmtp);
 
@@ -83,10 +83,9 @@ DbSqlExport::DbSqlExport(QWidget* parent)
 	sBar->setStyleSheet("QStatusBar::item {border: None;}");
 
 	connectDataBase();
-}
 
-DbSqlExport::~DbSqlExport()
-{
+	connect(this, &DbSqlExport::statusBarSignal, this, &DbSqlExport::statusBarRefreshAfterSignal);
+	connect(this, &DbSqlExport::buttonEnable, this, &DbSqlExport::setEnableAllButton);
 }
 
 
@@ -654,7 +653,7 @@ void DbSqlExport::generateXml()
 
 			qDebug() << ct.toString() << "   " << countDoingIterationForTime;
 
-			sBar->showMessage(ct.toString() + "   " + QString::number(countDoingIterationForTime));
+			emit statusBarSignal(ct.toString() + "   " + QString::number(countDoingIterationForTime));
 
 			QCoreApplication::processEvents(); // для корректного отображения количества итераций в statusBar
 
@@ -674,7 +673,7 @@ void DbSqlExport::generateXml()
 
 	out << "XML was made for = " << (double)countTimer / 1000 << " sec" << Qt::endl;
 
-	QTimer::singleShot(2000, [this, countTimer]() {sBar->showMessage("XML was made for = " + QString::number((double)countTimer / 1000) + " sec"); });
+	emit statusBarSignal("XML was made for = " + QString::number((double)countTimer / 1000) + " sec");
 
 	mw_db.removeDatabase(myParamForSmtp->odbc);
 
@@ -688,6 +687,8 @@ void DbSqlExport::generateXml()
 	}
 
 	fileName = "";
+
+	emit buttonEnable();
 }
 
 
@@ -710,6 +711,7 @@ void DbSqlExport::generalXmlLoop(QString any, QString dayFunc, QString nightFunc
 		xmlWriter.writeAttribute("code", "01");
 
 		if (internalCounter == 1) desc = "9";
+
 		if (internalCounter == 2) desc = "10";
 
 		xmlWriter.writeAttribute("desc", desc);
@@ -738,6 +740,7 @@ void DbSqlExport::generalXmlLoop(QString any, QString dayFunc, QString nightFunc
 			day = "0";
 			curDate = "189912300200";
 		}
+
 		if (nightFunc == "" && desc == "9")
 		{
 			night = "0";
@@ -801,6 +804,7 @@ void DbSqlExport::generalXmlLoop(QString any, QString dayFunc, QString nightFunc
 
 			xmlWriter.writeCharacters(night);
 		}
+
 		if (internalCounter == 2) xmlWriter.writeCharacters("0,0000");
 
 		xmlWriter.writeEndElement(); // value
@@ -1564,4 +1568,52 @@ void DbSqlExport::processWriteReferenceInDb(QString any, QString idAny)
 	importTreeCLass->printMessage("Device not found in DataBase: \n" + errorQuery);
 
 	temporaryProgressBarPtr.data()->hide();
+}
+
+
+void DbSqlExport::statusBarRefreshAfterSignal(QString any)
+{
+	sBar->showMessage(any);
+}
+
+
+void DbSqlExport::startGenerateWithQCouncurent()
+{
+	setDisableAllButton();
+
+	QtConcurrent::run([this]() { 
+
+		connectDataBase(); // QSqlDataBase нужно отдельно инициировать в каждом потоке. Не получиться общий использовать.
+		generateXml(); });
+}
+
+
+void DbSqlExport::setDisableAllButton()
+{
+	ui.pushButtonAddNumber->setEnabled(false);
+	ui.pushButtonDeleteNumber->setEnabled(false);
+	ui.pushButtonDeleteAll->setEnabled(false);
+	ui.pushButtonAddFrom->setEnabled(false);
+	ui.pushButtonClose->setEnabled(false);
+	ui.pushButtonGenXml->setEnabled(false);
+	ui.pushButtonSendFiles->setEnabled(false);
+	ui.checkBoxSendAfterCreate->setEnabled(false);
+	ui.checkBoxDelAfterSend->setEnabled(false);
+	ui.autoSender->setEnabled(false);
+	ui.importDbButton->setEnabled(false);
+}
+
+void DbSqlExport::setEnableAllButton()
+{
+	ui.pushButtonAddNumber->setEnabled(true);
+	ui.pushButtonDeleteNumber->setEnabled(true);
+	ui.pushButtonDeleteAll->setEnabled(true);
+	ui.pushButtonAddFrom->setEnabled(true);
+	ui.pushButtonClose->setEnabled(true);
+	ui.pushButtonGenXml->setEnabled(true);
+	ui.pushButtonSendFiles->setEnabled(true);
+	ui.checkBoxSendAfterCreate->setEnabled(true);
+	ui.checkBoxDelAfterSend->setEnabled(true);
+	ui.autoSender->setEnabled(true);
+	ui.importDbButton->setEnabled(true);
 }
