@@ -376,7 +376,7 @@ void DbSqlExport::queryDbResult(QString any)
 
 		QString timeInQuery = curDate.toString("yyyy-MM-dd"); // Разворачиваем формат даты так как в БД.
 
-		queryString = "select ID_Point from Points  where PointName like '%" + any + "'";
+		queryString = "select ID_Point from Points  where PointName like '%" + any + "%' and Point_Type = '21'";
 
 		query.exec(queryString);
 
