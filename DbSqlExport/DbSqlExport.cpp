@@ -436,7 +436,7 @@ void DbSqlExport::queryDbResult(QString any)
 		if (night.length() >= 14)
 			night.chop(9);
 
-		queryString = "select TOP(1) ID_Parent from NDIETable where ID_PP = '" + any.setNum(iD) + "'"; // получаем ID для последующего получаения GUID
+		queryString = "select TOP(1) ID_Parent from NDIETable where ID_PP = '" + any.setNum(iD) + "' and ID_Format = '34' order by ID_Parent DESC"; // получаем ID для последующего получаения GUID
 		query.exec(queryString);
 		query.next();
 
