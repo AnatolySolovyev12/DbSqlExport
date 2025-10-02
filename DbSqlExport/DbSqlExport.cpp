@@ -152,6 +152,8 @@ void DbSqlExport::addSomeNumbers()
 
 			if (!listDonor)
 			{
+				workbookDonor->dynamicCall("Close()"); // обязательно используем в работе с Excel иначе документы будет фbоном открыт в системе
+				excelDonor->dynamicCall("Quit()");
 				return;
 			}
 
