@@ -323,52 +323,6 @@ void DbSqlExport::queryDbResult(QString any)
 		guid = query.value(0).toString();
 	}
 
-	/*
-	if (myParamForSmtp->odbc == "DBEG" || myParamForSmtp->odbc == "DBEN" || myParamForSmtp->odbc == "DBEY") // Вариант с ужатыми и усложнёнными запросам. Работает медленней в 2 раза. Не практично.
-	{
-		QDate curDate = QDate::currentDate();
-
-		if (myParamForSmtp->odbc == "DBEG")
-			curDate = curDate.addDays(-1);
-
-		QString timeInQuery = curDate.toString("yyyy-MM-dd"); // Разворачиваем формат даты так как в БД.
-
-		if (myParamForSmtp->odbc == "DBEG" || myParamForSmtp->odbc == "DBEY") // Запрашиваем последние суточные показания с датой по первому тарифу
-			queryString = "select TOP(1) Val, FORMAT(DT + 1, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = (select PP.ID_PP from PointParams as PP join Points as P on PP.ID_Point = P.ID_Point where PointName like '%" + any + "' and ID_Param = '4') and N_Rate = '1' order by DT DESC";
-
-		if (myParamForSmtp->odbc == "DBEN")
-			queryString = "select TOP(1) Val, FORMAT(DT, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = (select PP.ID_PP from PointParams as PP join Points as P on PP.ID_Point = P.ID_Point where PointName like '%" + any + "' and ID_Param = '4') and N_Rate = '1' order by DT DESC";
-
-		query.exec(queryString);
-		query.next();
-		day = query.value(0).toString();
-
-		if (day.length() >= 14)
-			day.chop(9);
-
-		dateDay = query.value(1).toString();
-
-		if (myParamForSmtp->odbc == "DBEG" || myParamForSmtp->odbc == "DBEY") // Запрашиваем последние суточные показания с датой по второму тарифу
-			queryString = "select TOP(1) Val, FORMAT(DT + 1, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = (select PP.ID_PP from PointParams as PP join Points as P on PP.ID_Point = P.ID_Point where PointName like '%" + any + "' and ID_Param = '4') and N_Rate = '2' order by DT DESC";
-
-		if (myParamForSmtp->odbc == "DBEN")
-			queryString = "select TOP(1) Val, FORMAT(DT, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = (select PP.ID_PP from PointParams as PP join Points as P on PP.ID_Point = P.ID_Point where PointName like '%" + any + "' and ID_Param = '4') and N_Rate = '2' order by DT DESC";
-
-		query.exec(queryString);
-		query.next();
-		night = query.value(0).toString();
-
-		if (night.length() >= 14)
-			night.chop(9);
-
-		// Запрашиваем ID из Import/Export
-		queryString = "select Code from NDIETable where ID_DIE = (select TOP(1) ID_Parent from NDIETable where ID_PP = ((select PP.ID_PP from PointParams as PP join Points as P on PP.ID_Point = P.ID_Point where PointName like '%" + any + "' and ID_Param = '4')))";
-		query.exec(queryString);
-		query.next();
-		guid = query.value(0).toString();
-	}
-	*/
-
 	if (myParamForSmtp->odbc == "DBEG" || myParamForSmtp->odbc == "DBEN" || myParamForSmtp->odbc == "DBEY")
 	{
 		QDate curDate = QDate::currentDate();
