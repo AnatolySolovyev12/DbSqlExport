@@ -521,12 +521,6 @@ void DbSqlExport::generateXml()
 		return;
 	}
 
-	QElapsedTimer timer;
-	int countTimer = 0; // для итогового вывода времени потраченного на выполнение
-	int countDoingIterationForTime = 0; // считаем количество выполнений
-	int valueForTimer = 5000; // временной отрезок для подсчёта количества выполнений
-	timer.start();
-
 	QDate curDate = QDate::currentDate();
 	QTime curTime = QTime::currentTime();
 
@@ -545,11 +539,21 @@ void DbSqlExport::generateXml()
 	else
 		savedFile = fileName + ".xml";
 
-	if (savedFile == "") return;
+	if (savedFile == "")
+	{
+		emit buttonEnable();
+		return;
+	}
 
 	qDebug() << "\nTotal devices in the list: " << countOfNumbers;
 
 	qDebug() << "Wait...";
+
+	QElapsedTimer timer;
+	int countTimer = 0; // для итогового вывода времени потраченного на выполнение
+	int countDoingIterationForTime = 0; // считаем количество выполнений
+	int valueForTimer = 5000; // временной отрезок для подсчёта количества выполнений
+	timer.start();
 
 	QFile file(savedFile);
 
@@ -1586,7 +1590,9 @@ void DbSqlExport::startGenerateWithQCouncurent()
 	QtConcurrent::run([this]() { 
 
 		connectDataBase(); // QSqlDataBase нужно отдельно инициировать в каждом потоке. Не получиться общий использовать.
-		generateXml(); });
+		generateXml(); 
+
+		});
 }
 
 
