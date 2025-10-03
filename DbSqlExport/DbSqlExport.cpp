@@ -251,13 +251,9 @@ void DbSqlExport::queryDbResult(QString any)
 	int iD = 0;
 
 	int guidId;
-
+	/*
 	if (myParamForSmtp->odbc == "DBZS" || myParamForSmtp->odbc == "DBZM")
 	{
-		QDate curDate = QDate::currentDate();
-		curDate = curDate.addDays(-1); // то что в Заре на сегодня в БД на вчера. Поэтому вычетаем день от текущей даты для последующего запроса
-		QString timeInQuery = curDate.toString("yyyy-MM-dd"); // Разворачиваем формат даты так как в БД.
-
 		queryString = "select IDOBJECT_PARENT from dbo.PROPERTIES where PROPERTY_VALUE = '" + any + "' and IDTYPE_PROPERTY = '987' ORDER BY IDOBJECT_PARENT DESC"; // запрашиваем нужный нам ID поо номеру прибора
 
 		query.exec(queryString); // Отправляем запрос на количество записей
@@ -322,103 +318,98 @@ void DbSqlExport::queryDbResult(QString any)
 
 		guid = query.value(0).toString();
 	}
-
-	/*
-	 if (myParamForSmtp->odbc == "DBEG" || myParamForSmtp->odbc == "DBEN" || myParamForSmtp->odbc == "DBEY") // стабильный вариант но не оптимизированный
-{
-	QDate curDate = QDate::currentDate();
-
-	if (myParamForSmtp->odbc == "DBEG")
-		curDate = curDate.addDays(-1);
-
-	QString timeInQuery = curDate.toString("yyyy-MM-dd"); // Разворачиваем формат даты так как в БД.
-
-	queryString = "select ID_Point from Points  where PointName like '%" + any + "%' and Point_Type = '21'";
-
-	query.exec(queryString);
-
-	query.next();
-
-	if (query.isNull(0))
+	*/
+	if (myParamForSmtp->odbc == "DBZS" || myParamForSmtp->odbc == "DBZM")
 	{
-		day = "";
-		night = "";
-		dateDay = "";
-		guid = "";
-		return;
+		query.prepare(R"(
+        select IDOBJECT_PARENT 
+        from dbo.PROPERTIES 
+        where PROPERTY_VALUE = :pointName and IDTYPE_PROPERTY = '987' ORDER BY IDOBJECT_PARENT DESC)");
+		query.bindValue(":pointName", any);
+
+		if (!query.exec() || !query.next()) {
+			day = night = dateDay = guid = "";
+			return;
+		}
+
+		iD = query.value(0).toInt(); // ID с показаниями на единицу меньше чем мы выявили по номеру счётчика.
+		guidId = iD;
+		qDebug() << "IDOBJECT_PARENT = " << guidId;
+
+		query.prepare(R"(select IDOBJECT_TO from dbo.LINK_OBJECTS where IDOBJECT_FROM = :idObjectFrom and IDTYPE_OBJECT_LINK = '1000011')");
+		query.bindValue(":idObjectFrom", iD);
+
+		query.exec();
+		query.next();
+
+		if (!query.isNull(0))
+		{
+			iD = query.value(0).toInt(); // ID с показаниями на единицу меньше чем мы выявили по номеру счётчика.
+			qDebug() << "IDOBJECT_TO = " << iD;
+		}
+		else
+		{
+			query.prepare(R"(select IDOBJECT_TO from dbo.LINK_OBJECTS where IDOBJECT_FROM = :idObjectFrom ORDER BY IDLINK_OBJECTS DESC)");
+			query.bindValue(":idObjectFrom", iD);
+			query.exec();
+			query.next();
+			iD = query.value(0).toInt(); // ID с показаниями на единицу меньше чем мы выявили по номеру счётчика.
+			qDebug() << "IDOBJECT_TO = " << iD;
+
+		}
+
+		query.prepare(R"(
+        select TOP 1 VALUE_METERING, FORMAT(DATEADD(DAY, 1 ,TIME_END), 'yyyy.MM.dd') as TIME_END 
+        from dbo.METERINGS 
+        where  IDOBJECT = :idObject AND IDTYPE_OBJECT = '1201001' AND IDOBJECT_AGGREGATE = '1'  AND VALUE_METERING != '0' order by TIME_END DESC)");
+		query.bindValue(":idObject", iD);
+
+		query.exec();
+		query.next();
+
+		day = query.value(0).toString();
+		qDebug() << "VALUE_METERING = " << day;
+		if (day.length() >= 14) //исправляем ошибку переноса из БД в строку при которой добавляется куча значений после запятой
+			day.chop(9);
+
+		dateDay = query.value(1).toString();
+		qDebug() << "TIME_END = " << dateDay;
+		query.prepare(R"(
+        select TOP 1 VALUE_METERING, FORMAT(DATEADD(DAY, 1 ,TIME_END), 'yyyy.MM.dd') as TIME_END 
+        from dbo.METERINGS 
+        where IDOBJECT = :idObject AND IDTYPE_OBJECT = '1202001' AND IDOBJECT_AGGREGATE = '1'  AND VALUE_METERING != '0' order by TIME_END DESC)");
+		query.bindValue(":idObject", iD);
+
+		query.exec();
+		query.next();
+
+		night = query.value(0).toString();
+
+		if (night.length() >= 14)
+			night.chop(9);
+
+		query.prepare(R"(
+    SELECT pr.PROPERTY_VALUE
+    FROM PROPERTIES AS pr
+    JOIN LINK_OBJECTS AS li 
+      ON li.IDOBJECT_FROM = pr.IDOBJECT_PARENT 
+      AND li.IDTYPE_OBJECT_LINK = '1000011'
+    WHERE pr.IDTYPE_PROPERTY = '939' 
+      AND li.IDOBJECT_TO = :guidId
+    )");
+
+		query.bindValue(":guidId", guidId);
+
+		if (!query.exec() || !query.next()) {
+			guid = "";
+			return;
+		}
+
+		guid = query.value(0).toString();
 	}
-
-	iD = query.value(0).toInt();
-
-	queryString = "select ID_PP from PointParams where ID_Point = '" + any.setNum(iD) + "' and ID_Param = '4'";
-	query.exec(queryString);
-	query.next();
-
-	if (query.isNull(0))
-	{
-		day = "";
-		night = "";
-		dateDay = "";
-		guid = "";
-		return;
-	}
-
-	iD = query.value(0).toInt();
-
-	if (myParamForSmtp->odbc == "DBEG" || myParamForSmtp->odbc == "DBEY")
-		queryString = "select TOP(1) Val, FORMAT(DT+1, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '1' order by DT DESC";
-
-	if (myParamForSmtp->odbc == "DBEN")
-		queryString = "select TOP(1) Val, FORMAT(DT, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '1' order by DT DESC";
-
-	query.exec(queryString);
-	query.next();
-	day = query.value(0).toString();
-
-	if (day.length() >= 14)
-		day.chop(9);
-
-	dateDay = query.value(1).toString();
-
-	if (myParamForSmtp->odbc == "DBEG" || myParamForSmtp->odbc == "DBEY")
-		queryString = "select TOP(1) Val, FORMAT(DT+1, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '2' order by DT DESC";
-
-	if (myParamForSmtp->odbc == "DBEN")
-		queryString = "select TOP(1) Val, FORMAT(DT, 'yyyy.MM.dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '2' order by DT DESC";
-
-	query.exec(queryString);
-	query.next();
-	night = query.value(0).toString();
-
-	if (night.length() >= 14)
-		night.chop(9);
-
-	queryString = "select TOP(1) ID_Parent from NDIETable where ID_PP = '" + any.setNum(iD) + "' and ID_Format = '34' order by ID_Parent DESC"; // получаем ID для последующего получаения GUID
-	query.exec(queryString);
-	query.next();
-
-	if (query.isNull(0))
-	{
-		guid = "";
-		return;
-	}
-
-	iD = query.value(0).toInt();
-
-	queryString = "select Code from NDIETable where ID_DIE = '" + any.setNum(iD) + "'"; // получаем GUID
-	query.exec(queryString);
-	query.next();
-	guid = query.value(0).toString();
-}
-*/
 
 	if (myParamForSmtp->odbc == "DBEG" || myParamForSmtp->odbc == "DBEN" || myParamForSmtp->odbc == "DBEY")
 	{
-		QDate curDate = QDate::currentDate();
-
-		if (myParamForSmtp->odbc == "DBEG")
-			curDate = curDate.addDays(-1);
-
 		// Подготовим параметр like и ID_Param
 		QString pointNameParam = "%" + any + "%";
 
@@ -429,6 +420,7 @@ void DbSqlExport::queryDbResult(QString any)
         JOIN PointParams pp ON pp.ID_Point = p.ID_Point AND pp.ID_Param = '4'
         WHERE p.PointName LIKE :pointName AND p.Point_Type = '21'
         )");
+
 		query.bindValue(":pointName", pointNameParam);
 
 		if (!query.exec() || !query.next()) {
@@ -440,7 +432,7 @@ void DbSqlExport::queryDbResult(QString any)
 
 		// Функция для получения Val и DT из PointRatedNIs по N_Rate
 		auto getValAndDate = [&](int n_rate) -> QPair<QString, QString> {   // испоьзуем trailing return type.
-			
+
 			QString qStr;
 
 			if (myParamForSmtp->odbc == "DBEG" || myParamForSmtp->odbc == "DBEY") {
@@ -451,7 +443,7 @@ void DbSqlExport::queryDbResult(QString any)
 					"ORDER BY DT DESC");
 			}
 			else // DBEN
-			{ 
+			{
 				qStr = QString(
 					"SELECT TOP(1) Val, FORMAT(DT, 'yyyy.MM.dd') AS DT "
 					"FROM dbo.PointRatedNIs "
@@ -491,6 +483,7 @@ void DbSqlExport::queryDbResult(QString any)
 			"FROM NDIETable "
 			"WHERE ID_PP = :id_pp AND ID_Format = '34' "
 			"ORDER BY ID_Parent DESC");
+
 		query.bindValue(":id_pp", idPP);
 
 		if (!query.exec() || !query.next()) {
@@ -514,10 +507,6 @@ void DbSqlExport::queryDbResult(QString any)
 
 	if (myParamForSmtp->odbc == "DBKV")
 	{
-		QDate curDate = QDate::currentDate();
-
-		QString timeInQuery = curDate.toString("yyyy-MM-dd"); // Разворачиваем формат даты так как в БД.
-
 		queryString = "select id from [LERS].[dbo].[Equipment] where SerialNumber = '" + any + "' order by id DESC"; // запрашиваем первичный ID по номеру прибора
 
 		query.exec(queryString);
@@ -713,11 +702,11 @@ void DbSqlExport::generateXml()
 
 			QTime ct = QTime::currentTime(); // возвращаем текущее время
 
-			qDebug() << ct.toString() << "   " << countDoingIterationForTime;
+			//qDebug() << ct.toString() << "   " << countDoingIterationForTime;
 
 			emit statusBarSignal(ct.toString() + "   " + QString::number(countDoingIterationForTime));
 
-			QCoreApplication::processEvents(); // для корректного отображения количества итераций в statusBar
+			//QCoreApplication::processEvents(); // для корректного отображения количества итераций в statusBar
 
 			countDoingIterationForTime = 0;
 		}
@@ -1643,10 +1632,10 @@ void DbSqlExport::startGenerateWithQCouncurent()
 {
 	setDisableAllButton();
 
-	QtConcurrent::run([this]() { 
+	QtConcurrent::run([this]() {
 
 		connectDataBase(); // QSqlDataBase нужно отдельно инициировать в каждом потоке. Не получиться общий использовать.
-		generateXml(); 
+		generateXml();
 
 		});
 }
