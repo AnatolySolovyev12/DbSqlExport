@@ -26,7 +26,7 @@ public:
     void addSomeNumbers();
     void connectDataBase();
     void queryDbResult(QString any);
-    void generateXml();
+    void generateXml(QStringList any);
     void checkSendAfterCreate(int myState);
     void generalXmlLoop(QString any, QString day, QString night, QString counterGuid, QString dateDay);
     void optionsSmtp();
@@ -41,8 +41,9 @@ public:
 
     void setDisableAllButton();
     void setEnableAllButton();
-    
-
+    QStringList createStringArray();
+    void increeseGeneralProgressBar();
+    void ClearAndHideGeneralProgressBar();
 
     QXmlStreamWriter xmlWriter;
     QSqlDatabase mw_db;
@@ -62,7 +63,11 @@ private slots:
 signals:
     void statusBarSignal(const QString& messege);
 signals:
+    void addValueInGeneralProgressBar();
+signals:
     void buttonEnable();
+signals:
+    void refreshGenProgressBar();
 
 
 private:

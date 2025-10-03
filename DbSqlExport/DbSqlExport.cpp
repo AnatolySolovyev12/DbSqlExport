@@ -83,9 +83,11 @@ DbSqlExport::DbSqlExport(QWidget* parent)
 	sBar->setStyleSheet("QStatusBar::item {border: None;}");
 
 	connectDataBase();
-
+	
 	connect(this, &DbSqlExport::statusBarSignal, this, &DbSqlExport::statusBarRefreshAfterSignal);
 	connect(this, &DbSqlExport::buttonEnable, this, &DbSqlExport::setEnableAllButton);
+	connect(this, &DbSqlExport::addValueInGeneralProgressBar, this, &DbSqlExport::increeseGeneralProgressBar);
+	connect(this, &DbSqlExport::refreshGenProgressBar, this, &DbSqlExport::ClearAndHideGeneralProgressBar);
 }
 
 
@@ -251,74 +253,7 @@ void DbSqlExport::queryDbResult(QString any)
 	int iD = 0;
 
 	int guidId;
-	/*
-	if (myParamForSmtp->odbc == "DBZS" || myParamForSmtp->odbc == "DBZM")
-	{
-		queryString = "select IDOBJECT_PARENT from dbo.PROPERTIES where PROPERTY_VALUE = '" + any + "' and IDTYPE_PROPERTY = '987' ORDER BY IDOBJECT_PARENT DESC"; // запрашиваем нужный нам ID поо номеру прибора
-
-		query.exec(queryString); // Отправляем запрос на количество записей
-
-		query.next();
-
-		iD = query.value(0).toInt(); // ID с показаниями на единицу меньше чем мы выявили по номеру счётчика.
-
-		guidId = iD;
-
-		queryString = "select IDOBJECT_TO from dbo.LINK_OBJECTS where IDOBJECT_FROM = '" + any.setNum(iD) + "' and IDTYPE_OBJECT_LINK = '1000011'";
-
-		query.exec(queryString);
-		query.next();
-
-		if (query.isNull(0))
-		{
-			queryString = "select IDOBJECT_TO from dbo.LINK_OBJECTS where IDOBJECT_FROM = '" + any.setNum(iD) + "' ORDER BY IDLINK_OBJECTS DESC";
-			query.exec(queryString);
-			query.next();
-		}
-
-		iD = query.value(0).toInt(); // ID с показаниями на единицу меньше чем мы выявили по номеру счётчика.
-
-		queryString = "select TOP 1 VALUE_METERING, FORMAT(DATEADD(DAY, 1 ,TIME_END), 'yyyy.MM.dd') as TIME_END from dbo.METERINGS where  IDOBJECT = '" + any.setNum(iD) + "' AND IDTYPE_OBJECT = '1201001' AND IDOBJECT_AGGREGATE = '1'  AND VALUE_METERING != '0' order by TIME_END DESC"; // запрашиваем показаний без всякой лишей информации
-
-		query.exec(queryString);
-
-		query.next();
-
-		day = query.value(0).toString();
-
-		if (day.length() >= 14) //исправляем ошибку переноса из БД в строку при которой добавляется куча значений после запятой
-			day.chop(9);
-
-		dateDay = query.value(1).toString();
-
-		queryString = "select TOP 1 VALUE_METERING, FORMAT(DATEADD(DAY, 1 ,TIME_END), 'yyyy.MM.dd') as TIME_END from dbo.METERINGS where  IDOBJECT = '" + any.setNum(iD) + "' AND IDTYPE_OBJECT = '1202001' AND IDOBJECT_AGGREGATE = '1'  AND VALUE_METERING != '0' order by TIME_END DESC";
-
-		query.exec(queryString);
-
-		query.next();
-
-		night = query.value(0).toString();
-
-		if (night.length() >= 14)
-			night.chop(9);
-
-		queryString = "select IDOBJECT_FROM from dbo.LINK_OBJECTS where IDOBJECT_TO = '" + any.setNum(guidId) + "' AND IDTYPE_OBJECT_LINK = '1000011'";
-
-		query.exec(queryString);
-
-		query.next();
-
-		guidId = query.value(0).toInt();
-
-		queryString = "select PROPERTY_VALUE from PROPERTIES where IDOBJECT_PARENT = '" + any.setNum(guidId) + "' and IDTYPE_PROPERTY = '939'";
-
-		query.exec(queryString);
-
-		query.next();
-
-		guid = query.value(0).toString();
-	}
-	*/
+	
 	if (myParamForSmtp->odbc == "DBZS" || myParamForSmtp->odbc == "DBZM")
 	{
 		query.prepare(R"(
@@ -558,7 +493,7 @@ void DbSqlExport::queryDbResult(QString any)
 }
 
 
-void DbSqlExport::generateXml()
+void DbSqlExport::generateXml(QStringList any)
 {
 	if (!dbconnect)
 	{
@@ -587,6 +522,7 @@ void DbSqlExport::generateXml()
 	if (savedFile == "")
 	{
 		emit buttonEnable();
+		emit refreshGenProgressBar();
 		return;
 	}
 
@@ -691,10 +627,8 @@ void DbSqlExport::generateXml()
 	{
 		++countDoingIterationForTime; // счётчик количества выполнений за единицу времени
 
-		ui.listWidget->setCurrentRow(i);
-
-		queryDbResult(ui.listWidget->currentItem()->text());
-		generalXmlLoop(ui.listWidget->currentItem()->text(), day, night, guid, dateDay);
+		queryDbResult(any[i]);
+		generalXmlLoop(any[i], day, night, guid, dateDay);
 
 		if (valueForTimer - timer.elapsed() <= 100) // для отслеживания количества выполнений каждые 5 секунд.
 		{
@@ -702,14 +636,14 @@ void DbSqlExport::generateXml()
 
 			QTime ct = QTime::currentTime(); // возвращаем текущее время
 
-			//qDebug() << ct.toString() << "   " << countDoingIterationForTime;
+			qDebug() << ct.toString() << "   " << countDoingIterationForTime;
 
 			emit statusBarSignal(ct.toString() + "   " + QString::number(countDoingIterationForTime));
 
-			//QCoreApplication::processEvents(); // для корректного отображения количества итераций в statusBar
-
 			countDoingIterationForTime = 0;
 		}
+
+		emit addValueInGeneralProgressBar();
 	}
 
 	xmlWriter.writeEndElement(); // area
@@ -740,6 +674,7 @@ void DbSqlExport::generateXml()
 	fileName = "";
 
 	emit buttonEnable();
+	emit refreshGenProgressBar();
 }
 
 
@@ -903,7 +838,7 @@ void DbSqlExport::checkDelAfterSend(int myState) {
 void DbSqlExport::slotTimerAlarm()
 {
 	if (ui.autoSender->isChecked()) {
-		generateXml();
+		startGenerateWithQCouncurent();
 	}
 }
 
@@ -1632,10 +1567,14 @@ void DbSqlExport::startGenerateWithQCouncurent()
 {
 	setDisableAllButton();
 
-	QtConcurrent::run([this]() {
+	ui.generalProgressBar->setMaximum(ui.listWidget->count());
 
+	ui.generalProgressBar->show();
+
+	QtConcurrent::run([this]() {
+		
 		connectDataBase(); // QSqlDataBase нужно отдельно инициировать в каждом потоке. Не получиться общий использовать.
-		generateXml();
+		generateXml(createStringArray());
 
 		});
 }
@@ -1669,4 +1608,29 @@ void DbSqlExport::setEnableAllButton()
 	ui.checkBoxDelAfterSend->setEnabled(true);
 	ui.autoSender->setEnabled(true);
 	ui.importDbButton->setEnabled(true);
+}
+
+QStringList DbSqlExport::createStringArray()
+{
+	QStringList strArr;
+
+	for (int i = 0; i < countOfNumbers; i++)
+	{
+		ui.listWidget->setCurrentRow(i);
+
+		strArr.append(ui.listWidget->currentItem()->text());
+	}
+
+	return strArr;
+}
+
+void DbSqlExport::increeseGeneralProgressBar()
+{
+	ui.generalProgressBar->setValue(ui.generalProgressBar->value() + 1);
+}
+
+void DbSqlExport::ClearAndHideGeneralProgressBar()
+{
+	ui.generalProgressBar->hide();
+	ui.generalProgressBar->setValue(0);
 }
