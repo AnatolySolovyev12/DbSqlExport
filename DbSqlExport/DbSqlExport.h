@@ -11,6 +11,7 @@
 #include <Import80020Class.h>
 #include "importTreeObjectClass.h"
 #include <qmenu.h>
+#include <objbase.h>
 
 
 class DbSqlExport : public QMainWindow

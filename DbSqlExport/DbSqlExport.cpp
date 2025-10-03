@@ -192,7 +192,7 @@ void DbSqlExport::addSomeNumbers()
 
 void DbSqlExport::connectDataBase()
 {
-	QSqlDatabase mw_db = QSqlDatabase::addDatabase("QODBC"); // Для раблоты ODBC в Windows необходимо задвать пользовательский DNS в администрировании системы. Иначен не будет работать.
+	mw_db = QSqlDatabase::addDatabase("QODBC"); // Для раблоты ODBC в Windows необходимо задвать пользовательский DNS в администрировании системы. Иначен не будет работать.
 
 	if (myParamForSmtp->hostName == "")
 	{
@@ -241,7 +241,7 @@ void DbSqlExport::connectDataBase()
 		dbLabelOdbcOrIp->setText("(" + myParamForSmtp->odbc + ")");
 	}
 
-	sBar->showMessage("");
+	emit statusBarSignal("");
 }
 
 
@@ -497,7 +497,7 @@ void DbSqlExport::generateXml(QStringList any)
 {
 	if (!dbconnect)
 	{
-		sBar->showMessage("Need connect to DB.");
+		emit statusBarSignal("Need connect to DB.");
 		return;
 	}
 
@@ -1565,6 +1565,12 @@ void DbSqlExport::statusBarRefreshAfterSignal(QString any)
 
 void DbSqlExport::startGenerateWithQCouncurent()
 {
+	if (ui.listWidget->count() < 1)
+	{
+		sBar->showMessage("Nothing devices for import in XML");
+		return;
+	}
+
 	setDisableAllButton();
 
 	ui.generalProgressBar->setMaximum(ui.listWidget->count());
@@ -1573,8 +1579,19 @@ void DbSqlExport::startGenerateWithQCouncurent()
 
 	QtConcurrent::run([this]() {
 		
-		connectDataBase(); // QSqlDataBase нужно отдельно инициировать в каждом потоке. Не получиться общий использовать.
-		generateXml(createStringArray());
+		HRESULT hr = CoInitialize(NULL);
+
+		if (SUCCEEDED(hr)) {
+
+			connectDataBase(); // QSqlDataBase нужно отдельно инициировать в каждом потоке. Не получиться общий использовать.
+			generateXml(createStringArray());
+		}
+		else
+		{
+			sBar->showMessage("Not initialize COM object ");
+		}
+
+		CoUninitialize();
 
 		});
 }
