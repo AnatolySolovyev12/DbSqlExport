@@ -421,16 +421,14 @@ void DbSqlExport::queryDbResult(QString any)
 
 		// Подготовим параметр like и ID_Param
 		QString pointNameParam = "%" + any + "%";
-		const int ID_Param = 4;
 
 		// Первый запрос: получение ID_Point и ID_PP одновременно через JOIN
 		query.prepare(R"(
         SELECT p.ID_Point, pp.ID_PP
         FROM Points p
-        JOIN PointParams pp ON pp.ID_Point = p.ID_Point AND pp.ID_Param = :id_param
+        JOIN PointParams pp ON pp.ID_Point = p.ID_Point AND pp.ID_Param = '4'
         WHERE p.PointName LIKE :pointName AND p.Point_Type = '21'
         )");
-		query.bindValue(":id_param", ID_Param);
 		query.bindValue(":pointName", pointNameParam);
 
 		if (!query.exec() || !query.next()) {
@@ -441,7 +439,7 @@ void DbSqlExport::queryDbResult(QString any)
 		int idPP = query.value("ID_PP").toInt();
 
 		// Функция для получения Val и DT из PointRatedNIs по N_Rate
-		auto getValAndDate = [&](int n_rate) -> QPair<QString, QString> {
+		auto getValAndDate = [&](int n_rate) -> QPair<QString, QString> {   // испоьзуем trailing return type.
 			
 			QString qStr;
 
@@ -452,8 +450,8 @@ void DbSqlExport::queryDbResult(QString any)
 					"WHERE ID_PP = :id_pp AND N_Rate = :n_rate "
 					"ORDER BY DT DESC");
 			}
-			else 
-			{ // DBEN
+			else // DBEN
+			{ 
 				qStr = QString(
 					"SELECT TOP(1) Val, FORMAT(DT, 'yyyy.MM.dd') AS DT "
 					"FROM dbo.PointRatedNIs "
@@ -467,7 +465,7 @@ void DbSqlExport::queryDbResult(QString any)
 			q.bindValue(":n_rate", n_rate);
 
 			if (!q.exec() || !q.next())
-				return qMakePair(QString(), QString());
+				return qMakePair(QString(), QString()); // возвращаем пустые строки
 
 			QString val = q.value(0).toString();
 			QString dt = q.value(1).toString();
