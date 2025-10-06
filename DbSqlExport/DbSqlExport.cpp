@@ -83,7 +83,7 @@ DbSqlExport::DbSqlExport(QWidget* parent)
 	sBar->setStyleSheet("QStatusBar::item {border: None;}");
 
 	connectDataBase();
-	
+
 	connect(this, &DbSqlExport::statusBarSignal, this, &DbSqlExport::statusBarRefreshAfterSignal);
 	connect(this, &DbSqlExport::buttonEnable, this, &DbSqlExport::setEnableAllButton);
 	connect(this, &DbSqlExport::addValueInGeneralProgressBar, this, &DbSqlExport::increeseGeneralProgressBar);
@@ -192,7 +192,7 @@ void DbSqlExport::addSomeNumbers()
 
 void DbSqlExport::connectDataBase()
 {
-	mw_db = QSqlDatabase::addDatabase("QODBC"); // Для раблоты ODBC в Windows необходимо задвать пользовательский DNS в администрировании системы. Иначен не будет работать.
+	QSqlDatabase mw_db = QSqlDatabase::addDatabase("QODBC"); // Для раблоты ODBC в Windows необходимо задвать пользовательский DNS в администрировании системы. Иначен не будет работать.
 
 	if (myParamForSmtp->hostName == "")
 	{
@@ -253,7 +253,7 @@ void DbSqlExport::queryDbResult(QString any)
 	int iD = 0;
 
 	int guidId;
-	
+
 	if (myParamForSmtp->odbc == "DBZS" || myParamForSmtp->odbc == "DBZM")
 	{
 		query.prepare(R"(
@@ -267,9 +267,8 @@ void DbSqlExport::queryDbResult(QString any)
 			return;
 		}
 
-		iD = query.value(0).toInt(); // ID с показаниями на единицу меньше чем мы выявили по номеру счётчика.
+		iD = query.value(0).toInt();
 		guidId = iD;
-		qDebug() << "IDOBJECT_PARENT = " << guidId;
 
 		query.prepare(R"(select IDOBJECT_TO from dbo.LINK_OBJECTS where IDOBJECT_FROM = :idObjectFrom and IDTYPE_OBJECT_LINK = '1000011')");
 		query.bindValue(":idObjectFrom", iD);
@@ -279,8 +278,7 @@ void DbSqlExport::queryDbResult(QString any)
 
 		if (!query.isNull(0))
 		{
-			iD = query.value(0).toInt(); // ID с показаниями на единицу меньше чем мы выявили по номеру счётчика.
-			qDebug() << "IDOBJECT_TO = " << iD;
+			iD = query.value(0).toInt();
 		}
 		else
 		{
@@ -288,37 +286,39 @@ void DbSqlExport::queryDbResult(QString any)
 			query.bindValue(":idObjectFrom", iD);
 			query.exec();
 			query.next();
-			iD = query.value(0).toInt(); // ID с показаниями на единицу меньше чем мы выявили по номеру счётчика.
-			qDebug() << "IDOBJECT_TO = " << iD;
-
+			iD = query.value(0).toInt();
 		}
 
+		// Дневные показания
 		query.prepare(R"(
         select TOP 1 VALUE_METERING, FORMAT(DATEADD(DAY, 1 ,TIME_END), 'yyyy.MM.dd') as TIME_END 
         from dbo.METERINGS 
         where  IDOBJECT = :idObject AND IDTYPE_OBJECT = '1201001' AND IDOBJECT_AGGREGATE = '1'  AND VALUE_METERING != '0' order by TIME_END DESC)");
 		query.bindValue(":idObject", iD);
 
-		query.exec();
-		query.next();
+		if (!query.exec() || !query.next())
+		{
+		}
+		else
+			day = query.value(0).toString();
 
-		day = query.value(0).toString();
-		qDebug() << "VALUE_METERING = " << day;
 		if (day.length() >= 14) //исправляем ошибку переноса из БД в строку при которой добавляется куча значений после запятой
 			day.chop(9);
 
+
+		// Ночные показания
 		dateDay = query.value(1).toString();
-		qDebug() << "TIME_END = " << dateDay;
 		query.prepare(R"(
         select TOP 1 VALUE_METERING, FORMAT(DATEADD(DAY, 1 ,TIME_END), 'yyyy.MM.dd') as TIME_END 
         from dbo.METERINGS 
         where IDOBJECT = :idObject AND IDTYPE_OBJECT = '1202001' AND IDOBJECT_AGGREGATE = '1'  AND VALUE_METERING != '0' order by TIME_END DESC)");
 		query.bindValue(":idObject", iD);
 
-		query.exec();
-		query.next();
-
-		night = query.value(0).toString();
+		if (!query.exec() || !query.next())
+		{
+		}
+		else
+			night = query.value(0).toString();
 
 		if (night.length() >= 14)
 			night.chop(9);
@@ -495,12 +495,6 @@ void DbSqlExport::queryDbResult(QString any)
 
 void DbSqlExport::generateXml(QStringList any)
 {
-	if (!dbconnect)
-	{
-		emit statusBarSignal("Need connect to DB.");
-		return;
-	}
-
 	QDate curDate = QDate::currentDate();
 	QTime curTime = QTime::currentTime();
 
@@ -1577,13 +1571,33 @@ void DbSqlExport::startGenerateWithQCouncurent()
 
 	ui.generalProgressBar->show();
 
+	if (!dbconnect)
+	{
+		emit statusBarSignal("Need connect to DB.");
+		emit buttonEnable();
+		emit refreshGenProgressBar();
+		return;
+	}
+
+	generateXml(createStringArray());
+
+	/*
 	QtConcurrent::run([this]() {
-		
+
 		HRESULT hr = CoInitialize(NULL);
 
 		if (SUCCEEDED(hr)) {
 
 			connectDataBase(); // QSqlDataBase нужно отдельно инициировать в каждом потоке. Не получиться общий использовать.
+
+			if (!dbconnect)
+			{
+				emit statusBarSignal("Need connect to DB.");
+				emit buttonEnable();
+				emit refreshGenProgressBar();
+				return;
+			}
+
 			generateXml(createStringArray());
 		}
 		else
@@ -1594,6 +1608,8 @@ void DbSqlExport::startGenerateWithQCouncurent()
 		CoUninitialize();
 
 		});
+
+		*/
 }
 
 
