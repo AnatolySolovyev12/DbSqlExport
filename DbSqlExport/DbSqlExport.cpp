@@ -638,6 +638,7 @@ void DbSqlExport::generateXml(QStringList any)
 		}
 
 		emit addValueInGeneralProgressBar();
+		QCoreApplication::processEvents();
 	}
 
 	xmlWriter.writeEndElement(); // area
