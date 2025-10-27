@@ -12,6 +12,7 @@
 #include "importTreeObjectClass.h"
 #include <qmenu.h>
 #include <objbase.h>
+#include <importConsoleAdministrator.h>
 
 
 class DbSqlExport : public QMainWindow
@@ -60,6 +61,12 @@ private slots:
     void processWriteInDbTreeObject(QString any, QString idAny);
     void processWriteReferenceInDb(QString any, QString idAny);
     void statusBarRefreshAfterSignal(QString any);
+    void importConsoleAdministratorFunc();
+    void importClassBirthConsoleAdministrator();
+    void processWriteInConsoleAdministrator(QString any);
+    QString genFourSign();
+    QString RandomGenerateID();
+    int getRandomNumber(int min, int max);
 
 signals:
     void statusBarSignal(const QString& messege);
@@ -101,4 +108,6 @@ private:
     importTreeObjectClass* importTreeCLass = nullptr;
 
     bool importBool80020;
+
+    importConsoleAdministrator* importConsoleObject = nullptr;
 };

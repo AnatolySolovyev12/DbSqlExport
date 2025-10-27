@@ -52,6 +52,9 @@
     <ClCompile Include="importTreeObjectClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="importConsoleAdministrator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="SMTP.h">
@@ -66,6 +69,9 @@
     <QtMoc Include="importTreeObjectClass.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="importConsoleAdministrator.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="ParamSmtp.ui">
@@ -75,6 +81,9 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="importTreeObjectClass.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="importConsoleAdministrator.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>

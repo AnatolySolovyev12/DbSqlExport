@@ -17,7 +17,7 @@ QTextStream out(stdout);
 QTextStream in(stdin);
 
 DbSqlExport::DbSqlExport(QWidget* parent)
-	: QMainWindow(parent), importClass(new Import80020CLass()), importTreeCLass(new importTreeObjectClass())
+	: QMainWindow(parent), importClass(new Import80020CLass()), importTreeCLass(new importTreeObjectClass()), importConsoleObject(new importConsoleAdministrator())
 {
 	ui.setupUi(this);
 
@@ -63,11 +63,14 @@ DbSqlExport::DbSqlExport(QWidget* parent)
 
 		});
 
+	importMenu->addAction("&Console Administrator", this, &DbSqlExport::importConsoleAdministratorFunc);////////////////////////////////////
+
 	ui.importDbButton->setMenu(importMenu);
 
 	connect(importClass, SIGNAL(status(QString)), this, SLOT(processWriteInDb(QString))); // делаем реконект к БД после каждого сохранения настроек.
 	connect(importTreeCLass, SIGNAL(status(QString, QString)), this, SLOT(processWriteInDbTreeObject(QString, QString))); // делаем реконект к БД после каждого сохранения настроек.
 	connect(importTreeCLass, SIGNAL(importReferenceSignal(QString, QString)), this, SLOT(processWriteReferenceInDb(QString, QString))); // делаем реконект к БД после каждого сохранения настроек.
+	connect(importConsoleObject, SIGNAL(status(QString)), this, SLOT(processWriteInConsoleAdministrator(QString))); // делаем реконект к БД после каждого сохранения настроек.
 
 	sBar = new QStatusBar();
 	QMainWindow::setStatusBar(sBar);
@@ -1629,6 +1632,7 @@ void DbSqlExport::setDisableAllButton()
 	ui.importDbButton->setEnabled(false);
 }
 
+
 void DbSqlExport::setEnableAllButton()
 {
 	ui.pushButtonAddNumber->setEnabled(true);
@@ -1644,6 +1648,7 @@ void DbSqlExport::setEnableAllButton()
 	ui.importDbButton->setEnabled(true);
 }
 
+
 QStringList DbSqlExport::createStringArray()
 {
 	QStringList strArr;
@@ -1658,6 +1663,7 @@ QStringList DbSqlExport::createStringArray()
 	return strArr;
 }
 
+
 void DbSqlExport::increeseGeneralProgressBar()
 {
 	ui.generalProgressBar->setValue(ui.generalProgressBar->value() + 1);
@@ -1667,4 +1673,538 @@ void DbSqlExport::ClearAndHideGeneralProgressBar()
 {
 	ui.generalProgressBar->hide();
 	ui.generalProgressBar->setValue(0);
+}
+
+
+void DbSqlExport::importConsoleAdministratorFunc()
+{
+	countOfNumbersForImport = 0;
+	bufferForSerialIdOrGuid.clear();
+	bufferHouseStreet.clear();
+
+	if (!dbconnect)
+	{
+		sBar->showMessage("Need connect to DB.");
+		return;
+	}
+
+	if (myParamForSmtp->odbc == QString("DBZS") || myParamForSmtp->odbc == QString("DBZM") || myParamForSmtp->odbc == QString("DBKV"))
+	{
+		sBar->showMessage("Wrong DataBase for this function. Please connect for correct DB.");
+		return;
+	}
+
+	if (myParamForSmtp->userNameDb != QString("solexpimp"))
+	{
+		sBar->showMessage("Wrong User for this function. Please connect for correct DB.");
+		return;
+	}
+
+	QString addFileDonor = QFileDialog::getOpenFileName(0, "Add list of numbers", "", "*.xls *.xlsx");
+
+	if (addFileDonor == "")
+	{
+		return;
+	}
+
+	QSharedPointer<QAxObject>excelDonor(new QAxObject("Excel.Application", 0));
+	QSharedPointer<QAxObject>workbooksDonor(excelDonor->querySubObject("Workbooks"));
+	QSharedPointer<QAxObject>workbookDonor(workbooksDonor->querySubObject("Open(const QString&)", addFileDonor));
+	QSharedPointer<QAxObject>sheetsDonor(workbookDonor->querySubObject("Worksheets"));
+
+	int listDonor = sheetsDonor->property("Count").toInt(); // так можем получить количество листов в документе
+
+	if (listDonor > 1)
+	{
+		do
+		{
+			listDonor = QInputDialog::getInt(this, "List nomber", "Whats list do you need?");
+
+			if (!listDonor)
+			{
+				return;
+			}
+
+		} while (listDonor <= 0 || (listDonor > (sheetsDonor->property("Count").toInt())));
+
+	}
+
+	QSharedPointer<QAxObject>sheetDonor(sheetsDonor->querySubObject("Item(int)", listDonor));
+	QSharedPointer<QAxObject>usedRangeDonor(sheetDonor->querySubObject("UsedRange"));
+	QSharedPointer<QAxObject>rowsDonor(usedRangeDonor->querySubObject("Rows"));
+	int countRowsDonor = rowsDonor->property("Count").toInt();
+	QSharedPointer<QAxObject>usedRangeColDonor(sheetDonor->querySubObject("UsedRange"));
+	QSharedPointer<QAxObject>columnsDonor(usedRangeColDonor->querySubObject("Columns"));
+	int countColsDonor = columnsDonor->property("Count").toInt();
+
+	if (!(countColsDonor < 2))
+	{
+
+		for (int row = 1; row <= countRowsDonor; ++row)
+		{
+			QSharedPointer<QAxObject>cell(sheetDonor.data()->querySubObject("Cells(int,int)", row, 1)); // так указываем с какой ячейкой работать
+			QString serialString = cell->property("Value").toString().trimmed();
+
+			cell.reset(sheetDonor->querySubObject("Cells(int,int)", row, 2)); // так указываем с какой ячейкой работать
+			QString iDlString = cell->property("Value").toString().trimmed();
+
+			if (!serialString.isEmpty())
+			{
+				if (serialString.length() > 18)
+				{
+					qDebug() << "Incorrect length in row #" << row;
+					sBar->showMessage("Incorrect length in row #" + QString::number(row), 5000);
+
+					workbookDonor->dynamicCall("Close()"); // обязательно используем в работе с Excel иначе документы будет фbоном открыт в системе
+					excelDonor->dynamicCall("Quit()");
+					return;
+				}
+
+				if (serialString.length() < 5)
+				{
+					qDebug() << "Incorrect length in row #" << row;
+					sBar->showMessage("Incorrect length in row #" + QString::number(row), 5000);
+
+					workbookDonor->dynamicCall("Close()"); // обязательно используем в работе с Excel иначе документы будет фbоном открыт в системе
+					excelDonor->dynamicCall("Quit()");
+					return;
+				}
+
+				for (auto& val : serialString)
+				{
+					if (!val.isDigit())
+					{
+						qDebug() << "Incorrect number in row #" << row;
+						sBar->showMessage("Incorrect number in row #" + QString::number(row), 5000);
+
+						workbookDonor->dynamicCall("Close()"); // обязательно используем в работе с Excel иначе документы будет фbоном открыт в системе
+						excelDonor->dynamicCall("Quit()");
+						return;
+					}
+				}
+
+				if (iDlString.length() > 40)
+				{
+					iDlString = "";
+					qDebug() << "Incorrect length for ID in row #" << row << ". Id will equal void.";
+					sBar->showMessage("Incorrect length for ID in row #" + QString::number(row) + ". Id will equal void.", 5000);
+				}
+
+				bufferForSerialIdOrGuid.push_back(qMakePair(serialString, iDlString));
+
+				countOfNumbersForImport++;
+
+				if (countColsDonor > 2)
+				{
+					cell.reset(sheetDonor->querySubObject("Cells(int,int)", row, 3)); // так указываем с какой ячейкой работать
+					QString house = cell->property("Value").toString().trimmed();
+
+					cell.reset(sheetDonor->querySubObject("Cells(int,int)", row, 4)); // так указываем с какой ячейкой работать
+					QString street = cell->property("Value").toString().trimmed();
+
+					bufferHouseStreet.push_back(qMakePair(house, street));
+				}
+			}
+		}
+
+		qDebug() << "Count of object for import = " << bufferForSerialIdOrGuid.length();
+
+		sBar->showMessage("Count of object for import = " + QString::number(bufferForSerialIdOrGuid.length()), 5000);
+
+		importClassBirthConsoleAdministrator();
+	}
+	else
+	{
+		qDebug() << "Incorrect format of file. Not find second column.";
+		sBar->showMessage("Incorrect format of file. Not find second column.", 5000);
+	}
+
+	workbookDonor->dynamicCall("Close()"); // обязательно используем в работе с Excel иначе документы будет фbоном открыт в системе
+	excelDonor->dynamicCall("Quit()");
+}
+
+
+void DbSqlExport::importClassBirthConsoleAdministrator()
+{
+	importConsoleObject->show();
+	importConsoleObject->setCurRow();
+}
+
+
+
+void DbSqlExport::processWriteInConsoleAdministrator(QString any)
+{
+	importConsoleObject->clearTextEdit();
+	QString errorQuery = "";
+
+	QSqlQuery query;
+	QString guidRandom;
+
+	QPointer<QProgressBar> temporaryProgressBarPtr(importConsoleObject->getPtrProgressBar());
+
+	int valueProgressBar = 1;
+
+	importClass->printMessage("Count of import object was = " + QString::number(bufferForSerialIdOrGuid.length()));
+
+
+	for (auto& val : bufferForSerialIdOrGuid)
+	{
+		query.prepare(R"(INSERT INTO USD (ID_Scanner, Name, NumUSD, IsWorking, TypeCommun, Speed, TypeUSD, ShortLen, MainLen, TO_FIrstByte, TO_Byte, UserPsw, URL, ExactTime, WordLen, StopBits, Parity, Time_Bias, 
+			SuppressEcho, LenLink, LenASDU, LenObjAdr, LenReason, Regim, TypeProt, Flow, TariffExc, ID_Type, ID_TypeCommun)
+			VALUES(1, :name, 16, 0, 'Raw TCP   ', 9600, :type, 3, 30, 50000, 1000, '?8;43?;1', :ipPort,
+			0, 8, 1, 0, 0, 0, 1, 2, 3, 2, 0, 0, 0, 0, 1151, 8)
+)");
+
+		query.bindValue(":type", any);
+		query.bindValue(":name", val.first);
+		query.bindValue(":ipPort", val.second);
+		query.exec();
+
+
+		guidRandom = RandomGenerateID(); //A+
+
+		query.prepare(R"(INSERT INTO Channels_Main
+		(ID_USPD, Name, TypeChan, NumChan,
+			NeedShort, NeedMain, NeedDay, NeedMonth,
+			NeedYear, NeedCurrent, NeedEvents,
+			NeedTimeCurr, NeedInfo, NeedPQ, 
+            ProtocolMask, WaitMask, RecNum, ID_ValueType, ID_Units)
+			VALUES((SELECT TOP(1)ID_USPD FROM USD order by ID_USPD DESC), 'Активная энергия прямого направления', 'B', 1,
+				0, 4, 4, 4,
+			    0, 0,
+				0, 4, 4, 0,
+				143, 64, :guid, 29, 61)
+)");
+		query.bindValue(":guid", guidRandom);
+		query.exec();
+
+
+		guidRandom = RandomGenerateID(); //A-
+
+		query.prepare(R"(INSERT INTO Channels_Main
+		(ID_USPD, Name, TypeChan, NumChan,
+			NeedShort, NeedMain, NeedDay, NeedMonth,
+			NeedYear, NeedCurrent, NeedEvents,
+			NeedTimeCurr, NeedInfo, NeedPQ, ProtocolMask,
+			WaitMask, RecNum, ID_ValueType, ID_Units)
+			VALUES((SELECT TOP(1)ID_USPD FROM USD order by ID_USPD DESC), 'Активная энергия обратного направления', 'B', 2,
+				0, 4, 4, 4,
+				0, 0,
+				0, 4, 4, 0,
+				143, 64, :guid, 29, 61)
+)");
+		query.bindValue(":guid", guidRandom);
+		query.exec();
+
+
+		guidRandom = RandomGenerateID(); //R+
+
+		query.prepare(R"(INSERT INTO Channels_Main
+		(ID_USPD, Name, TypeChan, NumChan,
+			NeedShort, NeedMain, NeedDay, NeedMonth,
+			NeedYear, NeedCurrent, NeedEvents,
+			NeedTimeCurr, NeedInfo, NeedPQ, ProtocolMask,
+			WaitMask, RecNum, ID_ValueType, ID_Units)
+			VALUES((SELECT TOP(1)ID_USPD FROM USD order by ID_USPD DESC), 'Реактивная энергия прямого направления', 'B', 3,
+				0, 4, 4, 4,
+			    0, 0,
+				0, 4, 4, 0,
+				143, 64, :guid, 30, 95)
+)");
+		query.bindValue(":guid", guidRandom);
+		query.exec();
+
+
+		guidRandom = RandomGenerateID(); //R-
+
+		query.prepare(R"(INSERT INTO Channels_Main
+		(ID_USPD, Name, TypeChan, NumChan,
+			NeedShort, NeedMain, NeedDay, NeedMonth,
+			NeedYear, NeedCurrent, NeedEvents,
+			NeedTimeCurr, NeedInfo, NeedPQ, ProtocolMask,
+			WaitMask, RecNum, ID_ValueType, ID_Units)
+			VALUES((SELECT TOP(1)ID_USPD FROM USD order by ID_USPD DESC), 'Реактивная энергия обратного направления', 'B', 4,
+				0, 4, 4, 4,
+			    0, 0, 
+                0, 4, 4, 0, 
+                143, 64, :guid, 30, 95)
+)");
+		query.bindValue(":guid", guidRandom);
+		query.exec();
+
+
+		guidRandom = RandomGenerateID(); //Состояние реле
+
+		query.prepare(R"(INSERT INTO Channels_Main
+		(ID_USPD, Name, TypeChan, NumChan,
+			NeedShort, NeedMain, NeedDay, NeedMonth,
+			NeedYear, NeedEvents,
+			NeedCurrDiskret, NeedTimeCurr, NeedInfo, NeedPQ, ProtocolMask,
+			WaitMask, RecNum, ID_ValueType, ID_Units)
+			VALUES((SELECT TOP(1)ID_USPD FROM USD order by ID_USPD DESC), 'Состояние реле', 'E', 1,
+				0, 0, 0, 0,
+				0, 0,
+				1, 0, 1, 0,
+				143, 64, :guid, 0, 0)
+)");
+		query.bindValue(":guid", guidRandom);
+		query.exec();
+
+
+		guidRandom = RandomGenerateID(); //I
+
+		query.prepare(R"(INSERT INTO Channels_Main
+		(ID_USPD, Name, TypeChan, NumChan,
+			NeedShort, NeedMain, NeedDay, NeedMonth,
+			NeedYear, NeedCurrent, NeedEvents,
+			NeedTimeCurr, NeedInfo, NeedPQ, ProtocolMask,
+			WaitMask, RecNum, ID_ValueType, ID_Units)
+			VALUES((SELECT TOP(1)ID_USPD FROM USD order by ID_USPD DESC), 'Ток', 'G', 1,
+				0, 0, 0, 0,
+			    0, 4, 0,
+                0, 4, 0, 143, 
+                64, :guid, 11, 45)
+)");
+		query.bindValue(":guid", guidRandom);
+		query.exec();
+
+
+		guidRandom = RandomGenerateID(); //I neutral
+
+		query.prepare(R"(INSERT INTO Channels_Main
+		(ID_USPD, Name, TypeChan, NumChan,
+			NeedShort, NeedMain, NeedDay, NeedMonth,
+			NeedYear, NeedCurrent, NeedEvents,
+			NeedTimeCurr, NeedInfo, NeedPQ, ProtocolMask,
+			WaitMask, RecNum, ID_ValueType, ID_Units)
+			VALUES((SELECT TOP(1)ID_USPD FROM USD order by ID_USPD DESC), 'Ток нейтрали', 'G', 2,
+				0, 0, 0, 0,
+			    0, 4, 0,
+                0, 4, 0, 143, 
+                64, :guid, 11, 45)
+)");
+		query.bindValue(":guid", guidRandom);
+		query.exec();
+
+
+		guidRandom = RandomGenerateID(); //U
+
+		query.prepare(R"(INSERT INTO Channels_Main
+		(ID_USPD, Name, TypeChan, NumChan,
+			NeedShort, NeedMain, NeedDay, NeedMonth,
+			NeedYear, NeedCurrent, NeedEvents,
+			NeedTimeCurr, NeedInfo, NeedPQ, ProtocolMask,
+			WaitMask, RecNum, ID_ValueType, ID_Units)
+			VALUES((SELECT TOP(1)ID_USPD FROM USD order by ID_USPD DESC), 'Напряжение', 'G', 3,
+				0, 0, 0, 0,
+			    0, 4, 0,
+                0, 4, 0, 143, 
+                64, :guid, 10, 42)
+)");
+		query.bindValue(":guid", guidRandom);
+		query.exec();
+
+
+		guidRandom = RandomGenerateID(); //Fr
+
+		query.prepare(R"(INSERT INTO Channels_Main
+		(ID_USPD, Name, TypeChan, NumChan,
+			NeedShort, NeedMain, NeedDay, NeedMonth,
+			NeedYear, NeedCurrent, NeedEvents,
+			NeedTimeCurr, NeedInfo, NeedPQ, ProtocolMask,
+			WaitMask, RecNum, ID_ValueType, ID_Units)
+			VALUES((SELECT TOP(1)ID_USPD FROM USD order by ID_USPD DESC), 'Частота', 'G', 4,
+				0, 0, 0, 0,
+			    0, 4, 0,
+                0, 4, 0, 143, 
+                64, :guid, 28, 87)
+)");
+		query.bindValue(":guid", guidRandom);
+		query.exec();
+
+
+		guidRandom = RandomGenerateID(); //S
+
+		query.prepare(R"(INSERT INTO Channels_Main
+		(ID_USPD, Name, TypeChan, NumChan,
+			NeedShort, NeedMain, NeedDay, NeedMonth,
+			NeedYear, NeedCurrent, NeedEvents,
+			NeedTimeCurr, NeedInfo, NeedPQ, ProtocolMask,
+			WaitMask, RecNum, ID_ValueType, ID_Units)
+			VALUES((SELECT TOP(1)ID_USPD FROM USD order by ID_USPD DESC), 'Полная мощность', 'G', 5,
+				0, 0, 0, 0,
+			    0, 4, 0,
+                0, 4, 0, 143, 
+                64, :guid, 33, 90)
+)");
+		query.bindValue(":guid", guidRandom);
+		query.exec();
+
+
+		guidRandom = RandomGenerateID(); //P
+
+		query.prepare(R"(INSERT INTO Channels_Main
+		(ID_USPD, Name, TypeChan, NumChan,
+			NeedShort, NeedMain, NeedDay, NeedMonth,
+			NeedYear, NeedCurrent, NeedEvents,
+			NeedTimeCurr, NeedInfo, NeedPQ, ProtocolMask,
+			WaitMask, RecNum, ID_ValueType, ID_Units)
+			VALUES((SELECT TOP(1)ID_USPD FROM USD order by ID_USPD DESC), 'Активная мощность', 'G', 6,
+				0, 0, 0, 0,
+			    0, 4, 0,
+                0, 4, 0, 143, 
+                64, :guid, 31, 66)
+)");
+		query.bindValue(":guid", guidRandom);
+		query.exec();
+
+		guidRandom = RandomGenerateID(); //Q
+
+		query.prepare(R"(INSERT INTO Channels_Main
+		(ID_USPD, Name, TypeChan, NumChan,
+			NeedShort, NeedMain, NeedDay, NeedMonth,
+			NeedYear, NeedCurrent, NeedEvents,
+			NeedTimeCurr, NeedInfo, NeedPQ, ProtocolMask,
+			WaitMask, RecNum, ID_ValueType, ID_Units)
+			VALUES((SELECT TOP(1)ID_USPD FROM USD order by ID_USPD DESC), 'Реактивная мощность', 'G', 7,
+				0, 0, 0, 0,
+			    0, 4, 0,
+                0, 4, 0, 143, 
+                64, :guid, 32, 89)
+)");
+		query.bindValue(":guid", guidRandom);
+		query.exec();
+
+
+		guidRandom = RandomGenerateID(); //cos
+
+		query.prepare(R"(INSERT INTO Channels_Main
+		(ID_USPD, Name, TypeChan, NumChan,
+			NeedShort, NeedMain, NeedDay, NeedMonth,
+			NeedYear, NeedCurrent, NeedEvents,
+			NeedTimeCurr, NeedInfo, NeedPQ, ProtocolMask,
+			WaitMask, RecNum, ID_ValueType, ID_Units)
+			VALUES((SELECT TOP(1)ID_USPD FROM USD order by ID_USPD DESC), 'Cos(ф)', 'G', 8,
+				0, 0, 0, 0,
+			    0, 4, 0,
+                0, 4, 0, 143, 
+                64, :guid, 0, 0)
+)");
+		query.bindValue(":guid", guidRandom);
+		query.exec();
+
+
+		guidRandom = RandomGenerateID(); //diff I
+
+		query.prepare(R"(INSERT INTO Channels_Main
+		(ID_USPD, Name, TypeChan, NumChan,
+			NeedShort, NeedMain, NeedDay, NeedMonth,
+			NeedYear, NeedCurrent, NeedEvents,
+			NeedTimeCurr, NeedInfo, NeedPQ, ProtocolMask,
+			WaitMask, RecNum, ID_ValueType, ID_Units)
+			VALUES((SELECT TOP(1)ID_USPD FROM USD order by ID_USPD DESC), 'Дифференциальный ток', 'G', 9,
+				0, 0, 0, 0,
+			    0, 4, 0,
+                0, 4, 0, 143, 
+                64, :guid, 11, 45)
+)");
+		query.bindValue(":guid", guidRandom);
+		query.exec();
+
+
+		guidRandom = RandomGenerateID(); //journal
+
+		query.prepare(R"(INSERT INTO Channels_Main
+		(ID_USPD, Name, TypeChan, NumChan,
+			NeedShort, NeedMain, NeedDay, NeedMonth,
+			NeedYear, NeedCurrent, NeedEvents,
+			NeedTimeCurr, NeedInfo, NeedPQ, ProtocolMask,
+			WaitMask, RecNum, ID_ValueType, ID_Units)
+			VALUES((SELECT TOP(1)ID_USPD FROM USD order by ID_USPD DESC), 'Журнал событий электросчетчика', 'J', 1,
+				0, 0, 0, 0,
+			    0, 0, 4,
+                0, 4, 0, 143, 
+                64, :guid, 0, 0)
+)");
+		query.bindValue(":guid", guidRandom);
+		query.exec();
+
+
+		guidRandom = RandomGenerateID(); //Управление реле
+
+		query.prepare(R"(INSERT INTO Channels_Main
+		(ID_USPD, Name, TypeChan, NumChan,
+			NeedShort, NeedMain, NeedDay, NeedMonth,
+			NeedYear, NeedEvents,
+			NeedCurrDiskret, NeedTimeCurr, NeedInfo, NeedPQ, ProtocolMask,
+			WaitMask, RecNum, ID_ValueType, ID_Units)
+			VALUES((SELECT TOP(1)ID_USPD FROM USD order by ID_USPD DESC), 'Управление реле', 'L', 1,
+				0, 0, 0, 0,
+				0, 0,
+				1, 0, 1, 0,
+				143, 64, :guid, 0, 0)
+)");
+		query.bindValue(":guid", guidRandom);
+		query.exec();
+
+
+		temporaryProgressBarPtr->setValue(valueProgressBar);
+		valueProgressBar++;
+	}
+
+	temporaryProgressBarPtr->hide();
+
+	importClass->printMessage("Error: \n" + errorQuery);
+}
+
+
+int DbSqlExport::getRandomNumber(int min, int max)
+{
+	static const double fraction = 1.0 / (static_cast<double>(RAND_MAX) + 1.0);
+	// Равномерно распределяем рандомное число в нашем диапазоне
+	return static_cast<int>(rand() * fraction * (max - min + 1) + min);
+}
+
+
+QString DbSqlExport::genFourSign()
+{
+	QString idString;
+
+	for (int val = 0; val < 4; val++)
+	{
+		int someNumber = 0;
+		if (getRandomNumber(0, 1))
+		{
+			someNumber = getRandomNumber(97, 102);
+		}
+		else
+		{
+			someNumber = getRandomNumber(48, 57);
+		}
+
+		char randomChar = static_cast<char>(someNumber);
+		QChar qch = randomChar;
+		idString += qch;
+	}
+
+	return idString;
+}
+
+
+QString DbSqlExport::RandomGenerateID()
+{
+	QString idString;
+	idString += genFourSign();
+	idString += genFourSign();
+	idString += "-";
+	idString += genFourSign();
+	idString += "-";
+	idString += genFourSign();
+	idString += "-";
+	idString += genFourSign();
+	idString += "-";
+	idString += genFourSign();
+	idString += genFourSign();
+	idString += genFourSign();
+	return idString;
 }

@@ -95,7 +95,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
@@ -103,6 +103,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Import80020CLass.cpp" />
+    <ClCompile Include="importConsoleAdministrator.cpp" />
     <ClCompile Include="importTreeObjectClass.cpp" />
     <ClCompile Include="ParamSmtp.cpp" />
     <ClCompile Include="SMTP.cpp" />
@@ -112,6 +113,7 @@
     <ClCompile Include="DbSqlExport.cpp" />
     <ClCompile Include="main.cpp" />
     <QtUic Include="Import80020CLass.ui" />
+    <QtUic Include="importConsoleAdministrator.ui" />
     <QtUic Include="importTreeObjectClass.ui" />
     <QtUic Include="ParamSmtp.ui" />
   </ItemGroup>
@@ -124,6 +126,7 @@
     <QtMoc Include="importTreeObjectClass.h" />
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="importConsoleAdministrator.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
