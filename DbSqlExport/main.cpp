@@ -11,5 +11,8 @@ int main(int argc, char *argv[])
     w.setWindowIcon(QIcon(QCoreApplication::applicationDirPath() + "\\icon.png"));
     w.show();
 
+
+    QString serial = "241100010549480";
+    qDebug() << serial.sliced(11).toInt() + 16;
     return a.exec();
 }

@@ -1846,14 +1846,26 @@ void DbSqlExport::processWriteInConsoleAdministrator(QString any)
 
 	importClass->printMessage("Count of import object was = " + QString::number(bufferForSerialIdOrGuid.length()));
 
-
 	for (auto& val : bufferForSerialIdOrGuid)
 	{
-		query.prepare(R"(INSERT INTO USD (ID_Scanner, Name, NumUSD, IsWorking, TypeCommun, Speed, TypeUSD, ShortLen, MainLen, TO_FIrstByte, TO_Byte, UserPsw, URL, ExactTime, WordLen, StopBits, Parity, Time_Bias, 
+		if (any == "M2M-1")
+		{
+			query.prepare(R"(INSERT INTO USD (ID_Scanner, Name, NumUSD, IsWorking, TypeCommun, Speed, TypeUSD, ShortLen, MainLen, TO_FIrstByte, TO_Byte, UserPsw, URL, ExactTime, WordLen, StopBits, Parity, Time_Bias, 
 			SuppressEcho, LenLink, LenASDU, LenObjAdr, LenReason, Regim, TypeProt, Flow, TariffExc, ID_Type, ID_TypeCommun)
 			VALUES(1, :name, 16, 0, 'Raw TCP   ', 9600, :type, 3, 30, 50000, 1000, '?8;43?;1', :ipPort,
 			0, 8, 1, 0, 0, 0, 1, 2, 3, 2, 0, 0, 0, 0, 1151, 8)
 )");
+		}
+
+		if (any == "МИЛУР-107 СПОДЭС")
+		{
+			query.prepare(R"(INSERT INTO USD (ID_Scanner, Name, NumUSD, IsWorking, TypeCommun, Speed, TypeUSD, ShortLen, MainLen, TO_FIrstByte, TO_Byte, UserPsw, URL, ExactTime, WordLen, StopBits, Parity, Time_Bias, 
+			SuppressEcho, LenLink, LenASDU, LenObjAdr, LenReason, Regim, TypeProt, Flow, TariffExc, ID_Type, ID_TypeCommun)
+			VALUES(1, :name, :serial, 0, 'Raw TCP   ', 9600, :type, 3, 30, 50000, 1000, '>=236<:31-;1?1)!', :ipPort,
+			0, 8, 1, 0, 0, 0, 1, 2, 3, 2, 0, 0, 0, 0, 1119, 8)
+)");
+			query.bindValue(":serial", (val.first.sliced(11).toInt() + 16));
+		}
 
 		query.bindValue(":type", any);
 		query.bindValue(":name", val.first);
