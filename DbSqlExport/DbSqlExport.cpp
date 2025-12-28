@@ -301,6 +301,8 @@ void DbSqlExport::queryDbResult(QString any)
 
 		if (!query.exec() || !query.next())
 		{
+			day = "";
+			return;
 		}
 		else
 			day = query.value(0).toString();
@@ -319,6 +321,7 @@ void DbSqlExport::queryDbResult(QString any)
 
 		if (!query.exec() || !query.next())
 		{
+			night = "0";
 		}
 		else
 			night = query.value(0).toString();
