@@ -1851,19 +1851,30 @@ void DbSqlExport::processWriteInConsoleAdministrator(QString any)
 
 	for (auto& val : bufferForSerialIdOrGuid)
 	{
+
 		if (any == "M2M-1")
 		{
-			query.prepare(R"(INSERT INTO USD (ID_Scanner, Name, NumUSD, TypeCommun, Speed, TypeUSD, ShortLen, MainLen, TO_FirstByte, TO_Byte, UserPsw, AdminPsw, URL, ExactTime, WordLen, StopBits, Parity, Time_Bias, SuppressEcho, 
-LenLink, LenASDU, LenObjAdr, LenReason, Regim, TypeProt, Flow, TariffExc, ID_Type, ID_TypeCommun)
-			VALUES(3, :name, 16, 'Raw TCP   ', 9600, :type, 3, 30, 15000, 1000, '?8;43?;1', '?8;43?;12)>789 !', :ipPort, 0, 8, 1, 0, 0, 0, 1, 2, 3, 2, 0, 0, 0, 0, 1151, 8))");
+			query.prepare(R"(INSERT INTO USD
+        (ID_Scanner, Name, NumUSD, TypeCommun, Speed, TypeUSD, ShortLen, MainLen,
+         TO_FirstByte, TO_Byte, UserPsw, AdminPsw, URL, ExactTime, WordLen, StopBits,
+         Parity, Time_Bias, SuppressEcho, LenLink, LenASDU, LenObjAdr, LenReason,
+         Regim, TypeProt, Flow, TariffExc, ID_Type, ID_TypeCommun)
+        VALUES
+        (3, '?', 16, '?', 9600, '?', 3, 30, 15000, 1000, '?', '?', '?',
+         0, 8, 1, 0, 0, 0, 1, 2, 3, 2, 0, 0, 0, 0, 1151, 8))");
+
+			query.addBindValue(val.first);              // Name
+			query.addBindValue(QString("Raw TCP   "));  // TypeCommun
+			query.addBindValue(any);                    // TypeUSD
+			query.addBindValue(QString("?8;43?;1"));    // UserPsw
+			query.addBindValue(QString("?8;43?;12)>789 !")); // AdminPsw
+			query.addBindValue(val.second);             // URL
 		}
 		else
 		{
-			qDebug() << "\n" << "Incorrect type was selected" << "\n";
+			qDebug() << "\nIncorrect type was selected\n";
 			return;
 		}
-
-
 
 		/*
 		if (any == "МИЛУР-107 СПОДЭС")
@@ -1875,22 +1886,20 @@ LenLink, LenASDU, LenObjAdr, LenReason, Regim, TypeProt, Flow, TariffExc, ID_Typ
 		}
 		*/
 
+		if (!query.exec()) {
+			qDebug() << "\n" << "SQL error:" << query.lastError().text();
+			qDebug() << "\n" << "Driver:" << query.lastError().driverText();
+			qDebug() << "\n" << "Database:" << query.lastError().databaseText();
+			qDebug() << "\n" << "Native code:" << query.lastError().nativeErrorCode();
+			qDebug() << "\n" << "Prepared query:" << query.executedQuery();
 
-		query.bindValue(":type", any);
-		query.bindValue(":name", val.first);
-		query.bindValue(":ipPort", val.second);
-		query.exec();
-
-		if (!query.exec() || query.lastError().isValid())
-		{
-			qDebug() << "exec failed:";
-			qDebug() << query.lastError().text();
-			qDebug() << "driver:" << query.lastError().driverText();
-			qDebug() << "database:" << query.lastError().databaseText();
-			qDebug() << "native code:" << query.lastError().nativeErrorCode();
-
-			return;
+			//return;
 		}
+
+		
+
+
+
 
 		guidRandom = RandomGenerateID(); //A+
 
@@ -1908,7 +1917,7 @@ LenLink, LenASDU, LenObjAdr, LenReason, Regim, TypeProt, Flow, TariffExc, ID_Typ
 )");
 		query.bindValue(":guid", guidRandom);
 		query.exec();
-
+		return;
 
 		query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), 'Активная энергия прямого направления', 0))");
 		query.exec();
