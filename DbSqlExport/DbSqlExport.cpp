@@ -1843,6 +1843,8 @@ void DbSqlExport::processWriteInConsoleAdministrator(QString any)
 	QSqlQuery query;
 	QString guidRandom;
 
+	QString queryString = "";
+
 	QPointer<QProgressBar> temporaryProgressBarPtr(importConsoleObject->getPtrProgressBar());
 
 	int valueProgressBar = 1;
@@ -1852,23 +1854,32 @@ void DbSqlExport::processWriteInConsoleAdministrator(QString any)
 	for (auto& val : bufferForSerialIdOrGuid)
 	{
 
-		if (any == "M2M-1")
+		if (any == "M2M-1" || any == "M2M-3")
 		{
+			/*
+			queryString = QString("INSERT INTO [ProSoft_ASKUE].[dbo].[USD] (ID_Scanner, Name, NumUSD, TypeCommun, Speed, TypeUSD, ShortLen, MainLen, TO_FirstByte, TO_Byte, UserPsw, AdminPsw, URL, ExactTime, WordLen, StopBits, Parity, Time_Bias, SuppressEcho, "
+				"LenLink, LenASDU, LenObjAdr, LenReason, Regim, TypeProt, Flow, TariffExc, ID_Type, ID_TypeCommun) VALUES (3, '%1', 16, 'Raw TCP   ', 9600, '%2', 3, 30, 15000, 1000, '?8;43?;1', '?8;43?;12)>789 !', '%3', 0, 8, 1, 0, 0, 0, 1, 2, 3, 2, 0, 0, 0, 0, 1151, 8)")
+				.arg(val.first)
+				.arg(any)
+				.arg(val.second);
+*/
 			query.prepare(R"(INSERT INTO USD
         (ID_Scanner, Name, NumUSD, TypeCommun, Speed, TypeUSD, ShortLen, MainLen,
          TO_FirstByte, TO_Byte, UserPsw, AdminPsw, URL, ExactTime, WordLen, StopBits,
          Parity, Time_Bias, SuppressEcho, LenLink, LenASDU, LenObjAdr, LenReason,
          Regim, TypeProt, Flow, TariffExc, ID_Type, ID_TypeCommun)
         VALUES
-        (3, '?', 16, '?', 9600, '?', 3, 30, 15000, 1000, '?', '?', '?',
-         0, 8, 1, 0, 0, 0, 1, 2, 3, 2, 0, 0, 0, 0, 1151, 8))");
+        (3, :name, 16, 'Raw TCP   ', 9600, :type, 3, 30, 15000, 1000, '?8;43?;1', '?8;43?;12)>789 !', :ipPort,
+         0, 8, 1, 0, 0, 0, 1, 2, 3, 2, 0, 0, 0, 0, :idForType, 8))");
 
-			query.addBindValue(val.first);              // Name
-			query.addBindValue(QString("Raw TCP   "));  // TypeCommun
-			query.addBindValue(any);                    // TypeUSD
-			query.addBindValue(QString("?8;43?;1"));    // UserPsw
-			query.addBindValue(QString("?8;43?;12)>789 !")); // AdminPsw
-			query.addBindValue(val.second);             // URL
+			query.bindValue(":type", any);
+			query.bindValue(":name", val.first);
+			query.bindValue(":ipPort", val.second);
+
+			if (any == "M2M-1")
+				query.bindValue(":idForType", 1151);
+			else
+				query.bindValue(":idForType", 1152);
 		}
 		else
 		{
@@ -1876,29 +1887,18 @@ void DbSqlExport::processWriteInConsoleAdministrator(QString any)
 			return;
 		}
 
-		/*
-		if (any == "МИЛУР-107 СПОДЭС")
+		if (!query.exec() || query.lastError().isValid())
 		{
-			query.prepare(R"(INSERT INTO USD (ID_Scanner, Name, NumUSD, TypeCommun, Speed, TypeUSD, ShortLen, MainLen, TO_FirstByte, TO_Byte, UserPsw, URL, ExactTime, WordLen, StopBits, Parity, Time_Bias,
-			SuppressEcho, LenLink, LenASDU, LenObjAdr, LenReason, Regim, TypeProt, Flow, TariffExc, ID_Type, ID_TypeCommun)
-			VALUES(3, :name, :serial, 'Raw TCP   ', 9600, :type, 3, 30, 15000, 1000, '>=236<:31-;1?1)!', :ipPort, 0, 8, 1, 0, 0, 0, 1, 2, 3, 2, 0, 0, 0, 0, 1119, 8))");
-			query.bindValue(":serial", (val.first.sliced(11).toInt() + 16));
-		}
-		*/
-
-		if (!query.exec()) {
 			qDebug() << "\n" << "SQL error:" << query.lastError().text();
 			qDebug() << "\n" << "Driver:" << query.lastError().driverText();
 			qDebug() << "\n" << "Database:" << query.lastError().databaseText();
 			qDebug() << "\n" << "Native code:" << query.lastError().nativeErrorCode();
 			qDebug() << "\n" << "Prepared query:" << query.executedQuery();
 
-			//return;
+			return;
 		}
 
-		
-
-
+		return; ///////////////////////
 
 
 		guidRandom = RandomGenerateID(); //A+
@@ -1917,7 +1917,7 @@ void DbSqlExport::processWriteInConsoleAdministrator(QString any)
 )");
 		query.bindValue(":guid", guidRandom);
 		query.exec();
-		return;
+
 
 		query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), 'Активная энергия прямого направления', 0))");
 		query.exec();
@@ -2037,7 +2037,7 @@ void DbSqlExport::processWriteInConsoleAdministrator(QString any)
 
 		tempString = val.first + "\\Журнал событий электросчетчика";
 		query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), :serialName, 1))");
-		query.bindValue(":serialName", guidRandom);
+		query.bindValue(":serialName", tempString);
 		query.exec();
 
 
@@ -2064,7 +2064,7 @@ void DbSqlExport::processWriteInConsoleAdministrator(QString any)
 
 		tempString = val.first + "\\Состояние реле нагрузки";
 		query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), :serialName, 1))");
-		query.bindValue(":serialName", guidRandom);
+		query.bindValue(":serialName", tempString);
 		query.exec();
 
 
@@ -2091,14 +2091,24 @@ void DbSqlExport::processWriteInConsoleAdministrator(QString any)
 
 		tempString = val.first + "\\Управление реле нагрузки";
 		query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), :serialName, 1))");
-		query.bindValue(":serialName", guidRandom);
+		query.bindValue(":serialName", tempString);
 		query.exec();
 
 
-		guidRandom = RandomGenerateID(); //I
 
 
-		query.prepare(R"(INSERT INTO Channels_Main 
+
+
+
+
+
+
+
+		if (any == "M2M-1")
+		{
+			guidRandom = RandomGenerateID(); //I
+
+			query.prepare(R"(INSERT INTO Channels_Main 
 		(ID_USPD, Name, TypeChan, NumChan,
 			NeedShort, NeedMain, NeedDay, NeedMonth,
 			NeedYear, NeedSumm, NeedCurrent, NeedEvents, 
@@ -2110,22 +2120,21 @@ void DbSqlExport::processWriteInConsoleAdministrator(QString any)
 				1, 0, 0, 0,
 				143, 64, :guid, 11, 45)
 )");
-		query.bindValue(":guid", guidRandom);
-		query.exec();
+			query.bindValue(":guid", guidRandom);
+			query.exec();
 
-		query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), 'Ток', 0))");
-		query.exec();
+			query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), 'Ток', 0))");
+			query.exec();
 
-		tempString = val.first + "\\Ток";
-		query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), :serialName, 1))");
-		query.bindValue(":serialName", guidRandom);
-		query.exec();
-
-
-		guidRandom = RandomGenerateID(); //U
+			tempString = val.first + "\\Ток";
+			query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), :serialName, 1))");
+			query.bindValue(":serialName", tempString);
+			query.exec();
 
 
-		query.prepare(R"(INSERT INTO Channels_Main 
+			guidRandom = RandomGenerateID(); //U
+
+			query.prepare(R"(INSERT INTO Channels_Main 
 		(ID_USPD, Name, TypeChan, NumChan,
 			NeedShort, NeedMain, NeedDay, NeedMonth,
 			NeedYear, NeedSumm, NeedCurrent, NeedEvents, 
@@ -2137,31 +2146,428 @@ void DbSqlExport::processWriteInConsoleAdministrator(QString any)
 				1, 0, 0, 0,
 				143, 64, :guid, 10, 42)
 )");
-		query.bindValue(":guid", guidRandom);
-		query.exec();
+			query.bindValue(":guid", guidRandom);
+			query.exec();
 
 
-		query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), 'Напряжение', 0))");
-		query.exec();
+			query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), 'Напряжение', 0))");
+			query.exec();
 
-		tempString = val.first + "\\Напряжение";
-		query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), :serialName, 1))");
-		query.bindValue(":serialName", guidRandom);
-		query.exec();
+			tempString = val.first + "\\Напряжение";
+			query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), :serialName, 1))");
+			query.bindValue(":serialName", tempString);
+			query.exec();
+		}
+		else // M2M-3
+		{
+
+			guidRandom = RandomGenerateID(); //I 1
+
+			query.prepare(R"(INSERT INTO Channels_Main 
+		(ID_USPD, Name, TypeChan, NumChan,
+			NeedShort, NeedMain, NeedDay, NeedMonth,
+			NeedYear, NeedSumm, NeedCurrent, NeedEvents, 
+			NeedCurrDiskret, NeedTimeCurr, NeedInfo, NeedPQ, ProtocolMask,
+			WaitMask, RecNum, ID_ValueType, ID_Units)
+			VALUES((SELECT TOP(1) ID_USPD FROM USD order by ID_USPD DESC), 'Ток по фазе 1', 'G', 1,
+				0, 0, 0, 0,
+				0, 0, 1, 0, 
+				1, 0, 0, 0,
+				143, 64, :guid, 11, 45)
+)");
+			query.bindValue(":guid", guidRandom);
+			query.exec();
+
+			query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), 'Ток по фазе 1', 0))");
+			query.exec();
+
+			tempString = val.first + "\\Ток по фазе 1";
+			query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), :serialName, 1))");
+			query.bindValue(":serialName", tempString);
+			query.exec();
+
+
+
+
+			guidRandom = RandomGenerateID(); //I 2
+
+			query.prepare(R"(INSERT INTO Channels_Main 
+		(ID_USPD, Name, TypeChan, NumChan,
+			NeedShort, NeedMain, NeedDay, NeedMonth,
+			NeedYear, NeedSumm, NeedCurrent, NeedEvents, 
+			NeedCurrDiskret, NeedTimeCurr, NeedInfo, NeedPQ, ProtocolMask,
+			WaitMask, RecNum, ID_ValueType, ID_Units)
+			VALUES((SELECT TOP(1) ID_USPD FROM USD order by ID_USPD DESC), 'Ток по фазе 2', 'G', 2,
+				0, 0, 0, 0,
+				0, 0, 1, 0, 
+				1, 0, 0, 0,
+				143, 64, :guid, 11, 45)
+)");
+			query.bindValue(":guid", guidRandom);
+			query.exec();
+
+			query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), 'Ток по фазе 2', 0))");
+			query.exec();
+
+			tempString = val.first + "\\Ток по фазе 2";
+			query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), :serialName, 1))");
+			query.bindValue(":serialName", tempString);
+			query.exec();
+
+
+
+
+			guidRandom = RandomGenerateID(); //I 3
+
+			query.prepare(R"(INSERT INTO Channels_Main 
+		(ID_USPD, Name, TypeChan, NumChan,
+			NeedShort, NeedMain, NeedDay, NeedMonth,
+			NeedYear, NeedSumm, NeedCurrent, NeedEvents, 
+			NeedCurrDiskret, NeedTimeCurr, NeedInfo, NeedPQ, ProtocolMask,
+			WaitMask, RecNum, ID_ValueType, ID_Units)
+			VALUES((SELECT TOP(1) ID_USPD FROM USD order by ID_USPD DESC), 'Ток по фазе 3', 'G', 3,
+				0, 0, 0, 0,
+				0, 0, 1, 0, 
+				1, 0, 0, 0,
+				143, 64, :guid, 11, 45)
+)");
+			query.bindValue(":guid", guidRandom);
+			query.exec();
+
+			query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), 'Ток по фазе 3', 0))");
+			query.exec();
+
+			tempString = val.first + "\\Ток по фазе 3";
+			query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), :serialName, 1))");
+			query.bindValue(":serialName", tempString);
+			query.exec();
 
 
 
 
 
 
-		query.prepare(R"(INSERT INTO CRQModule (ID_CRQModule, ID_Module) VALUES((SELECT TOP(1) ID_USPD FROM USD order by ID_USPD DESC), (SELECT TOP(1) ID_USPD FROM USD order by ID_USPD DESC)))");
+
+
+			guidRandom = RandomGenerateID(); //U 1
+
+			query.prepare(R"(INSERT INTO Channels_Main 
+		(ID_USPD, Name, TypeChan, NumChan,
+			NeedShort, NeedMain, NeedDay, NeedMonth,
+			NeedYear, NeedSumm, NeedCurrent, NeedEvents, 
+			NeedCurrDiskret, NeedTimeCurr, NeedInfo, NeedPQ, ProtocolMask,
+			WaitMask, RecNum, ID_ValueType, ID_Units)
+			VALUES((SELECT TOP(1) ID_USPD FROM USD order by ID_USPD DESC), 'Напряжение по фазе 1', 'G', 4,
+				0, 0, 0, 0,
+				0, 0, 1, 0, 
+				1, 0, 0, 0,
+				143, 64, :guid, 10, 42)
+)");
+			query.bindValue(":guid", guidRandom);
+			query.exec();
+
+
+			query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), 'Напряжение по фазе 1', 0))");
+			query.exec();
+
+			tempString = val.first + "\\Напряжение по фазе 1";
+			query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), :serialName, 1))");
+			query.bindValue(":serialName", tempString);
+			query.exec();
+
+
+			guidRandom = RandomGenerateID(); //U 2
+
+			query.prepare(R"(INSERT INTO Channels_Main 
+		(ID_USPD, Name, TypeChan, NumChan,
+			NeedShort, NeedMain, NeedDay, NeedMonth,
+			NeedYear, NeedSumm, NeedCurrent, NeedEvents, 
+			NeedCurrDiskret, NeedTimeCurr, NeedInfo, NeedPQ, ProtocolMask,
+			WaitMask, RecNum, ID_ValueType, ID_Units)
+			VALUES((SELECT TOP(1) ID_USPD FROM USD order by ID_USPD DESC), 'Напряжение по фазе 2', 'G', 5,
+				0, 0, 0, 0,
+				0, 0, 1, 0, 
+				1, 0, 0, 0,
+				143, 64, :guid, 10, 42)
+)");
+			query.bindValue(":guid", guidRandom);
+			query.exec();
+
+
+			query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), 'Напряжение по фазе 2', 0))");
+			query.exec();
+
+			tempString = val.first + "\\Напряжение по фазе 2";
+			query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), :serialName, 1))");
+			query.bindValue(":serialName", tempString);
+			query.exec();
+
+
+
+			guidRandom = RandomGenerateID(); //U 3
+
+			query.prepare(R"(INSERT INTO Channels_Main 
+		(ID_USPD, Name, TypeChan, NumChan,
+			NeedShort, NeedMain, NeedDay, NeedMonth,
+			NeedYear, NeedSumm, NeedCurrent, NeedEvents, 
+			NeedCurrDiskret, NeedTimeCurr, NeedInfo, NeedPQ, ProtocolMask,
+			WaitMask, RecNum, ID_ValueType, ID_Units)
+			VALUES((SELECT TOP(1) ID_USPD FROM USD order by ID_USPD DESC), 'Напряжение по фазе 3', 'G', 6,
+				0, 0, 0, 0,
+				0, 0, 1, 0, 
+				1, 0, 0, 0,
+				143, 64, :guid, 10, 42)
+)");
+			query.bindValue(":guid", guidRandom);
+			query.exec();
+
+
+			query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), 'Напряжение', 0))");
+			query.exec();
+
+			tempString = val.first + "\\Напряжение по фазе 3";
+			query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), :serialName, 1))");
+			query.bindValue(":serialName", tempString);
+			query.exec();
+
+
+
+
+
+
+
+
+
+
+
+			guidRandom = RandomGenerateID(); //cos SUMM
+
+			query.prepare(R"(INSERT INTO Channels_Main 
+		(ID_USPD, Name, TypeChan, NumChan,
+			NeedShort, NeedMain, NeedDay, NeedMonth,
+			NeedYear, NeedSumm, NeedCurrent, NeedEvents, 
+			NeedCurrDiskret, NeedTimeCurr, NeedInfo, NeedPQ, ProtocolMask,
+			WaitMask, RecNum, ID_ValueType, ID_Units)
+			VALUES((SELECT TOP(1) ID_USPD FROM USD order by ID_USPD DESC), 'Cos(ф) по сумме фаз', 'G', 11,
+				0, 0, 0, 0,
+				0, 0, 1, 0, 
+				1, 0, 0, 0,
+				143, 64, :guid, 0, 0)
+)");
+			query.bindValue(":guid", guidRandom);
+			query.exec();
+
+
+			query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), 'Cos(ф) по сумме фаз', 'G', 0))");
+			query.exec();
+
+			tempString = val.first + "\\Cos(ф) по сумме фаз";
+			query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), :serialName, 1))");
+			query.bindValue(":serialName", tempString);
+			query.exec();
+
+
+			guidRandom = RandomGenerateID(); //cos 1
+
+			query.prepare(R"(INSERT INTO Channels_Main 
+		(ID_USPD, Name, TypeChan, NumChan,
+			NeedShort, NeedMain, NeedDay, NeedMonth,
+			NeedYear, NeedSumm, NeedCurrent, NeedEvents, 
+			NeedCurrDiskret, NeedTimeCurr, NeedInfo, NeedPQ, ProtocolMask,
+			WaitMask, RecNum, ID_ValueType, ID_Units)
+			VALUES((SELECT TOP(1) ID_USPD FROM USD order by ID_USPD DESC), 'Cos(ф) по фазе 1', 'G', 12,
+				0, 0, 0, 0,
+				0, 0, 1, 0, 
+				1, 0, 0, 0,
+				143, 64, :guid, 0, 0)
+)");
+			query.bindValue(":guid", guidRandom);
+			query.exec();
+
+
+			query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), 'Cos(ф) по фазе 1', 0))");
+			query.exec();
+
+			tempString = val.first + "\\Cos(ф) по фазе 1";
+			query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), :serialName, 1))");
+			query.bindValue(":serialName", tempString);
+			query.exec();
+
+
+
+			guidRandom = RandomGenerateID(); //cos 2
+
+			query.prepare(R"(INSERT INTO Channels_Main 
+		(ID_USPD, Name, TypeChan, NumChan,
+			NeedShort, NeedMain, NeedDay, NeedMonth,
+			NeedYear, NeedSumm, NeedCurrent, NeedEvents, 
+			NeedCurrDiskret, NeedTimeCurr, NeedInfo, NeedPQ, ProtocolMask,
+			WaitMask, RecNum, ID_ValueType, ID_Units)
+			VALUES((SELECT TOP(1) ID_USPD FROM USD order by ID_USPD DESC), 'Cos(ф) по фазе 2', 'G', 13,
+				0, 0, 0, 0,
+				0, 0, 1, 0, 
+				1, 0, 0, 0,
+				143, 64, :guid, 0, 0)
+)");
+			query.bindValue(":guid", guidRandom);
+			query.exec();
+
+
+			query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), 'Cos(ф) по фазе 2', 0))");
+			query.exec();
+
+			tempString = val.first + "\\Cos(ф) по фазе 2";
+			query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), :serialName, 1))");
+			query.bindValue(":serialName", tempString);
+			query.exec();
+
+
+
+
+			guidRandom = RandomGenerateID(); //cos 3
+
+			query.prepare(R"(INSERT INTO Channels_Main 
+		(ID_USPD, Name, TypeChan, NumChan,
+			NeedShort, NeedMain, NeedDay, NeedMonth,
+			NeedYear, NeedSumm, NeedCurrent, NeedEvents, 
+			NeedCurrDiskret, NeedTimeCurr, NeedInfo, NeedPQ, ProtocolMask,
+			WaitMask, RecNum, ID_ValueType, ID_Units)
+			VALUES((SELECT TOP(1) ID_USPD FROM USD order by ID_USPD DESC), 'Cos(ф) по фазе 3', 'G', 14,
+				0, 0, 0, 0,
+				0, 0, 1, 0, 
+				1, 0, 0, 0,
+				143, 64, :guid, 0, 0)
+)");
+			query.bindValue(":guid", guidRandom);
+			query.exec();
+
+
+			query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), 'Cos(ф) по фазе 3', 0))");
+			query.exec();
+
+			tempString = val.first + "\\Cos(ф) по фазе 3";
+			query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), :serialName, 1))");
+			query.bindValue(":serialName", tempString);
+			query.exec();
+
+		}
+
+		query.prepare(R"(INSERT INTO CRQModule (ID_CRQModule, ID_Module) VALUES(((SELECT TOP(1) ID_USPD FROM USD order by ID_USPD DESC) - 1), (SELECT TOP(1) ID_USPD FROM USD order by ID_USPD DESC) - 1))");
 		query.exec();
 
 		query.prepare(R"(INSERT INTO USDMaxModule (ID_USPD, MaxModule) VALUES((SELECT TOP(1) ID_USPD FROM USD order by ID_USPD DESC), 0))");
 		query.exec();
 
-		if (any == "M2M-1")
-			query.prepare(R"(INSERT INTO Modules (ID_Module, ID_Type, ID_USPD, ModuleName) VALUES((SELECT TOP(1) ID_USPD FROM USD order by ID_USPD DESC), 1151, (SELECT TOP(1) ID_USPD FROM USD order by ID_USPD DESC), :name))");
+
+
+		guidRandom = RandomGenerateID(); //U 1-2
+
+		query.prepare(R"(INSERT INTO Channels_Main 
+		(ID_USPD, Name, TypeChan, NumChan,
+			NeedShort, NeedMain, NeedDay, NeedMonth,
+			NeedYear, NeedSumm, NeedCurrent, NeedEvents, 
+			NeedCurrDiskret, NeedTimeCurr, NeedInfo, NeedPQ, ProtocolMask,
+			WaitMask, RecNum, ID_ValueType, ID_Units)
+			VALUES((SELECT TOP(1) ID_USPD FROM USD order by ID_USPD DESC), 'Напряжение между фазами 1-2', 'G', 24,
+				0, 0, 0, 0,
+				0, 0, 1, 0, 
+				1, 0, 0, 0,
+				143, 64, :guid, 10, 42)
+)");
+		query.bindValue(":guid", guidRandom);
+		query.exec();
+
+
+		query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), 'Напряжение между фазами 1-2', 0))");
+		query.exec();
+
+		tempString = val.first + "\\Напряжение между фазами 1-2";
+		query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), :serialName, 1))");
+		query.bindValue(":serialName", tempString);
+		query.exec();
+
+
+		guidRandom = RandomGenerateID(); //U 2-3
+
+		query.prepare(R"(INSERT INTO Channels_Main 
+		(ID_USPD, Name, TypeChan, NumChan,
+			NeedShort, NeedMain, NeedDay, NeedMonth,
+			NeedYear, NeedSumm, NeedCurrent, NeedEvents, 
+			NeedCurrDiskret, NeedTimeCurr, NeedInfo, NeedPQ, ProtocolMask,
+			WaitMask, RecNum, ID_ValueType, ID_Units)
+			VALUES((SELECT TOP(1) ID_USPD FROM USD order by ID_USPD DESC), 'Напряжение между фазами 2-3', 'G', 25,
+				0, 0, 0, 0,
+				0, 0, 1, 0, 
+				1, 0, 0, 0,
+				143, 64, :guid, 10, 42)
+)");
+		query.bindValue(":guid", guidRandom);
+		query.exec();
+
+
+		query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), 'Напряжение между фазами 2-3', 0))");
+		query.exec();
+
+		tempString = val.first + "\\Напряжение между фазами 2-3";
+		query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), :serialName, 1))");
+		query.bindValue(":serialName", tempString);
+		query.exec();
+
+
+
+		guidRandom = RandomGenerateID(); //U 3-1
+
+		query.prepare(R"(INSERT INTO Channels_Main 
+		(ID_USPD, Name, TypeChan, NumChan,
+			NeedShort, NeedMain, NeedDay, NeedMonth,
+			NeedYear, NeedSumm, NeedCurrent, NeedEvents, 
+			NeedCurrDiskret, NeedTimeCurr, NeedInfo, NeedPQ, ProtocolMask,
+			WaitMask, RecNum, ID_ValueType, ID_Units)
+			VALUES((SELECT TOP(1) ID_USPD FROM USD order by ID_USPD DESC), 'Напряжение между фазами 3-1', 'G', 26,
+				0, 0, 0, 0,
+				0, 0, 1, 0, 
+				1, 0, 0, 0,
+				143, 64, :guid, 10, 42)
+)");
+		query.bindValue(":guid", guidRandom);
+		query.exec();
+
+
+		query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), 'Напряжение между фазами 3-1', 0))");
+		query.exec();
+
+		tempString = val.first + "\\Напряжение между фазами 3-1";
+		query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), :serialName, 1))");
+		query.bindValue(":serialName", tempString);
+		query.exec();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		if (any == "M2M-1" || any == "M2M-3")
+		{
+			if (any == "M2M-1")
+				query.prepare(R"(INSERT INTO Modules (ID_Module, ID_Type, ID_USPD, ModuleName) VALUES(((SELECT TOP(1) ID_USPD FROM USD order by ID_USPD DESC) - 1), 1151, (SELECT TOP(1) ID_USPD FROM USD order by ID_USPD DESC), :name))");
+			else
+				query.prepare(R"(INSERT INTO Modules (ID_Module, ID_Type, ID_USPD, ModuleName) VALUES(((SELECT TOP(1) ID_USPD FROM USD order by ID_USPD DESC) - 1), 1152, (SELECT TOP(1) ID_USPD FROM USD order by ID_USPD DESC), :name))");
+		}
 
 		query.bindValue(":name", val.first);
 		query.exec();

@@ -18,7 +18,7 @@ importConsoleAdministrator::importConsoleAdministrator(QWidget *parent)
 void importConsoleAdministrator::setTypeMeters()
 {
 	ui.listWidget->addItem(u8"M2M-1");
-	ui.listWidget->addItem(u8"ÌÈËÓÐ-107 ÑÏÎÄÝÑ");
+	ui.listWidget->addItem(u8"M2M-3");
 }
 
 
