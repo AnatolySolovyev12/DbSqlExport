@@ -1729,7 +1729,6 @@ void DbSqlExport::importConsoleAdministratorFunc()
 			}
 
 		} while (listDonor <= 0 || (listDonor > (sheetsDonor->property("Count").toInt())));
-
 	}
 
 	QSharedPointer<QAxObject>sheetDonor(sheetsDonor->querySubObject("Item(int)", listDonor));
@@ -1855,6 +1854,8 @@ void DbSqlExport::processWriteInConsoleAdministrator(QString any)
 	{
 		qDebug() << "\n\n" << QString::number(valueProgressBar) + "/" + QString::number(bufferForSerialIdOrGuid.length()) << "\n\n";
 
+		// Создаём запись в консоли
+
 		if (any == "M2M-1" || any == "M2M-3")
 		{
 			query.prepare(R"(INSERT INTO USD
@@ -1914,8 +1915,7 @@ void DbSqlExport::processWriteInConsoleAdministrator(QString any)
 			return;
 		}
 
-		//return; ///////////////////////
-
+		// Создаём ключевые каналы
 
 		guidRandom = RandomGenerateID(); //A+
 
@@ -2017,6 +2017,8 @@ void DbSqlExport::processWriteInConsoleAdministrator(QString any)
 		query.bindValue(":serialName", guidRandom);
 		query.exec();
 
+		// Делаем каналы журнала
+
 		guidRandom = RandomGenerateID(); //journal - NeedCurrent временно 0 для выключения со старта считывания журналов событий
 
 		query.prepare(R"(INSERT INTO Channels_Main
@@ -2042,9 +2044,7 @@ void DbSqlExport::processWriteInConsoleAdministrator(QString any)
 		query.bindValue(":serialName", tempString);
 		query.exec();
 
-
-
-
+		// Каналы с реле для тех где это актуально (и не только)
 
 		if (any == "M2M-1" || any == "M2M-3" || any == "МИР С-04" || any == "МИР С-05")
 		{
@@ -2103,8 +2103,6 @@ void DbSqlExport::processWriteInConsoleAdministrator(QString any)
 			query.bindValue(":serialName", tempString);
 			query.exec();
 
-
-
 			guidRandom = RandomGenerateID(); //Управление реле
 
 			query.prepare(R"(INSERT INTO Channels_Main 
@@ -2147,12 +2145,7 @@ void DbSqlExport::processWriteInConsoleAdministrator(QString any)
 			query.exec();
 		}
 
-
-
-
-
-
-
+		// Каналы с параметрами сети для однофазных счётчиков
 
 		if (any == "M2M-1" || any == "МИР С-05")
 		{
@@ -2185,7 +2178,6 @@ void DbSqlExport::processWriteInConsoleAdministrator(QString any)
 			query.bindValue(":serialName", tempString);
 			query.exec();
 
-
 			guidRandom = RandomGenerateID(); //U
 
 			query.prepare(R"(INSERT INTO Channels_Main 
@@ -2207,7 +2199,6 @@ void DbSqlExport::processWriteInConsoleAdministrator(QString any)
 			query.bindValue(":guid", guidRandom);
 			query.exec();
 
-
 			query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), 'Напряжение', 0))");
 			query.exec();
 
@@ -2217,13 +2208,10 @@ void DbSqlExport::processWriteInConsoleAdministrator(QString any)
 			query.exec();
 		}
 
-
-
-
+		// Каналы с параметрами сети для трехфазных счётчиков
 
 		if (any == "M2M-3" || any == "МИР С-04" || any == "МИР С-07")
 		{
-
 			guidRandom = RandomGenerateID(); //I 1
 
 			query.prepare(R"(INSERT INTO Channels_Main 
@@ -2252,9 +2240,6 @@ void DbSqlExport::processWriteInConsoleAdministrator(QString any)
 			query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), :serialName, 1))");
 			query.bindValue(":serialName", tempString);
 			query.exec();
-
-
-
 
 			guidRandom = RandomGenerateID(); //I 2
 
@@ -2285,9 +2270,6 @@ void DbSqlExport::processWriteInConsoleAdministrator(QString any)
 			query.bindValue(":serialName", tempString);
 			query.exec();
 
-
-
-
 			guidRandom = RandomGenerateID(); //I 3
 
 			query.prepare(R"(INSERT INTO Channels_Main 
@@ -2317,9 +2299,6 @@ void DbSqlExport::processWriteInConsoleAdministrator(QString any)
 			query.bindValue(":serialName", tempString);
 			query.exec();
 
-
-
-
 			guidRandom = RandomGenerateID(); //U 1
 
 			query.prepare(R"(INSERT INTO Channels_Main 
@@ -2341,7 +2320,6 @@ void DbSqlExport::processWriteInConsoleAdministrator(QString any)
 
 			query.exec();
 
-
 			query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), 'Напряжение по фазе 1', 0))");
 			query.exec();
 
@@ -2349,7 +2327,6 @@ void DbSqlExport::processWriteInConsoleAdministrator(QString any)
 			query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), :serialName, 1))");
 			query.bindValue(":serialName", tempString);
 			query.exec();
-
 
 			guidRandom = RandomGenerateID(); //U 2
 
@@ -2380,8 +2357,6 @@ void DbSqlExport::processWriteInConsoleAdministrator(QString any)
 			query.bindValue(":serialName", tempString);
 			query.exec();
 
-
-
 			guidRandom = RandomGenerateID(); //U 3
 
 			query.prepare(R"(INSERT INTO Channels_Main 
@@ -2410,8 +2385,6 @@ void DbSqlExport::processWriteInConsoleAdministrator(QString any)
 			query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), :serialName, 1))");
 			query.bindValue(":serialName", tempString);
 			query.exec();
-
-
 
 			guidRandom = RandomGenerateID(); //cos SUMM
 
@@ -2442,7 +2415,6 @@ void DbSqlExport::processWriteInConsoleAdministrator(QString any)
 			query.bindValue(":serialName", tempString);
 			query.exec();
 
-
 			guidRandom = RandomGenerateID(); //cos 1
 
 			query.prepare(R"(INSERT INTO Channels_Main 
@@ -2471,8 +2443,6 @@ void DbSqlExport::processWriteInConsoleAdministrator(QString any)
 			query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), :serialName, 1))");
 			query.bindValue(":serialName", tempString);
 			query.exec();
-
-
 
 			guidRandom = RandomGenerateID(); //cos 2
 
@@ -2503,9 +2473,6 @@ void DbSqlExport::processWriteInConsoleAdministrator(QString any)
 			query.bindValue(":serialName", tempString);
 			query.exec();
 
-
-
-
 			guidRandom = RandomGenerateID(); //cos 3
 
 			query.prepare(R"(INSERT INTO Channels_Main 
@@ -2534,10 +2501,6 @@ void DbSqlExport::processWriteInConsoleAdministrator(QString any)
 			query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), :serialName, 1))");
 			query.bindValue(":serialName", tempString);
 			query.exec();
-
-
-
-
 
 			guidRandom = RandomGenerateID(); //U 1-2
 
@@ -2568,7 +2531,6 @@ void DbSqlExport::processWriteInConsoleAdministrator(QString any)
 			query.bindValue(":serialName", tempString);
 			query.exec();
 
-
 			guidRandom = RandomGenerateID(); //U 2-3
 
 			query.prepare(R"(INSERT INTO Channels_Main 
@@ -2598,8 +2560,6 @@ void DbSqlExport::processWriteInConsoleAdministrator(QString any)
 			query.bindValue(":serialName", tempString);
 			query.exec();
 
-
-
 			guidRandom = RandomGenerateID(); //U 3-1
 
 			query.prepare(R"(INSERT INTO Channels_Main 
@@ -2628,9 +2588,9 @@ void DbSqlExport::processWriteInConsoleAdministrator(QString any)
 			query.prepare(R"(INSERT INTO ChannelsAsEventSources (ID_Channel, ExtName, NameKind) VALUES( (SELECT TOP (1) ID_Channel FROM ChannelsAsEventSources order by ID_Channel), :serialName, 1))");
 			query.bindValue(":serialName", tempString);
 			query.exec();
-
 		}
 
+		// Каналы для CRQ и каких то модулей
 
 		query.prepare(R"(INSERT INTO CRQModule (ID_CRQModule, ID_Module) VALUES(((SELECT TOP(1) ID_USPD FROM USD order by ID_USPD DESC) - 1), (SELECT TOP(1) ID_USPD FROM USD order by ID_USPD DESC) - 1))");
 		query.exec();
@@ -2638,7 +2598,7 @@ void DbSqlExport::processWriteInConsoleAdministrator(QString any)
 		query.prepare(R"(INSERT INTO USDMaxModule (ID_USPD, MaxModule) VALUES((SELECT TOP(1) ID_USPD FROM USD order by ID_USPD DESC), 0))");
 		query.exec();
 
-
+		// Канал для еще одних каких то модулей
 
 		if (any == "M2M-1")
 			query.prepare(R"(INSERT INTO Modules (ID_Module, ID_Type, ID_USPD, ModuleName) VALUES(((SELECT TOP(1) ID_USPD FROM USD order by ID_USPD DESC) - 1), 1151, (SELECT TOP(1) ID_USPD FROM USD order by ID_USPD DESC), :name))");
@@ -2651,15 +2611,8 @@ void DbSqlExport::processWriteInConsoleAdministrator(QString any)
 		else if (any == "МИР С-07")
 			query.prepare(R"(INSERT INTO Modules (ID_Module, ID_Type, ID_USPD, ModuleName) VALUES(((SELECT TOP(1) ID_USPD FROM USD order by ID_USPD DESC) - 1), 575, (SELECT TOP(1) ID_USPD FROM USD order by ID_USPD DESC), :name))");
 
-
 		query.bindValue(":name", val.first);
 		query.exec();
-
-
-
-
-
-
 
 		temporaryProgressBarPtr->setValue(valueProgressBar);
 		valueProgressBar++;
