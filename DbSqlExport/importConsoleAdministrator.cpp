@@ -19,6 +19,9 @@ void importConsoleAdministrator::setTypeMeters()
 {
 	ui.listWidget->addItem(u8"M2M-1");
 	ui.listWidget->addItem(u8"M2M-3");
+	ui.listWidget->addItem(u8"ָּ׀ ׁ-04");
+	ui.listWidget->addItem(u8"ָּ׀ ׁ-05");
+	ui.listWidget->addItem(u8"ָּ׀ ׁ-07");
 }
 
 
