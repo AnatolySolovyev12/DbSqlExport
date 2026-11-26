@@ -1,4 +1,4 @@
-#include "importConsoleAdministrator.h"
+Ôªø#include "importConsoleAdministrator.h"
 
 importConsoleAdministrator::importConsoleAdministrator(QWidget *parent)
 	: QMainWindow(parent)
@@ -19,9 +19,9 @@ void importConsoleAdministrator::setTypeMeters()
 {
 	ui.listWidget->addItem(u8"M2M-1");
 	ui.listWidget->addItem(u8"M2M-3");
-	ui.listWidget->addItem(u8"Ã»– —-04");
-	ui.listWidget->addItem(u8"Ã»– —-05");
-	ui.listWidget->addItem(u8"Ã»– —-07");
+	ui.listWidget->addItem(u8"–ú–ò–† –°-04");
+	ui.listWidget->addItem(u8"–ú–ò–† –°-05");
+	ui.listWidget->addItem(u8"–ú–ò–† –°-07");
 }
 
 

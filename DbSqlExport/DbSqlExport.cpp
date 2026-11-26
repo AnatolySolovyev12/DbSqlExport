@@ -2046,7 +2046,7 @@ void DbSqlExport::processWriteInConsoleAdministrator(QString any)
 
 
 
-		if (any == "M2M-1" || any == "M2M-3" || any == "МИР С-04")
+		if (any == "M2M-1" || any == "M2M-3" || any == "МИР С-04" || any == "МИР С-05")
 		{
 			guidRandom = RandomGenerateID(); //Состояние реле
 
